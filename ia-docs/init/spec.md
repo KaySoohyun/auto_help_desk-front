@@ -291,7 +291,7 @@ src/
     globals.css
     themes.css
 
-middleware.ts
+proxy.ts        # ex middleware.ts (Next 16)
 ```
 
 ---
@@ -350,9 +350,9 @@ Para mantener consistencia y seguridad:
 
 ---
 
-## 2.6 Middleware de Next.js
+## 2.6 Proxy de Next.js (ex Middleware)
 
-El middleware debe ser liviano y no tomar decisiones finales de autorización.
+El proxy (archivo `proxy.ts`, renombrado desde `middleware.ts` en Next 16) debe ser liviano y no tomar decisiones finales de autorización.
 
 ### Responsabilidades
 - Detectar si existe sesión activa.
@@ -390,7 +390,7 @@ El middleware debe ser liviano y no tomar decisiones finales de autorización.
   - HttpOnly
   - Secure
   - SameSite=Strict
-  - Path limitado a `/api/bff/auth/refresh`
+  - Path=/ (nota: necesario para que `/api/bff/me` pueda hacer refresh automático; mitigado por SameSite=Strict)
 - `csrf_token`
   - Puede ser legible por JS si se usa doble submit.
   - Nunca debe ser sensible como un token de sesión.

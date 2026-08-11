@@ -1,0 +1,49 @@
+@theme {
+  /* Base (ver ia-docs/desing/colors.md) */
+  --color-bark-950: #101613;
+  --color-bark-900: #161f1a;
+  --color-bark-800: #1e2923;
+  --color-bark-700: #29342d;
+  --color-bark-300: #97a29b;
+  --color-cream: #efeae1;
+  --color-caramel-300: #e5bc90;
+  --color-caramel-400: #daa97a;
+  --color-caramel-500: #d19a66;
+  --color-caramel-600: #bc8450;
+
+  /* Bordes */
+  --color-border: #2c3831;
+
+  /* Estados de ticket */
+  --color-status-open: #6ea8d8;
+  --color-status-pending: #e0b46c;
+  --color-status-waiting: #8b98a5;
+  --color-status-solved: #7fbf8a;
+  --color-status-closed: #6e7a76;
+
+  /* Prioridad */
+  --color-priority-urgent: #e05c5c;
+  --color-priority-high: #d97736;
+  --color-priority-medium: #e0b46c;
+  --color-priority-low: #8b98a5;
+
+  /* SLA */
+  --color-sla-ok: #7fbf8a;
+  --color-sla-at-risk: #e0b46c;
+  --color-sla-breached: #e05c5c;
+
+  /* Riesgo / seguridad */
+  --color-risk-pii: #d97736;
+  --color-risk-injection: #d05c8c;
+  --color-risk-low-confidence: #e0b46c;
+  --color-risk-high-confidence: #7fbf8a;
+  --color-llm: #9d8df1;
+
+  /* Contenido de conversación */
+  --color-content-customer-bg: #1c2421;
+  --color-content-agent-bg: #243039;
+  --color-content-note-bg: #2b2516;
+  --color-content-llm-bg: #241f33;
+  --color-content-llm-border: #9d8df1;
+  --color-content-approved: #7fbf8a;
+}
