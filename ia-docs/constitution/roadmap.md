@@ -1,26 +1,24 @@
-# Roadmap
-
-_Orden y estado de las features. Es la vista de "qué hay hecho, qué toca ahora y qué viene". Cada entrada apunta a su carpeta en `features/`._
+# Roadmap de implementación por fases y etapas
 
 El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
 - **001 · Fundaciones técnicas** — Next.js + TS + Tailwind + shadcn/ui, BFF base, proxy de sesión, login, AppShell. _(Fase 1 · Etapa 1.1 del plan)_
 - **002 · Bandeja y detalle de tickets** — listado, filtros por URL, búsqueda client-side, paginación, selección múltiple (sin bulk), conversation thread, respuestas y acciones de estado/prioridad/asignación/cierre. _(Fase 1 · Etapa 1.2)_ ✅
+- **003 · Dashboard básico** — KPIs, asignados a mí, abiertos, sin asignar, SLA en riesgo. _(Fase 1 · Etapa 1.3)_ ✅
 
 ## Siguiente 🔜
 
 _Próximo a abordar. Idealmente una sola feature "en curso" a la vez._
 
-1. **003 · Dashboard básico** — KPIs, asignados a mí, abiertos, sin asignar, SLA en riesgo. _(Fase 1 · Etapa 1.3)_
+1. **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. _(Fase 2 · Etapa 2.1)_
 
 ## Backlog / ideas 💡
 
 _Sin comprometer ni ordenar del todo. Ideas que respetan la constitución._
 
-- **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. _(Fase 2 · Etapa 2.1)_
-- **005 · Sugerencias de respuesta** — streaming, inserción en composer editable, aceptar/editar/rechazar/regenerar. _(Fase 2 · Etapa 2.2)_
-- **006 · Confianza y seguridad LLM** — confidence, riesgos, PII, prompt injection, bloqueo de apply. _(Fase 2 · Etapa 2.3)_
-- **007 · Feedback y auditoría LLM** — útil/no útil, registro de aceptación/rechazo, límites de uso. _(Fase 2 · Etapa 2.4)_
+- **005 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. _(Fase 2 · Etapa 2.1)_
+- **006 · Sugerencias de respuesta** — streaming, inserción en composer editable, aceptar/editar/rechazar/regenerar. _(Fase 2 · Etapa 2.2)_
+- **007 · Confianza y seguridad LLM** — confidence, riesgos, PII, prompt injection, bloqueo de apply. _(Fase 2 · Etapa 2.3)_
 - **008 · Base de conocimiento** — listado, editor, versionado, permisos e integración con tickets/LLM. _(Fase 3)_
 - **009 · Administración** — usuarios, equipos, roles, SLA, canales, tags, plantillas. _(Fase 4 · Etapas 4.1–4.2)_
 - **010 · Auditoría** — eventos de usuario y LLM, PII, exportaciones. _(Fase 4 · Etapa 4.3)_

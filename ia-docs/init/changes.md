@@ -1,5 +1,15 @@
 # Cambios
 
+## 2026-08-11 — Feature 003 · Dashboard básico completada
+
+- **DashboardPage** (`src/app/app/page.tsx`): página principal en `/app` que muestra KPIs (tickets asignados a mí, abiertos, sin asignar, SLA en riesgo) con grid de cards.
+- **src/components/dashboard/KpiCard.tsx**: componente reusable de tarjeta KPI con título, valor y subtítulo.
+- **src/components/dashboard/DashboardPage.tsx**: página principal con loading (skeleton cards), error state y filtros en URL `?status=&priority=`.
+- **src/components/dashboard/DashboardFilters.tsx**: filtros por `status` y `priority` usando searchParams con Zod.
+- **src/hooks/dashboard/useDashboard.ts**: hook TanStack Query con keys por tenant: `['tenant', tenantId, 'dashboard', filters]`.
+- **src/types/dashboard.types.ts**: tipos `DashboardKpis` y `DashboardFilters`.
+- **Ruta `/app`**: ahora muestra el dashboard completo en lugar del placeholder anterior. Fuera de alcance: LLM, gráficos avanzados, filtros por fecha, modo claro.
+
 ## 2026-08-11 — Feature 002 · Bandeja y detalle de tickets completada
 
 - **Tipos y BFF** (`src/types/ticket.types.ts`, `src/app/api/bff/tickets/...`): `TicketStatus`, `TicketPriority`, `TicketSummary`, `Ticket`, `TicketList`, `TicketMessage`, `TicketListQuery`, `TicketUpdatePayload`, `CreateTicketPayload`. Rutas `GET/POST /api/bff/tickets`, `GET /api/bff/tickets/[ticketId]`, `GET/POST .../messages`, `PATCH .../[ticketId]`, `POST .../close`. Nuevo helper `src/lib/api/authenticated.ts` (fetch autenticado con refresh automático de 1 retry + `apiErrorResponse`) reutilizado por todas las rutas de tickets.

@@ -53,6 +53,7 @@ Detalle completo en `ia-docs/init/arquitecture.md` (§ Estructura del proyecto).
 ## No hagas
 - No instalar dependencias sin avisar.
 - No usar `any` en TypeScript sin justificarlo.
+- El lint no debe devolver ningun warning.
 - No llamar a FastAPI directamente desde el cliente; siempre vía BFF.
 - No guardar tokens en `localStorage` ni exponerlos en URL.
 - No usar `dangerouslySetInnerHTML` salvo necesidad explícita y sanitizada.
