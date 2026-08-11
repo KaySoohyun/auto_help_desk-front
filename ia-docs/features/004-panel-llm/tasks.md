@@ -1,6 +1,6 @@
 # 004 · Panel LLM base — Tasks
 
-Estado: en progreso. Marcar `[ ]` pendiente y `[x]` al completar.
+Estado: completado. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T1 · BFF endpoints
 
@@ -17,9 +17,9 @@ Estado: en progreso. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T3 · Panel lateral UI
 
-- [ ] Crear `src/components/llm/LlmSidebar.tsx` con 3 pestañas: Clasificar, Resumir, Chat.
-- [ ] Cada pestaña tiene input text, botón enviar, disclaimer humano badge, botón Descartar.
-- [ ] Estados: loading (skeleton), error (mensaje + reintentar), vacío.
+- [x] Crear `src/components/llm/LlmSidebar.tsx` con 3 pestañas: Clasificar, Resumir, Chat.
+- [x] Cada pestaña tiene input text, botón enviar, disclaimer humano badge, botón Descartar.
+- [x] Estados: loading (skeleton), error (mensaje + reintentar), vacío.
 - [x] Filtros de PII: truncado a 3000 chars, máscaras básicas en input.
 
 ## T4 · Integración y cierre

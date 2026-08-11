@@ -10,7 +10,7 @@
 - **src/types/dashboard.types.ts**: tipos `DashboardKpis` y `DashboardFilters`.
 - **Ruta `/app`**: ahora muestra el dashboard completo en lugar del placeholder anterior. Fuera de alcance: LLM, gráficos avanzados, filtros por fecha, modo claro.
 
-## 2026-08-12 — Feature 004 · Panel LLM base iniciada
+## 2026-08-12 — Feature 004 · Panel LLM base completada
 
 - **BFF endpoints** (`src/app/api/bff/llm/{classify,summarize,chat}/route.ts`): 3 rutas POST que fetch a FastAPI con auth header, mapeo de errores `ApiError` y headers de rate-limit.
 - **Tipos** (`src/types/llm.types.ts`): `LlmClassifyInput/Output`, `LlmSummarizeInput/Output`, `LlmChatInput/Output` con Zod schemas de validación.

@@ -10,7 +10,7 @@ El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
 _Feature actualmente activa. Una sola feature "en curso" a la vez._
 
-- **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. _(Fase 2 · Etapa 2.1)_
+- **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. ✅ _(Fase 2 · Etapa 2.1)_
 
 ## Backlog / ideas 💡
 
