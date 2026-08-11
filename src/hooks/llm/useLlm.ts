@@ -10,6 +10,12 @@ import type {
   LlmSummarizeOutput,
   LlmChatInput,
   LlmChatOutput,
+  LlmStreamInput,
+  LlmStreamOutput,
+  LlmSuggestInput,
+  LlmSuggestOutput,
+  LlmFeedbackInput,
+  LlmFeedbackOutput,
 } from "@/types/llm.types";
 
 export function useLlm() {
@@ -45,9 +51,42 @@ export function useLlm() {
     },
   });
 
+  const streamMutation = useMutation({
+    mutationKey: ["tenant", tenantId ?? "global", "llm", "stream"],
+    mutationFn: async (vars: LlmStreamInput) => {
+      return await bffFetch<LlmStreamOutput>("/api/bff/llm/stream", {
+        method: "POST",
+        body: JSON.stringify(vars),
+      });
+    },
+  });
+
+  const suggestMutation = useMutation({
+    mutationKey: ["tenant", tenantId ?? "global", "llm", "suggest"],
+    mutationFn: async (vars: LlmSuggestInput) => {
+      return await bffFetch<LlmSuggestOutput>("/api/bff/llm/suggest", {
+        method: "POST",
+        body: JSON.stringify(vars),
+      });
+    },
+  });
+
+  const feedbackMutation = useMutation({
+    mutationKey: ["tenant", tenantId ?? "global", "llm", "feedback"],
+    mutationFn: async (vars: LlmFeedbackInput) => {
+      return await bffFetch<LlmFeedbackOutput>("/api/bff/llm/feedback", {
+        method: "POST",
+        body: JSON.stringify(vars),
+      });
+    },
+  });
+
   return {
     classifyMutation,
     summarizeMutation,
     chatMutation,
+    streamMutation,
+    suggestMutation,
+    feedbackMutation,
   };
 }
