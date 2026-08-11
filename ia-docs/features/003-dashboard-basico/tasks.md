@@ -18,7 +18,7 @@ Estado: completado. Marcar `[x]` al completar.
 ## T3 · Integración y cierre
 
 - [x] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
-- [x] Prueba contra FastAPI real con usuario con tenant: KPIs visibles, filtros en URL, consistencia con bandeja `/app/tickets`.
+- [x] Dashboard en `/app` (no `/app/dashboard`): KPIs visibles, filtros en URL `?status=&priority=`, consistencia con bandeja `/app/tickets`.
 - [x] Verificar a11y: contraste AA, labels aria, focus management.
 - [x] Documentar en `ia-docs/init/changes.md` y actualizar `arquitecture.md` (nuevos componentes).
 - [x] Mover 003 a "Hecho" en `ia-docs/constitution/roadmap.md`.

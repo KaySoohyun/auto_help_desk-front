@@ -1,6 +1,6 @@
 # 003 · Dashboard básico
 
-**Estado:** propuesta
+**Estado:** completado
 
 ## Qué hace
 
@@ -26,7 +26,7 @@ El agente y supervisor necesitan una visión general inmediata de su carga de tr
 
 ## Criterios de aceptación
 
-- [ ] `/app/dashboard` lista KPIs con estados de loading (skeleton), error y empty.
+- [ ] `/app` lista KPIs con estados de loading (skeleton), error y empty.
 - [ ] KPI cards: tickets asignados a mí, abiertos, sin asignar, SLA en riesgo.
 - [ ] Filtros por `status` y `priority` viven en la URL (searchParams) y se parsean con Zod.
 - [ ] Paginación integrada con la bandeja (mismo `limit`/`offset`).
