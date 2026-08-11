@@ -4,23 +4,18 @@ _Orden y estado de las features. Es la vista de "qué hay hecho, qué toca ahora
 
 El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
-## Hecho ✅
-
-_Features completadas, en orden de implementación._
-
-- _(ninguna todavía — el proyecto está en definición/documentación)_
+- **001 · Fundaciones técnicas** — Next.js + TS + Tailwind + shadcn/ui, BFF base, proxy de sesión, login, AppShell. _(Fase 1 · Etapa 1.1 del plan)_
 
 ## Siguiente 🔜
 
-_Lo próximo a abordar. Idealmente una sola feature "en curso" a la vez._
+_Próximo a abordar. Idealmente una sola feature "en curso" a la vez._
 
-1. **001 · Fundaciones técnicas** — Next.js + TS + Tailwind + shadcn/ui, BFF base, middleware de sesión, login, selección de tenant, AppShell. _(Fase 1 · Etapa 1.1 del plan)_
+1. **002 · Bandeja y detalle de tickets** — listado, filtros, búsqueda, paginación, selección múltiple, conversation thread, respuestas y notas internas. _(Fase 1 · Etapa 1.2)_
 
 ## Backlog / ideas 💡
 
 _Sin comprometer ni ordenar del todo. Ideas que respetan la constitución._
 
-- **002 · Bandeja y detalle de tickets** — listado, filtros, búsqueda, paginación, selección múltiple, conversation thread, respuestas y notas internas. _(Fase 1 · Etapa 1.2)_
 - **003 · Dashboard básico** — KPIs, asignados a mí, abiertos, sin asignar, SLA en riesgo. _(Fase 1 · Etapa 1.3)_
 - **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. _(Fase 2 · Etapa 2.1)_
 - **005 · Sugerencias de respuesta** — streaming, inserción en composer editable, aceptar/editar/rechazar/regenerar. _(Fase 2 · Etapa 2.2)_

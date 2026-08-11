@@ -1,5 +1,14 @@
 # Cambios
 
+## 2026-08-11 — Feature 001 · Fundaciones técnicas completada
+
+- **BFF y sesión** (`src/app/api/bff/`): `login`, `refresh`, `logout`, `me` con refresh automático (1 retry) vía FastAPI. Cookies HttpOnly (`access_token` Lax, `refresh_token` Strict). Limpieza de cookies ante refresh fallido. Traducción de errores a `ApiError`.
+- **`src/proxy.ts` (ex `middleware.ts`)**: Next 16 renombró la convención `middleware.ts` → `proxy.ts` (función `proxy`). El archivo está en `src/proxy.ts` (raíz de `src/`, mismo nivel que `app/`). Guard de rutas: `/` y `/app/*` → `/login` sin sesión; `/login` → `/app` con sesión. Nota: el guard es por cookie de sesión (liviano), la autorización real vive en el BFF/backend.
+- **`src/lib/auth/cookies.ts`**: `refresh_token` con `Path=/` (antes `/api/bff/auth`) para permitir refresh automático en `/api/bff/me`. Mitigado por SameSite=Strict + HttpOnly.
+- **Sesión cliente**: `src/stores/session.store.ts` (Zustand) con estados `unauthenticated`/`authenticating`/`authenticated`/`refreshing`/`expired`/`error`; `src/hooks/auth/` (`useMe` + helpers).
+- **UI**: `LoginForm` (RHF + Zod) en `/login`; AppShell (`Sidebar` colapsable, `Topbar` con menú y logout) en `/app` con placeholder de home.
+- **Docs**: actualizadas todas las referencias a `middleware.ts` → `proxy.ts` (AGENTS.md, arquitectura, spec, tech-stack, plan, tasks). Refresh cookie Path documented in spec §2.7.
+
 ## 2026-08-11 — Alineación de documentación con spec/plan
 
 - **AGENTS.md**: corregido stack (de Vite SPA a Next.js App Router + shadcn/ui + Tailwind 4 + TanStack Query + Zustand + RHF/Zod), comandos, estructura de carpetas, convenciones, sección "Datos de la app" y reglas de seguridad/LLM.

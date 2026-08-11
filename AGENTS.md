@@ -35,7 +35,7 @@ src/
   stores/                   # session.store.ts, tenant.store.ts, ui.store.ts, ticket-selection.store.ts
   types/                    # auth, ticket, knowledge, audit, llm
   styles/                   # globals.css, themes.css
-middleware.ts               # protección de rutas y tenant
+proxy.ts                      # protección de rutas y tenant (Next 16: ex middleware.ts)
 ```
 
 Detalle completo en `ia-docs/init/arquitecture.md` (§ Estructura del proyecto).
@@ -58,6 +58,7 @@ Detalle completo en `ia-docs/init/arquitecture.md` (§ Estructura del proyecto).
 - No usar `dangerouslySetInnerHTML` salvo necesidad explícita y sanitizada.
 - No renderizar contenido del cliente como HTML confiable (prevenir XSS y prompt injection).
 - No auto-ejecutar acciones basadas en salida del LLM.
+- No podes salir del directorio actual.
 
 ## Herramientas
 - **Context7**: Usar `context7_resolve-library-id` y `context7_query-docs` para consultar documentación actualizada de cualquier librería o framework antes de implementar.

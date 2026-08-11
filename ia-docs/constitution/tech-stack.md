@@ -15,7 +15,7 @@ _Cómo está construido el proyecto y las reglas que todo el código debe respet
 
 ## Archivos / módulos clave
 
-- `middleware.ts` — protección de rutas y tenant (sesión básica, sin autorización fina).
+- `proxy.ts` (ex `middleware.ts`) — protección de rutas y tenant (sesión básica, sin autorización fina).
 - `src/app/` — rutas del App Router (públicas, tenant, `api/bff/*`).
 - `src/app/api/bff/` — Route Handlers que actúan como BFF hacia FastAPI.
 - `src/components/ui/` — componentes shadcn/ui.

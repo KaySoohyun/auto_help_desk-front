@@ -115,13 +115,13 @@ src/
     globals.css
     themes.css                # tokens de color (ver ia-docs/desing/colors.md)
 
-middleware.ts                 # protección de rutas y tenant (liviano, sin autorización fina)
+proxy.ts                       # protección de rutas y tenant (liviano, sin autorización fina) [Next 16: ex middleware.ts]
 ```
 
 ## Flujo de datos
 
 ```
-Navegador ──► Middleware (sesión/tenant básico)
+Navegador ──► Proxy (sesión/tenant básico) [ex Middleware]
        ──► Route Handler BFF (/api/bff/...)  ── Authorization ──► FastAPI
        ◄── cookies HttpOnly + datos públicos  ◄──── respuesta/error ──
 ```
@@ -301,7 +301,7 @@ Liviano, no decide autorización fina:
 
 ## Seguridad
 
-- Protección por capas: middleware → server guard → BFF → backend. La UI nunca es la única barrera.
+- Protección por capas: proxy (ex middleware) → server guard → BFF → backend. La UI nunca es la única barrera.
 - Tokens solo en cookies HttpOnly; nunca `localStorage` ni URL.
 - PII enmascarada por defecto; revelado con permiso, motivo opcional y auditoría. Copia redactada, desalentar copia de PII.
 - Prevención XSS: escape de React, sin `dangerouslySetInnerHTML` salvo sanitización explícita, CSP estricta, contenido del cliente siempre no confiable.
