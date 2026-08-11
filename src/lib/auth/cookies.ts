@@ -30,7 +30,7 @@ export async function setAuthCookies(
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    path: "/api/bff/auth",
+    path: "/",
     maxAge: REFRESH_MAX_AGE_SECONDS,
   });
 }
