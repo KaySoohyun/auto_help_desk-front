@@ -49,7 +49,7 @@ export interface TicketUpdatePayload {
   status?: TicketStatus;
   priority?: TicketPriority;
   category?: string;
-  assignee_id?: number;
+  assignee_id?: number | null;
 }
 
 export interface CreateTicketPayload {

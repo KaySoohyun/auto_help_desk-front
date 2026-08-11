@@ -32,12 +32,12 @@ Estado: pendiente. Marcar `[x]` al completar.
 
 ## T4 · Detalle `/app/tickets/[ticketId]`
 
-- [ ] `TicketDetail`: metadata (estado, prioridad, categoría, idioma, asignado, fechas) + subject/description.
-- [ ] `TicketThread` + `MessageItem`: mensajes asc, autor, fecha; texto plano.
-- [ ] `MessageComposer`: RHF + Zod, enviar → invalidar mensajes y lista.
-- [ ] `TicketActions`: cambiar estado (PATCH), cambiar prioridad (PATCH), asignar (PATCH assignee_id), cerrar (dialog de confirmación).
-- [ ] Visibilidad de acciones según rol (agent con `responses:edit`/`responses:send`).
-- [ ] Estados loading, error y empty.
+- [x] `TicketDetail`: metadata (estado, prioridad, categoría, idioma, asignado, fechas) + subject/description.
+- [x] `TicketThread` + `MessageItem`: mensajes asc, autor, fecha; texto plano.
+- [x] `MessageComposer`: RHF + Zod, enviar → invalidar mensajes y lista.
+- [x] `TicketActions`: cambiar estado (PATCH), cambiar prioridad (PATCH), asignar (PATCH assignee_id), cerrar (dialog de confirmación).
+- [x] Visibilidad de acciones según rol (agent con `responses:edit`/`responses:send`).
+- [x] Estados loading, error y empty.
 
 ## T5 · Cierre
 
