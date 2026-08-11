@@ -15,10 +15,10 @@ Estado: pendiente. Marcar `[x]` al completar.
 
 ## T2 · Estado y hooks
 
-- [ ] `src/stores/ticket-selection.store.ts`: set de ids, toggle, clear, contador, bulk-ready.
-- [ ] `src/hooks/tickets/useTickets.ts`: query con filtros (TanStack Query, key por tenant).
-- [ ] `src/hooks/tickets/useTicket.ts` y `useMessages.ts`: detalle y mensajes.
-- [ ] `src/hooks/tickets/useSendMessage.ts`, `useUpdateTicket.ts`, `useCloseTicket.ts`, `useCreateTicket.ts`: mutaciones con invalidación.
+- [x] `src/stores/ticket-selection.store.ts`: set de ids, toggle, clear, contador, bulk-ready.
+- [x] `src/hooks/tickets/useTickets.ts`: query con filtros (TanStack Query, key por tenant).
+- [x] `src/hooks/tickets/useTicket.ts` y `useMessages.ts`: detalle y mensajes.
+- [x] `src/hooks/tickets/useSendMessage.ts`, `useUpdateTicket.ts`, `useCloseTicket.ts`, `useCreateTicket.ts`: mutaciones con invalidación.
 
 ## T3 · Bandeja `/app/tickets`
 
