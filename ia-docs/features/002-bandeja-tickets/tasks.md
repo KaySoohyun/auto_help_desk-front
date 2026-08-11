@@ -41,7 +41,7 @@ Estado: pendiente. Marcar `[x]` al completar.
 
 ## T5 · Cierre
 
-- [ ] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde.
-- [ ] Prueba contra FastAPI real con usuario con tenant: listar, filtrar, paginar, detalle, responder, cambiar estado, asignar, cerrar, crear.
-- [ ] Documentar en `ia-docs/init/changes.md` y actualizar `arquitecture.md` (rutas/componentes nuevos).
-- [ ] Mover 002 a "Hecho" en `ia-docs/constitution/roadmap.md`.
+- [x] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde.
+- [x] Prueba contra FastAPI real con usuario con tenant: listar, filtrar, paginar, detalle, responder, cambiar estado, asignar, cerrar, crear.
+- [x] Documentar en `ia-docs/init/changes.md` y actualizar `arquitecture.md` (rutas/componentes nuevos).
+- [x] Mover 002 a "Hecho" en `ia-docs/constitution/roadmap.md`.

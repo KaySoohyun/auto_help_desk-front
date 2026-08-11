@@ -1,5 +1,17 @@
 # Cambios
 
+## 2026-08-11 — Feature 002 · Bandeja y detalle de tickets completada
+
+- **Tipos y BFF** (`src/types/ticket.types.ts`, `src/app/api/bff/tickets/...`): `TicketStatus`, `TicketPriority`, `TicketSummary`, `Ticket`, `TicketList`, `TicketMessage`, `TicketListQuery`, `TicketUpdatePayload`, `CreateTicketPayload`. Rutas `GET/POST /api/bff/tickets`, `GET /api/bff/tickets/[ticketId]`, `GET/POST .../messages`, `PATCH .../[ticketId]`, `POST .../close`. Nuevo helper `src/lib/api/authenticated.ts` (fetch autenticado con refresh automático de 1 retry + `apiErrorResponse`) reutilizado por todas las rutas de tickets.
+- **Hooks TanStack Query** (`src/hooks/tickets/`): `useTickets`, `useTicket`, `useMessages` (keys por tenant) y mutaciones `useSendMessage`, `useUpdateTicket`, `useCloseTicket`, `useCreateTicket` con invalidación de queries.
+- **Selección Zustand**: `src/stores/ticket-selection.store.ts` (toggle/selectMany/clear/setAll). Solo UI, sin bulk actions (el backend no tiene endpoints batch).
+- **Bandeja `/app/tickets`**: filtros por estado/prioridad (selects) y categoría (input debounce) que navegan por URL; búsqueda client-side por asunto (debounce); tabla con badges, selección, antigüedad relativa; paginación con `limit`/`offset` respetando `total`; estados loading (skeleton), error y empty; `CreateTicketDialog` (RHF + Zod).
+- **Detalle `/app/tickets/[ticketId]`**: metadata (estado, prioridad, categoría, idioma, asignado, fechas), subject/description en texto plano, `TicketThread` (mensajes asc, autor, fecha), `MessageComposer` (RHF + Zod, invalida mensajes/detalle/lista), acciones de estado/prioridad (PATCH), asignar/desasignarse (PATCH `assignee_id`), cerrar con dialog de confirmación (`POST close`).
+- **Permisos UI**: `src/lib/permissions.ts` (matriz por rol: `responses:edit`/`responses:send`). agent/supervisor/tenant_admin editan y cierran; platform_admin solo lectura. El backend sigue siendo la autoridad real.
+- **UI components nuevos**: `badge`, `select`, `dialog`, `checkbox`, `textarea`, `alert-dialog` (radix-ui unificado ya instalado, sin nuevas dependencias).
+- **Fix**: `src/types/ticket.types.ts` `assignee_id` acepta `null` (para desasignar). Los `searchParams` se pasan al cliente como objeto plano (URLSearchParams no se serializa Server→Client).
+- **Datos de prueba**: usuario `agente-tickets@example.com` / `claveSegura123` con tenant `tenant-tickets` registrado contra FastAPI; tickets 1–4 con mensajes.
+
 ## 2026-08-11 — Feature 001 · Fundaciones técnicas completada
 
 - **BFF y sesión** (`src/app/api/bff/`): `login`, `refresh`, `logout`, `me` con refresh automático (1 retry) vía FastAPI. Cookies HttpOnly (`access_token` Lax, `refresh_token` Strict). Limpieza de cookies ante refresh fallido. Traducción de errores a `ApiError`.
