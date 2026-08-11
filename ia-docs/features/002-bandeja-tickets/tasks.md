@@ -22,13 +22,13 @@ Estado: pendiente. Marcar `[x]` al completar.
 
 ## T3 · Bandeja `/app/tickets`
 
-- [ ] `TicketsFilters`: status, priority, category desde URL (searchParams con Zod); cambios navegan.
-- [ ] `TicketsTable` + `TicketRow`: subject, badges estado/prioridad, categoría, asignado, antigüedad.
-- [ ] `TicketsPagination`: offset/total, prev/next, respeta URL.
-- [ ] Búsqueda client-side por subject con debounce.
-- [ ] Checkbox de selección múltiple → `ticket-selection.store`.
-- [ ] Estados loading (skeleton), error y empty.
-- [ ] `CreateTicketDialog`: subject, description, category, priority (RHF + Zod).
+- [x] `TicketsFilters`: status, priority, category desde URL (searchParams con Zod); cambios navegan.
+- [x] `TicketsTable` + `TicketRow`: subject, badges estado/prioridad, categoría, asignado, antigüedad.
+- [x] `TicketsPagination`: offset/total, prev/next, respeta URL.
+- [x] Búsqueda client-side por subject con debounce.
+- [x] Checkbox de selección múltiple → `ticket-selection.store`.
+- [x] Estados loading (skeleton), error y empty.
+- [x] `CreateTicketDialog`: subject, description, category, priority (RHF + Zod).
 
 ## T4 · Detalle `/app/tickets/[ticketId]`
 

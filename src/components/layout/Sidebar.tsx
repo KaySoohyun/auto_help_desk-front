@@ -17,7 +17,7 @@ const NAV_SECTIONS = [
     title: "Operación",
     items: [
       { href: "/app", label: "Dashboard", icon: LayoutDashboardIcon, enabled: true },
-      { href: "/app/tickets", label: "Tickets", icon: TicketIcon, enabled: false },
+      { href: "/app/tickets", label: "Tickets", icon: TicketIcon, enabled: true },
       { href: "/app/knowledge", label: "Conocimiento", icon: BookOpenIcon, enabled: false },
     ],
   },
