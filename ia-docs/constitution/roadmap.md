@@ -1,0 +1,35 @@
+# Roadmap
+
+_Orden y estado de las features. Es la vista de "qué hay hecho, qué toca ahora y qué viene". Cada entrada apunta a su carpeta en `features/`._
+
+El detalle de fases y etapas está en `ia-docs/init/plan.md`.
+
+## Hecho ✅
+
+_Features completadas, en orden de implementación._
+
+- _(ninguna todavía — el proyecto está en definición/documentación)_
+
+## Siguiente 🔜
+
+_Lo próximo a abordar. Idealmente una sola feature "en curso" a la vez._
+
+1. **001 · Fundaciones técnicas** — Next.js + TS + Tailwind + shadcn/ui, BFF base, middleware de sesión, login, selección de tenant, AppShell. _(Fase 1 · Etapa 1.1 del plan)_
+
+## Backlog / ideas 💡
+
+_Sin comprometer ni ordenar del todo. Ideas que respetan la constitución._
+
+- **002 · Bandeja y detalle de tickets** — listado, filtros, búsqueda, paginación, selección múltiple, conversation thread, respuestas y notas internas. _(Fase 1 · Etapa 1.2)_
+- **003 · Dashboard básico** — KPIs, asignados a mí, abiertos, sin asignar, SLA en riesgo. _(Fase 1 · Etapa 1.3)_
+- **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. _(Fase 2 · Etapa 2.1)_
+- **005 · Sugerencias de respuesta** — streaming, inserción en composer editable, aceptar/editar/rechazar/regenerar. _(Fase 2 · Etapa 2.2)_
+- **006 · Confianza y seguridad LLM** — confidence, riesgos, PII, prompt injection, bloqueo de apply. _(Fase 2 · Etapa 2.3)_
+- **007 · Feedback y auditoría LLM** — útil/no útil, registro de aceptación/rechazo, límites de uso. _(Fase 2 · Etapa 2.4)_
+- **008 · Base de conocimiento** — listado, editor, versionado, permisos e integración con tickets/LLM. _(Fase 3)_
+- **009 · Administración** — usuarios, equipos, roles, SLA, canales, tags, plantillas. _(Fase 4 · Etapas 4.1–4.2)_
+- **010 · Auditoría** — eventos de usuario y LLM, PII, exportaciones. _(Fase 4 · Etapa 4.3)_
+- **011 · Privacidad, retención y límites LLM** — políticas y configuración. _(Fase 4 · Etapa 4.4)_
+- **012 · Hardening** — performance, seguridad, accesibilidad y observabilidad. _(Fase 5)_
+
+> Cada feature nueva se crea como `features/NNN-nombre-feature/` con `spec.md`, `plan.md` y `tasks.md` antes de tocar código.
