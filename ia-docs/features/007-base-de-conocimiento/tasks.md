@@ -20,11 +20,11 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T3 · Listado, filtros y búsqueda
 
-- [ ] `src/app/app/knowledge/page.tsx`: redirige a `/app/knowledge/articles`.
-- [ ] `src/app/app/knowledge/articles/page.tsx` (Server Component): guard de sesión/tenant + permisos `kb:read`; pasa searchParams serializados al cliente.
-- [ ] `src/components/features/knowledge/ArticlesPageView.tsx` (Client): filtros por estado/categoría en URL (Zod), búsqueda client-side con debounce, paginación, estados loading (skeleton)/error/empty.
-- [ ] `src/components/features/knowledge/ArticleStatusBadge.tsx` y `ArticleCard.tsx` (o filas de tabla) con estado, categoría, tags, versión, fechas.
-- [ ] Activar `Conocimiento` en `src/components/layout/Sidebar.tsx` (`enabled: true`) y link activo para subrutas de knowledge.
+- [x] `src/app/app/knowledge/page.tsx`: redirige a `/app/knowledge/articles`.
+- [x] `src/app/app/knowledge/articles/page.tsx` (Server Component): guard de sesión/tenant + permisos `kb:read`; pasa searchParams serializados al cliente.
+- [x] `src/components/features/knowledge/ArticlesPageView.tsx` (Client): filtros por estado/categoría en URL (Zod), búsqueda client-side con debounce, paginación, estados loading (skeleton)/error/empty.
+- [x] `src/components/features/knowledge/ArticleStatusBadge.tsx` y `ArticleCard.tsx` (o filas de tabla) con estado, categoría, tags, versión, fechas.
+- [x] Activar `Conocimiento` en `src/components/layout/Sidebar.tsx` (`enabled: true`) y link activo para subrutas de knowledge.
 
 ## T4 · Detalle, editor y versionado
 

@@ -8,17 +8,37 @@ import {
   SettingsIcon,
   ShieldCheckIcon,
   TicketIcon,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui.store";
 
-const NAV_SECTIONS = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  enabled: boolean;
+  matchPrefix?: boolean;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
   {
     title: "Operación",
     items: [
       { href: "/app", label: "Dashboard", icon: LayoutDashboardIcon, enabled: true },
       { href: "/app/tickets", label: "Tickets", icon: TicketIcon, enabled: true },
-      { href: "/app/knowledge", label: "Conocimiento", icon: BookOpenIcon, enabled: false },
+      {
+        href: "/app/knowledge",
+        label: "Conocimiento",
+        icon: BookOpenIcon,
+        enabled: true,
+        matchPrefix: true,
+      },
     ],
   },
   {
@@ -59,7 +79,8 @@ export function Sidebar() {
             ) : null}
             {section.items.map((item) => {
               const Icon = item.icon;
-              const active = item.enabled && pathname === item.href;
+              const active =
+                item.enabled && (item.matchPrefix ? pathname.startsWith(item.href) : pathname === item.href);
 
               if (!item.enabled) {
                 return (
