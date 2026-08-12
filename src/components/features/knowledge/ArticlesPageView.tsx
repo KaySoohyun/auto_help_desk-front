@@ -1,13 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useArticles } from "@/hooks/knowledge/useArticles";
 import { ArticlesFilters } from "@/components/features/knowledge/ArticlesFilters";
 import { ArticlesTable } from "@/components/features/knowledge/ArticlesTable";
 import { ArticlesPagination } from "@/components/features/knowledge/ArticlesPagination";
+import { useSessionStore } from "@/stores/session.store";
+import { hasKbPermission } from "@/lib/permissions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
-import { SearchIcon, InboxIcon, AlertTriangleIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { SearchIcon, InboxIcon, AlertTriangleIcon, PlusIcon } from "lucide-react";
 import type { KbArticleStatus } from "@/types/knowledge.types";
 
 const PAGE_SIZE = 50;
@@ -15,6 +19,9 @@ const PAGE_SIZE = 50;
 const VALID_STATUSES: KbArticleStatus[] = ["draft", "published", "archived"];
 
 export function ArticlesPageView({ searchParams }: { searchParams: Record<string, string> }) {
+  const user = useSessionStore((s) => s.user);
+  const canEdit = hasKbPermission(user?.role ?? null, "kb:edit");
+
   const rawStatus = searchParams.status;
   const status = VALID_STATUSES.includes(rawStatus as KbArticleStatus)
     ? (rawStatus as KbArticleStatus)
@@ -51,9 +58,19 @@ export function ArticlesPageView({ searchParams }: { searchParams: Record<string
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Base de conocimiento</h1>
-        <p className="text-sm text-muted-foreground">Artículos de tu soporte</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold text-foreground">Base de conocimiento</h1>
+          <p className="text-sm text-muted-foreground">Artículos de tu soporte</p>
+        </div>
+        {canEdit ? (
+          <Link href="/app/knowledge/articles/new">
+            <Button>
+              <PlusIcon aria-hidden />
+              Nuevo artículo
+            </Button>
+          </Link>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center gap-2">

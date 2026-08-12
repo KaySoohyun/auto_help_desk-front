@@ -28,10 +28,10 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T4 · Detalle, editor y versionado
 
-- [ ] `src/app/app/knowledge/articles/[articleId]/page.tsx` (Server) + `src/components/features/knowledge/ArticleDetailView.tsx` (Client): detalle con `body` en texto plano (`whitespace-pre-wrap`, sin `dangerouslySetInnerHTML`), metadata, acciones según permiso.
-- [ ] `src/components/features/knowledge/ArticleEditorForm.tsx` (RHF + Zod): crear (`/new`) y editar (`[articleId]` con modo edición); título, cuerpo, categoría, tags.
-- [ ] Transiciones de estado con `AlertDialog` de confirmación: publicar (aviso de visibilidad), archivar, restaurar. Publicar solo visible con `kb:publish`.
-- [ ] `src/components/features/knowledge/VersionHistory.tsx`: historial de versiones (solo lectura) con versión, autor, fecha y `change_note`.
+- [x] `src/app/app/knowledge/articles/[articleId]/page.tsx` (Server) + `src/components/features/knowledge/ArticleDetailView.tsx` (Client): detalle con `body` en texto plano (`whitespace-pre-wrap`, sin `dangerouslySetInnerHTML`), metadata, acciones según permiso.
+- [x] `src/components/features/knowledge/ArticleEditorForm.tsx` (RHF + Zod): crear (`/new`) y editar (`[articleId]` con modo edición); título, cuerpo, categoría, tags.
+- [x] Transiciones de estado con `AlertDialog` de confirmación: publicar (aviso de visibilidad), archivar, restaurar. Publicar solo visible con `kb:publish`.
+- [x] `src/components/features/knowledge/VersionHistory.tsx`: historial de versiones (solo lectura) con versión, autor, fecha y `change_note`.
 
 ## T5 · Permisos UI y taxonomy
 

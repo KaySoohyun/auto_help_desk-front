@@ -17,3 +17,17 @@ export function hasTicketPermission(role: UserRole | null, permission: TicketPer
   if (!role) return false;
   return ROLE_PERMISSIONS[role].includes(permission);
 }
+
+export type KbPermission = "kb:read" | "kb:edit" | "kb:publish";
+
+const KB_ROLE_PERMISSIONS: Record<UserRole, KbPermission[]> = {
+  platform_admin: ["kb:read", "kb:edit", "kb:publish"],
+  tenant_admin: ["kb:read", "kb:edit", "kb:publish"],
+  supervisor: ["kb:read", "kb:edit", "kb:publish"],
+  agent: ["kb:read"],
+};
+
+export function hasKbPermission(role: UserRole | null, permission: KbPermission): boolean {
+  if (!role) return false;
+  return KB_ROLE_PERMISSIONS[role].includes(permission);
+}
