@@ -1,5 +1,9 @@
 # Cambios
 
+## 2026-08-12 — Documentación · Resumen de referencia
+
+- Creado `ia-docs/init/resumen.md`: resumen condensado de `backend/`, `constitution/` e `init/` (misión, stack, arquitectura BFF, sesión/tenant, dominio, roles, API FastAPI, seguridad/PII/LLM, estado del proyecto y convenciones). Sirve como lectura rápida del agente; la fuente de verdad sigue siendo cada archivo original.
+
 ## 2026-08-12 — Feature 005 · Alineación de chat/stream/sugerencias con el backend real
 
 - **Contract mismatch resuelto**: los BFF `chat`, `stream` y `suggest` apuntaban a `/v1/ai/tickets/{id}/chat` y `/v1/ai/tickets/{id}/suggest`, endpoints que **no existen** en `ia-docs/backend/api.md`. Ahora:

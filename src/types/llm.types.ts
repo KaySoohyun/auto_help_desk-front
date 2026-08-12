@@ -95,3 +95,25 @@ export interface LlmStreamToken {
   done: boolean;
   trace_id: string;
 }
+
+export type LlmRiskLevel = "low" | "medium" | "high";
+
+export type LlmRiskKind =
+  | "low_confidence"
+  | "hallucination"
+  | "pii"
+  | "prompt_injection"
+  | "insufficient_context"
+  | "policy"
+  | "warning";
+
+export interface LlmRisk {
+  kind: LlmRiskKind;
+  level: LlmRiskLevel;
+  message: string;
+}
+
+export interface LlmRiskEvaluation {
+  risks: LlmRisk[];
+  blocked: boolean;
+}
