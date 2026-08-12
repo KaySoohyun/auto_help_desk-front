@@ -159,11 +159,21 @@ POST /api/bff/tenant/[tenantSlug]/tickets/[ticketId]/llm/classify
 POST /api/bff/tenant/[tenantSlug]/tickets/[ticketId]/llm/summarize
 POST /api/bff/tenant/[tenantSlug]/tickets/[ticketId]/llm/suggest-reply
 
+POST /api/bff/llm/classify
+POST /api/bff/llm/summarize
+POST /api/bff/llm/chat
+POST /api/bff/llm/stream
+POST /api/bff/llm/suggest-reply
+POST /api/bff/llm/pii-redact
+POST /api/bff/llm/feedback
+
 GET  /api/bff/tenant/[tenantSlug]/knowledge/articles
 POST /api/bff/tenant/[tenantSlug]/knowledge/articles
 
 GET  /api/bff/tenant/[tenantSlug]/audit/events
 ```
+
+> Nota: el backend real no expone `/chat` ni `/suggest`. Los BFF `chat` y `stream` proxean a `POST /v1/ai/tickets/{id}/suggested-reply`; `stream` envuelve la respuesta como evento SSE único y el cliente la emite chunked como tokens en tiempo real. `/api/bff/llm/suggest` fue eliminado (endpoint inexistente).
 
 ## Routing
 
@@ -253,7 +263,8 @@ Estados de ticket: `open`, `pending`, `waiting_customer`, `solved`, `closed`. Pr
 
 | Entidad           | Campos clave                                                               |
 |-------------------|----------------------------------------------------------------------------|
-| `LlmSuggestion`   | suggestionId, tipo (classify/summarize/suggest_reply), modelVersion, confidence, sources, riesgos, advertencias |
+| `LlmSuggestion`   | suggestionId, tipo (classify/summarize/suggest_reply/chat/suggest), modelVersion, confidence, sources, riesgos, advertencias |
+| `LlmStreamEvent`  | token, confidence, done, traceId (SSE en tiempo real)                  |
 | `LlmFeedback`     | suggestionId, útil/no útil, motivo opcional, usuario, timestamp             |
 
 ### Auditoría
@@ -283,7 +294,7 @@ Estados de ticket: `open`, `pending`, `waiting_customer`, `solved`, `closed`. Pr
   - `['tenant', tenantSlug, 'ticket', ticketId]`
   - `['tenant', tenantSlug, 'knowledge', filters]`
   - `['tenant', tenantSlug, 'audit', filters]`
-- Streaming LLM: fetch con `ReadableStream` desde Route Handler + `AbortController`.
+- Streaming LLM: fetch con `ReadableStream` desde Route Handler (`/api/bff/llm/stream`) + `AbortController`; SSE con cancelación manual. Keys: `['tenant', tenantId, 'llm', 'stream']`.
 - Paginación clásica en bandeja y auditoría; conversation thread carga últimos mensajes primero.
 - Filtros en URL (search params) parseados con Zod.
 - Reintentos: GET con backoff limitado; mutations sin retry automático; 401 → refresh; 403/404 sin retry.

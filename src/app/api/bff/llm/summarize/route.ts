@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticatedFetch } from "@/lib/api/authenticated";
+import type { LlmSummarizeOutput } from "@/types/llm.types";
 
 const summarizeSchema = z.object({
-  text: z.string().trim().min(1).max(3000),
+  ticketId: z.coerce.number().int().positive(),
 });
 
 export async function POST(req: NextRequest) {
@@ -16,15 +17,13 @@ export async function POST(req: NextRequest) {
 
   const parsed = summarizeSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Texto inválido o demasiado largo." }, { status: 422 });
+    return NextResponse.json({ error: "Ticket inválido." }, { status: 422 });
   }
 
-  const result = await authenticatedFetch<{
-    summary: Array<{ title: string; text: string }>;
-  }>("/v1/llm/summarize", {
-    method: "POST",
-    body: JSON.stringify(parsed.data),
-  });
+  const result = await authenticatedFetch<LlmSummarizeOutput>(
+    `/v1/ai/tickets/${parsed.data.ticketId}/summary`,
+    { method: "POST" }
+  );
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

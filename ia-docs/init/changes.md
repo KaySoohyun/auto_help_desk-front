@@ -1,6 +1,37 @@
 # Cambios
 
-## 2026-08-11 — Feature 003 · Dashboard básico completada
+## 2026-08-12 — Feature 005 · Alineación de chat/stream/sugerencias con el backend real
+
+- **Contract mismatch resuelto**: los BFF `chat`, `stream` y `suggest` apuntaban a `/v1/ai/tickets/{id}/chat` y `/v1/ai/tickets/{id}/suggest`, endpoints que **no existen** en `ia-docs/backend/api.md`. Ahora:
+  - `src/app/api/bff/llm/chat/route.ts` → proxya a `POST /v1/ai/tickets/{id}/suggested-reply` (el endpoint real). Sin `message` (el backend no lo recibe); body `{tone?, language?}`.
+  - `src/app/api/bff/llm/stream/route.ts` → proxya a `POST /v1/ai/tickets/{id}/suggested-reply` y envuelve la respuesta como un único evento SSE `data: {...}`.
+  - `src/app/api/bff/llm/suggest/route.ts` **eliminado** (endpoint inexistente). La pestaña Sugerencias ahora genera 3 respuestas vía `suggested-reply` con tonos `formal | empático | conciso`.
+- **Tipos** (`src/types/llm.types.ts`): `LlmChatOutput = LlmSuggestReplyOutput` (campo `suggested_reply`); `LlmChatInput` sin `message`; `LlmStreamInput` sin `message`; eliminados `LlmSuggestInput/Output` y `LlmSuggestionItem`.
+- **Fix streaming** (`src/hooks/llm/useLlm.ts`): `startStream` ahora devuelve el cleanup **sincrónicamente** (antes lo retornaba recién al terminar el stream, por lo que "Cancelar stream" nunca cancelaba nada). El abort cancela el fetch + detiene la emisión. La respuesta completa del evento SSE se emite **chunked** como tokens en tiempo real (6 chars / 12ms), listo para true streaming cuando el backend lo soporte.
+- **Fix render "undefined"**: el panel sumaba `token.token` sobre el output completo (`reply`) → mostraba "undefined". Ahora el hook emite chunks con campo `token` real y la pestaña Streaming renderiza texto real + `ConfidenceBadge` con la confianza de la respuesta (antes hardcodeada en 0.5).
+- **Feedback de sugerencias**: cada una de las 3 sugerencias tiene `suggestion_id` real del backend, por lo que "Usar sugerencia" y `FeedbackRow` registran `accepted`/`edited`/`rejected`/`flagged` vía `/api/bff/llm/feedback`.
+- **Build**: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- **Pendiente**: validación funcional contra FastAPI real y verificación a11y (T4 en `tasks.md`).
+
+## 2026-08-12 — Feature 005 · Panel LLM avanzado (streaming, sugerencias, feedback)
+
+- **BFF endpoints nuevas** (`src/app/api/bff/llm/{chat,stream,suggest}/route.ts`): 
+  - `chat/route.ts` → proxy `POST /v1/ai/tickets/{id}/chat` (Zod schema con ticketId/message/tone/language). La pestaña "Chat" reemplazó a la anterior "Sugerir".
+  - `stream/route.ts` → SSE proxy. Obtiene token via `getAccessToken`, reenvía respuesta como `text/event-stream` (Content-Type: `text/event-stream`, Cache-Control: `no-cache`). El backend no expone aún endpoint SSE real; la ruta proxya al endpoint `/chat` y envuelve la respuesta como un único evento `data: {...}`. Preparada para true streaming cuando el backend lo soporte.
+  - `suggest/route.ts` → proxy `POST /v1/ai/tickets/{id}/suggest` (Zod schema con ticketId/tone/language).
+  - `feedback/route.ts` ya existía (004).
+- **Tipos** (`src/types/llm.types.ts`): agregados `LlmChatInput/Output`, `LlmStreamInput`, `LlmStreamToken`, `LlmSuggestInput/Output`, `LlmSuggestionItem`.
+- **Hook** (`src/hooks/llm/useLlm.ts`): agregadas mutaciones `chat`, `suggest` y función `startStream` (SSE reader con `AbortController` + callbacks `onToken`/`onError`/`onDone` + states `isStreaming`/`streamError`). Keys por tenant.
+- **Panel lateral** (`src/components/llm/LlmAssistantPanel.tsx`): 5 pestañas — Clasificar, Resumir, Chat, Sugerencias, Streaming.
+  - **Chat**: input de mensaje, botón enviar, textarea de respuesta editable, PII detection + redacción, botón "Usar en respuesta" (con feedback auto: accepted/editado), confidence badge, feedback row (Aceptar/Editar/Regenerar/Rechazar/Marcar).
+  - **Sugerencias**: botón "Generar sugerencias" (3 items), cada uno con textarea editable, score de confianza, rationale, botones "Usar sugerencia" y "Regenerar".
+  - **Streaming**: input de mensaje, botón iniciar/cancelar, textarea de salida en tiempo real (tokens como llegan), contador de tokens, confidence badge, error state con reintentar.
+  - **FeedbackRow** extendido: agregados botones "Editar" (edited) y "Regenerar" (re-ejecuta query). Renombrado `useReplyInComposer` → `applyChatInComposer` para evitar falseo de `react-hooks/rules-of-hooks`. Removida prop `suggestionId` huérfed.
+- **Fix lint pre-existing**: `LlmAssistantPanel.tsx` tenía 1 error (`react-hooks/rules-of-hooks` por función `useReplyInComposer` llamada en callback) y 1 warning (`suggestionId` sin usar). Corregido.
+- **Build**: `pnpm build`, `pnpm lint`, `pnpm typecheck` todos en verde (0 errores, 0 warnings).
+- **Nota**: el endpoint `/v1/llm/stream` mencionado en la spec 005 no existe en el backend (`ia-docs/backend/api.md`). Se proxya a `/v1/ai/tickets/{id}/chat` con wrapping SSE. Requiere validación funcional contra FastAPI real.
+
+
 
 - **DashboardPage** (`src/app/app/page.tsx`): página principal en `/app` que muestra KPIs (tickets asignados a mí, abiertos, sin asignar, SLA en riesgo) con grid de cards.
 - **src/components/dashboard/KpiCard.tsx**: componente reusable de tarjeta KPI con título, valor y subtítulo.

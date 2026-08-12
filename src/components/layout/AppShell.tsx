@@ -7,7 +7,6 @@ import { useSessionInitializer } from "@/hooks/auth/useSessionInitializer";
 import { useSessionStore } from "@/stores/session.store";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
-import { LlmSidebar } from "@/components/llm/LlmSidebar";
 
 function ShellSkeleton() {
   return (
@@ -52,10 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar />
-        <main className="flex-1 p-4 md:p-6">
-          {children}
-          <LlmSidebar />
-        </main>
+        <main className="flex-1 p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

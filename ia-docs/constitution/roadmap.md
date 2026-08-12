@@ -8,10 +8,10 @@ El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
 ## En progreso 🟡
 
-_Feature actualmente activa. Una sola feature "en curso" a la vez._
+_005 está implementada (build/lint/typecheck OK) pero pendiente de validación funcional contra FastAPI real._
 
 - **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. ✅ _(Fase 2 · Etapa 2.1)_
-- **005 · Panel LLM avanzado** — streaming, sugerencias en composer, accept/edit/reject/regenerate. _(Fase 2 · Etapa 2.2)_
+- **005 · Panel LLM avanzado** — streaming SSE, sugerencias en composer, accept/edit/regenerate/reject, PII filtering. Implementado. ⏳ _(Fase 2 · Etapa 2.2)_ Pendiente: validación funcional + a11y.
 
 ## Backlog / ideas 💡
 

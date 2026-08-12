@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticatedFetch } from "@/lib/api/authenticated";
+import type { LlmFeedbackOutput } from "@/types/llm.types";
 
 const feedbackSchema = z.object({
   ticketId: z.coerce.number().int().positive(),
-  action: z.enum(["accept", "edit", "regenerate", "reject"]),
-  userComment: z.string().trim().max(500).optional(),
+  suggestion_id: z.coerce.number().int().positive(),
+  action: z.enum(["accepted", "edited", "rejected", "flagged"]),
+  reason: z.string().trim().max(500).optional(),
 });
-
-type FeedbackInput = z.infer<typeof feedbackSchema>;
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -23,11 +23,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Datos de feedback inválidos." }, { status: 422 });
   }
 
-  const feedbackInput: FeedbackInput = parsed.data;
-  const result = await authenticatedFetch<{ success: boolean }>("/api/bff/llm/feedback", {
-    method: "POST",
-    body: JSON.stringify(feedbackInput),
-  });
+  const { ticketId, ...feedback } = parsed.data;
+  const result = await authenticatedFetch<LlmFeedbackOutput>(
+    `/v1/ai/tickets/${ticketId}/feedback`,
+    { method: "POST", body: feedback }
+  );
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

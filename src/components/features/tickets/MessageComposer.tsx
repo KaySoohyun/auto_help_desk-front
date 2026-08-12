@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,15 +16,28 @@ const messageSchema = z.object({
 
 type MessageValues = z.infer<typeof messageSchema>;
 
-export function MessageComposer({ ticketId }: { ticketId: number }) {
+export function MessageComposer({
+  ticketId,
+  initialValue,
+}: {
+  ticketId: number;
+  initialValue?: string;
+}) {
   const sendMessage = useSendMessage(ticketId);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<MessageValues>({ resolver: zodResolver(messageSchema) });
+
+  useEffect(() => {
+    if (initialValue && initialValue.trim()) {
+      setValue("body", initialValue, { shouldDirty: true, shouldValidate: false });
+    }
+  }, [initialValue, setValue]);
 
   const onSubmit = async (values: MessageValues) => {
     try {

@@ -1,6 +1,6 @@
 # 005 · Panel LLM avanzado
 
-**Estado:** propuesta
+**Estado:** implementada (build/lint/typecheck OK). Pendiente validación funcional contra FastAPI real y a11y (ver `tasks.md` T4).
 
 ## Qué hace
 
@@ -12,20 +12,23 @@ El panel básico requiere que el usuario envíe manualmente cada mensaje. Las su
 
 ## Contexto real del backend (contratos de `ia-docs/backend/api.md`)
 
-- `POST /v1/llm/stream` → streaming SSE (Server-Sent Events) con progreso en tiempo real.
-- `POST /v1/llm/suggest` → recibe contexto de ticket, devuelve sugerencias de próxima acción con scores.
-- `POST /v1/llm/feedback` → registra feedback del usuario (aceptar/editar/rechazar/regenerar) para mejorar el modelo.
+- `POST /v1/ai/tickets/{id}/suggested-reply` → sugiere una respuesta editable (body opcional `{tone, language}`). Es el único endpoint de generación de respuesta del backend.
+- `POST /v1/ai/tickets/{id}/feedback` → registra la decisión del agente sobre una sugerencia (`accepted|edited|rejected|flagged`).
+- `POST /v1/ai/tickets/{id}/classify` y `/summary` → clasificar y resumir (heredados de 004).
+- `POST /v1/pii/redact` → redacción de PII.
+- **No existen** endpoints SSE en streaming, `/v1/llm/{stream,suggest,feedback}` (citados en una versión previa de esta spec) ni `/v1/ai/tickets/{id}/chat` o `/suggest`. El streaming se implementa como wrapping SSE + emisión chunked en el cliente (ver Decisiones).
 - Todos los endpoints requieren `Authorization: Bearer <token>` y validan tenant.
-- Errores: 401 token inválido/expired, 429 rate limit, 400 texto inválido.
+- Errores: 401 token inválido/expired, 429 rate limit, 400 texto inválido, 403 IA deshabilitada, 404 ticket no encontrado.
 
-## Decisiones de adaptación (a aprobar)
+## Decisiones de adaptación
 
-1. **Streaming SSE**: el frontend conecta a `POST /api/bff/llm/stream` y muestra tokens a medida que llegan, con cancelación manual.
-2. **Sugerencias predictivas**: el panel muestra 3 sugerencias debajo del input basadas en el contexto del ticket actual (categoría, prioridad, próximos pasos).
-3. **Historial de feedback**: cada interacción (aceptar/editar/rechazar/regenerar) se guarda en `llm_feedback` tabla con usuario, ticket, acción y timestamp.
-4. **Confianza visual**: cada token/sugerencia muestra un score de confianza (0-100) calculado por el backend.
-5. **Prompt injection mitigation**: el texto enviado al LLM pasa por un filtro básico que bloquea patrones sospechosos y marca PII antes del envío.
-6. **Modo oscuro/clear**: compatible con ambos themes (la feature 004 solo tenía oscuro).
+1. **Streaming SSE simulado**: el BFF `/api/bff/llm/stream` proxya a `suggested-reply`, envuelve la respuesta como un único evento SSE `data: {...}`, y el cliente emite la respuesta **chunked** como tokens en tiempo real (con cancelación manual). Preparado para true streaming cuando el backend lo soporte.
+2. **Chat alineado a `suggested-reply`**: el backend no tiene chat conversacional; la pestaña Chat genera una respuesta editable con el contexto del ticket (sin campo `message`).
+3. **Sugerencias predictivas**: la pestaña Sugerencias muestra 3 respuestas en tonos `formal | empático | conciso` generadas con `suggested-reply`.
+4. **Historial de feedback**: cada interacción (aceptar/editar/rechazar/regenerar/marcar) se guarda en backend vía `/feedback` con el `suggestion_id` real de cada sugerencia.
+5. **Confianza visual**: cada salida muestra un score de confianza (0-100) en `ConfidenceBadge`.
+6. **Prompt injection mitigation**: contenido del cliente tratado como no confiable; PII detectada client-side (marca) y redacción autoritativa vía `/v1/pii/redact`.
+7. **Modo oscuro/clear**: compatible con ambos themes (la feature 004 solo tenía oscuro).
 
 ## Criterios de aceptación
 

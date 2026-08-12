@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticatedFetch } from "@/lib/api/authenticated";
-import type { LlmChatOutput } from "@/types/llm.types";
+import type { LlmSuggestReplyOutput } from "@/types/llm.types";
 
-const chatSchema = z.object({
+const suggestReplySchema = z.object({
   ticketId: z.coerce.number().int().positive(),
   tone: z.string().trim().max(50).optional(),
   language: z.string().trim().max(10).optional(),
@@ -17,15 +17,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
 
-  const parsed = chatSchema.safeParse(body);
+  const parsed = suggestReplySchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Datos de chat inválidos." }, { status: 422 });
+    return NextResponse.json({ error: "Datos de sugerencia inválidos." }, { status: 422 });
   }
 
-  const { ticketId, tone, language } = parsed.data;
-  const result = await authenticatedFetch<LlmChatOutput>(
+  const { ticketId, ...rest } = parsed.data;
+  const result = await authenticatedFetch<LlmSuggestReplyOutput>(
     `/v1/ai/tickets/${ticketId}/suggested-reply`,
-    { method: "POST", body: { tone, language } }
+    { method: "POST", body: rest }
   );
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);

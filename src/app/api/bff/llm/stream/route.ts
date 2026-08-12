@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { authenticatedFetch } from "@/lib/api/authenticated";
+import type { LlmChatOutput } from "@/types/llm.types";
 
 const streamSchema = z.object({
-  text: z.string().trim().min(1).max(3000),
+  ticketId: z.coerce.number().int().positive(),
+  tone: z.string().trim().max(50).optional(),
+  language: z.string().trim().max(10).optional(),
 });
 
 export async function POST(req: NextRequest) {
-
   let body: unknown;
   try {
     body = await req.json();
@@ -16,33 +19,26 @@ export async function POST(req: NextRequest) {
 
   const parsed = streamSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Texto inválido o demasiado largo." }, { status: 422 });
+    return NextResponse.json({ error: "Datos de streaming inválidos." }, { status: 422 });
   }
 
-  // SSE response
-  const stream = new ReadableStream<string>({
-    async start(controller) {
-      try {
-        // Simulación: dividir texto en "tokens" y enviarlos con retardo
-        const tokens = parsed.data.text.split(" ");
-        for (const token of tokens) {
-          await new Promise((resolve) => setTimeout(resolve, 50));
-          controller.enqueue(`data: {"token": "${token}"}\n\n`);
-        }
-        controller.close();
-      } catch (e) {
-        controller.error(e);
-      }
-    },
-  });
+  const { ticketId, tone, language } = parsed.data;
 
-  const response: NextResponse<string> = new NextResponse(stream, {
+  const result = await authenticatedFetch<LlmChatOutput>(
+    `/v1/ai/tickets/${ticketId}/suggested-reply`,
+    { method: "POST", body: { tone, language } }
+  );
+  if (result instanceof NextResponse) return result;
+
+  const data = result.data;
+  const sse = `data: ${JSON.stringify(data)}\n\n`;
+
+  return new NextResponse(sse, {
+    status: 200,
     headers: {
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
-      Connection: "keep-alive",
+      "Connection": "keep-alive",
     },
   });
-
-  return response;
 }
