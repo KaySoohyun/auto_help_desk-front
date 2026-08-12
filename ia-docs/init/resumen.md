@@ -135,7 +135,8 @@ Base URL `http://localhost:8000`. Auth: `Authorization: Bearer <access>`.
 - **003 Dashboard básico** — hecho ✅
 - **004 Panel LLM base** — hecho ✅
 - **005 Panel LLM avanzado** — implementado ⏳ (build/lint/typecheck OK; pendiente validación funcional contra FastAPI real + a11y)
-- Backlog: 006 confianza/seguridad LLM, 007 KB, 007 administración, 010 auditoría, 011 privacidad/retención, 012 hardening
+- **006 Confianza y seguridad LLM** — implementado ⏳ (confianza, riesgos, PII, prompt injection con bloqueo de apply, bajo contexto)
+- Backlog: 007 KB, 007 administración, 010 auditoría, 011 privacidad/retención, 012 hardening
 
 ## 11. Convenciones de trabajo
 

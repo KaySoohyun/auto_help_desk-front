@@ -93,7 +93,7 @@ src/
     permissions/              # permisos por rol (UI)
     pii/                      # enmascarado y revelado
     audit/                    # helpers de auditoría
-    llm/                      # estado y contratos LLM
+      llm/                      # estado, contratos LLM, riesgos, confianza e injection
     validation/               # schemas Zod
     utils/                    # helpers generales
     constants/                # estados, prioridades, canales, query keys
@@ -264,6 +264,7 @@ Estados de ticket: `open`, `pending`, `waiting_customer`, `solved`, `closed`. Pr
 | Entidad           | Campos clave                                                               |
 |-------------------|----------------------------------------------------------------------------|
 | `LlmSuggestion`   | suggestionId, tipo (classify/summarize/suggest_reply/chat/suggest), modelVersion, confidence, sources, riesgos, advertencias |
+| `LlmRisk`         | kind (`low_confidence|hallucination|pii|prompt_injection|insufficient_context|policy|warning`), level (`low|medium|high`), message |
 | `LlmStreamEvent`  | token, confidence, done, traceId (SSE en tiempo real)                  |
 | `LlmFeedback`     | suggestionId, útil/no útil, motivo opcional, usuario, timestamp             |
 

@@ -12,12 +12,12 @@ _005 está implementada (build/lint/typecheck OK) pero pendiente de validación 
 
 - **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. ✅ _(Fase 2 · Etapa 2.1)_
 - **005 · Panel LLM avanzado** — streaming SSE, sugerencias en composer, accept/edit/regenerate/reject, PII filtering. Implementado. ⏳ _(Fase 2 · Etapa 2.2)_ Pendiente: validación funcional + a11y.
+- **006 · Confianza y seguridad LLM** — ConfidenceBadge, riesgos, PII, prompt injection, bloqueo de apply, bajo contexto. Implementado. ⏳ _(Fase 2 · Etapa 2.3)_ Pendiente: validación funcional contra FastAPI real + a11y.
 
 ## Backlog / ideas 💡
 
 _Sin comprometer ni ordenar del todo. Ideas que respetan la constitución._
 
-- **006 · Confianza y seguridad LLM** — confidence, riesgos, PII, prompt injection, bloqueo de apply. _(Fase 2 · Etapa 2.3)_
 - **007 · Base de conocimiento** — listado, editor, versionado, permisos e integración con tickets/LLM. _(Fase 3)_
 - **007 · Administración** — usuarios, equipos, roles, SLA, canales, tags, plantillas. _(Fase 4 · Etapas 4.1–4.2)_
 - **010 · Auditoría** — eventos de usuario y LLM, PII, exportaciones. _(Fase 4 · Etapa 4.3)_

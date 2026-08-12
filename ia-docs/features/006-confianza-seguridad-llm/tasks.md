@@ -29,7 +29,8 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T4 · Integración y cierre
 
-- [ ] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
-- [ ] Verificación manual con datos de prueba de la spec (bajo contexto, injection, PII, flujo normal).
-- [ ] Documentar en `ia-docs/init/changes.md` y actualizar `arquitecture.md` (módulo `src/lib/llm/`, componentes nuevos).
-- [ ] Marcar tareas aquí y mover 006 a "Hecho" en `ia-docs/constitution/roadmap.md`.
+- [x] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- [x] Verificación manual de lógica pura (jiti): injection (con/sin artículo, ES/EN, normal), bajo contexto, `buildTicketContext`, evaluación de riesgos y bloqueo. 15 checks OK. Detectó y corrigió bug de patrones injection con backtracking.
+- [ ] Validación funcional contra FastAPI real (flujo normal, bajo contexto, injection, PII) y verificación a11y visual.
+- [x] Documentar en `ia-docs/init/changes.md` y actualizar `arquitecture.md` (módulo `src/lib/llm/`, componentes nuevos).
+- [x] Marcar tareas aquí y mover 006 a "En progreso (implementado)" en `ia-docs/constitution/roadmap.md`.

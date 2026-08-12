@@ -1,8 +1,8 @@
 import type { LlmRisk } from "@/types/llm.types";
 
 const INJECTION_PATTERNS: RegExp[] = [
-  /ignora(?:\s+las?\s+|\s+todas\s+|\s+todo\s+)?(?:instrucciones|ordenes|reglas|prompt|lo\s+anterior)/i,
-  /olvida(?:\s+todo\s+)?lo\s+(?:anterior|dicho)/i,
+  /ignora\s+(?:(?:las?|todas|todo)\s+)?(?:instrucciones|ordenes|reglas|prompt|lo\s+anterior)/i,
+  /olvida\s+(?:todo\s+)?lo\s+(?:anterior|dicho)/i,
   /(?:desde\s+ahora|ahora\s+eres|ahora\s+sos)\s+(?:un?\s+)?administrador/i,
   /actua\s+como\s+administrador/i,
   /ignora\s+el\s+(?:prompt\s+)?(?:de\s+)?sistema/i,

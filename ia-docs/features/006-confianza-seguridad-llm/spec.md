@@ -1,6 +1,6 @@
 # 006 · Confianza y seguridad LLM
 
-**Estado:** propuesta — esperando OK para implementar.
+**Estado:** implementada (build/lint/typecheck OK + test de lógica pura). Pendiente validación funcional contra FastAPI real y a11y visual.
 **Alcance:** Fase 2 · Etapa 2.3 del plan.
 
 ## Qué hace

@@ -1,5 +1,24 @@
 # Cambios
 
+## 2026-08-12 — Feature 006 · Confianza y seguridad LLM
+
+- **Modelo de riesgos tipado** (`src/types/llm.types.ts`): `LlmRiskLevel` (`low|medium|high`), `LlmRiskKind` (`low_confidence|hallucination|pii|prompt_injection|insufficient_context|policy|warning`), `LlmRisk` y `LlmRiskEvaluation` (`{ risks, blocked }`).
+- **Nuevo módulo `src/lib/llm/`** (lógica pura, sin UI):
+  - `confidence.ts` — `confidenceLevel(c)` con umbrales 0.8/0.6 y labels Alta/Media/Baja.
+  - `injection.ts` — `detectPromptInjection(text)` con patrones ES/EN normalizados (NFD sin tildes) y conservadores; devuelve riesgo `prompt_injection` high ante cualquier coincidencia.
+  - `context.ts` — `isInsufficientContext(text)` (umbral 200 chars) y `buildTicketContext({ subject, description, messages })`.
+  - `risks.ts` — `evaluateLlmRisks(...)` compone confianza, warnings, policy_flags, PII, injection y bajo contexto; ordena por severidad; `blocked` = hay `prompt_injection` high. `hasBlockingRisk(risks)`.
+- **Componentes nuevos** (`src/components/features/llm/`): `ConfidenceBadge` (standalone, con label Alta/Media/Baja), `RiskBanner` (ícono por kind, color por kind con tokens semánticos, `role="alert"` en high), `PromptInjectionWarning` (banner magenta destacado) e `InsufficientContextNotice` (aviso ámbar de bajo contexto).
+- **Integración en el panel** (`src/components/llm/LlmAssistantPanel.tsx`):
+  - Cada salida (clasificar, resumir, chat, sugerencias, streaming) evalúa riesgos vía `evaluateLlmRisks` y los muestra como `RiskBanner`/`PromptInjectionWarning`.
+  - Bloqueo de apply: "Usar en respuesta" / "Usar sugerencia" se deshabilitan cuando `blocked` (prompt injection high), con `title` explicativo y guard también en `applyChatInComposer`.
+  - `InsufficientContextNotice` en las pestañas Chat, Sugerencias y Streaming cuando el ticket es muy corto.
+  - Eliminados `ConfidenceBadge`/`WarningList`/`PiiDetectionList` inline (reemplazados por los componentes nuevos; la PII ahora aparece como riesgo `pii`).
+- **Paso de contexto**: `TicketDetailView.tsx` arma `contextText` (asunto + descripción + mensajes vía `useMessages`, cache compartida con el thread) y lo pasa como prop opcional a `LlmAssistantPanel`.
+- **Fix de patrones injection**: el grupo opcional `(?:\s+todo\s+)?` consumía el espacio y con backtracking dejaba la palabra pegada, rompiendo matches sin artículo ("olvida lo anterior" fallaba). Corregido exigiendo `\s+` antes de la palabra clave.
+- **Verificación**: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings) + test manual de lógica pura (injection, contexto, riesgos) con jiti (15 checks OK).
+- **Pendiente**: validación funcional contra FastAPI real y verificación a11y visual.
+
 ## 2026-08-12 — Documentación · Resumen de referencia
 
 - Creado `ia-docs/init/resumen.md`: resumen condensado de `backend/`, `constitution/` e `init/` (misión, stack, arquitectura BFF, sesión/tenant, dominio, roles, API FastAPI, seguridad/PII/LLM, estado del proyecto y convenciones). Sirve como lectura rápida del agente; la fuente de verdad sigue siendo cada archivo original.
