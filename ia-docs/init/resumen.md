@@ -143,6 +143,6 @@ Base URL `http://localhost:8000`. Auth: `Authorization: Bearer <access>`.
 1. **Spec primero:** `ia-docs/features/NN-nombre/` con `spec.md` → `plan.md` → `tasks.md`; esperar OK antes de codear.
 2. Una tarea a la vez; al terminar decir qué se cambió; marcar tareas en `tasks.md`, mover feature a "Hecho" en `roadmap.md`, actualizar docs.
 3. Si no estás seguro al 80%, preguntar. No inventar.
-4. Documentar bugs en `changes.md`; cambios de arquitectura en `arquitecture.md`; convenciones en `conventions.md`.
+4. Documentar cambios y bugs en `changes.md`; cambios de arquitectura en `arquitecture.md`; convenciones en `conventions.md`.
 5. No instalar dependencias sin avisar; no usar `any` sin justificar; lint 0 warnings; no salir del directorio actual.
 6. Datos de prueba (002): `agente-tickets@example.com` / `claveSegura123`, tenant `tenant-tickets`, tickets 1–4.

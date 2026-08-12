@@ -19,9 +19,9 @@ _005 está implementada (build/lint/typecheck OK) pero pendiente de validación 
 _Sin comprometer ni ordenar del todo. Ideas que respetan la constitución._
 
 - **007 · Base de conocimiento** — listado, editor, versionado, permisos e integración con tickets/LLM. _(Fase 3)_
-- **007 · Administración** — usuarios, equipos, roles, SLA, canales, tags, plantillas. _(Fase 4 · Etapas 4.1–4.2)_
-- **010 · Auditoría** — eventos de usuario y LLM, PII, exportaciones. _(Fase 4 · Etapa 4.3)_
-- **011 · Privacidad, retención y límites LLM** — políticas y configuración. _(Fase 4 · Etapa 4.4)_
-- **012 · Hardening** — performance, seguridad, accesibilidad y observabilidad. _(Fase 5)_
+- **008 · Administración** — usuarios, equipos, roles, SLA, canales, tags, plantillas. _(Fase 4 · Etapas 4.1–4.2)_
+- **009 · Auditoría** — eventos de usuario y LLM, PII, exportaciones. _(Fase 4 · Etapa 4.3)_
+- **010 · Privacidad, retención y límites LLM** — políticas y configuración. _(Fase 4 · Etapa 4.4)_
+- **011 · Hardening** — performance, seguridad, accesibilidad y observabilidad. _(Fase 5)_
 
 > Cada feature nueva se crea como `features/NNN-nombre-feature/` con `spec.md`, `plan.md` y `tasks.md` antes de tocar código.
