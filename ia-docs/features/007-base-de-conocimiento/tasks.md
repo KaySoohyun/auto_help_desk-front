@@ -35,9 +35,9 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T5 · Permisos UI y taxonomy
 
-- [ ] `src/lib/permissions.ts`: agregar `KbPermission` (`kb:read|kb:edit|kb:publish`) y matriz por rol (agent: `kb:read`; supervisor/tenant_admin/platform_admin: los tres).
-- [ ] Ocultar acciones de gestión/publicar para roles sin permiso en listado y detalle.
-- [ ] `src/app/app/knowledge/categories/page.tsx` + `src/components/features/knowledge/CategoryTree.tsx`: agrupa categorías existentes (count de artículos publicados por categoría) y filtra desde URL. Sin CRUD.
+- [x] `src/lib/permissions.ts`: agregar `KbPermission` (`kb:read|kb:edit|kb:publish`) y matriz por rol (agent: `kb:read`; supervisor/tenant_admin/platform_admin: los tres).
+- [x] Ocultar acciones de gestión/publicar para roles sin permiso en listado y detalle.
+- [x] `src/app/app/knowledge/categories/page.tsx` + `src/components/features/knowledge/CategoryTree.tsx`: agrupa categorías existentes (count de artículos publicados por categoría) y filtra desde URL. Sin CRUD.
 
 ## T6 · Integración con tickets y LLM
 

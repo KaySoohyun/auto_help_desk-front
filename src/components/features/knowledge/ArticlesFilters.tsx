@@ -19,7 +19,7 @@ const STATUSES: Array<{ value: KbArticleStatus; label: string }> = (
   Object.entries(ARTICLE_STATUS_LABELS) as Array<[KbArticleStatus, string]>
 ).map(([value, label]) => ({ value, label }));
 
-export function ArticlesFilters() {
+export function ArticlesFilters({ hideStatus = false }: { hideStatus?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -32,7 +32,7 @@ export function ArticlesFilters() {
     router.push(`/app/knowledge/articles?${params.toString()}`);
   };
 
-  const hasActive = searchParams.has("status") || searchParams.has("category");
+  const hasActive = (hideStatus ? false : searchParams.has("status")) || searchParams.has("category");
 
   const [category, setCategory] = useState(searchParams.get("category") ?? "");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -54,22 +54,24 @@ export function ArticlesFilters() {
       role="group"
       aria-label="Filtros de artículos"
     >
-      <Select
-        value={searchParams.get("status") ?? ""}
-        onValueChange={(value) => apply({ status: value })}
-      >
-        <SelectTrigger aria-label="Filtrar por estado" className="w-40">
-          <SelectValue placeholder="Estado" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="">Todos los estados</SelectItem>
-          {STATUSES.map(({ value, label }) => (
-            <SelectItem key={value} value={value}>
-              {label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      {!hideStatus ? (
+        <Select
+          value={searchParams.get("status") ?? ""}
+          onValueChange={(value) => apply({ status: value })}
+        >
+          <SelectTrigger aria-label="Filtrar por estado" className="w-40">
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">Todos los estados</SelectItem>
+            {STATUSES.map(({ value, label }) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      ) : null}
 
       <Input
         value={category}

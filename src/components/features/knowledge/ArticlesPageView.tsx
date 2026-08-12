@@ -11,7 +11,7 @@ import { hasKbPermission } from "@/lib/permissions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SearchIcon, InboxIcon, AlertTriangleIcon, PlusIcon } from "lucide-react";
+import { SearchIcon, InboxIcon, AlertTriangleIcon, PlusIcon, FolderOpenIcon } from "lucide-react";
 import type { KbArticleStatus } from "@/types/knowledge.types";
 
 const PAGE_SIZE = 50;
@@ -23,9 +23,11 @@ export function ArticlesPageView({ searchParams }: { searchParams: Record<string
   const canEdit = hasKbPermission(user?.role ?? null, "kb:edit");
 
   const rawStatus = searchParams.status;
-  const status = VALID_STATUSES.includes(rawStatus as KbArticleStatus)
-    ? (rawStatus as KbArticleStatus)
-    : undefined;
+  const status = !canEdit
+    ? ("published" as const)
+    : VALID_STATUSES.includes(rawStatus as KbArticleStatus)
+      ? (rawStatus as KbArticleStatus)
+      : undefined;
   const category = searchParams.category ?? undefined;
   const page = Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1);
   const offset = (page - 1) * PAGE_SIZE;
@@ -63,14 +65,22 @@ export function ArticlesPageView({ searchParams }: { searchParams: Record<string
           <h1 className="text-xl font-semibold text-foreground">Base de conocimiento</h1>
           <p className="text-sm text-muted-foreground">Artículos de tu soporte</p>
         </div>
-        {canEdit ? (
-          <Link href="/app/knowledge/articles/new">
-            <Button>
-              <PlusIcon aria-hidden />
-              Nuevo artículo
+        <div className="flex items-center gap-2">
+          <Link href="/app/knowledge/categories">
+            <Button variant="outline">
+              <FolderOpenIcon aria-hidden />
+              Categorías
             </Button>
           </Link>
-        ) : null}
+          {canEdit ? (
+            <Link href="/app/knowledge/articles/new">
+              <Button>
+                <PlusIcon aria-hidden />
+                Nuevo artículo
+              </Button>
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -87,7 +97,7 @@ export function ArticlesPageView({ searchParams }: { searchParams: Record<string
             className="w-56 pl-9"
           />
         </div>
-        <ArticlesFilters />
+        <ArticlesFilters hideStatus={!canEdit} />
       </div>
 
       {isLoading ? (
