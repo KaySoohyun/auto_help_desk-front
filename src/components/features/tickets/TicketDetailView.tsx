@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import { useTicket } from "@/hooks/tickets/useTicket";
 import { useUpdateTicket } from "@/hooks/tickets/useUpdateTicket";
+import { useMessages } from "@/hooks/tickets/useMessages";
 import { useSessionStore } from "@/stores/session.store";
 import { hasTicketPermission } from "@/lib/permissions";
+import { buildTicketContext } from "@/lib/llm/context";
 import { TicketMetadata } from "@/components/features/tickets/TicketDetail";
 import { TicketThread } from "@/components/features/tickets/TicketThread";
 import { MessageComposer } from "@/components/features/tickets/MessageComposer";
@@ -17,9 +19,20 @@ import { AlertTriangleIcon, UserPlusIcon, UserMinusIcon } from "lucide-react";
 
 export function TicketDetailView({ ticketId }: { ticketId: number }) {
   const { data: ticket, isLoading, isError, error } = useTicket(ticketId);
+  const { data: messages } = useMessages(ticketId);
   const updateTicket = useUpdateTicket(ticketId);
   const user = useSessionStore((s) => s.user);
   const [composerDraft, setComposerDraft] = useState<string | undefined>(undefined);
+
+  const contextText = useMemo(
+    () =>
+      buildTicketContext({
+        subject: ticket?.subject,
+        description: ticket?.description,
+        messages,
+      }),
+    [ticket?.subject, ticket?.description, messages]
+  );
 
   if (isLoading) {
     return (
@@ -107,7 +120,7 @@ export function TicketDetailView({ ticketId }: { ticketId: number }) {
         </section>
       </div>
 
-      <LlmAssistantPanel ticketId={ticket.id} onUseReply={setComposerDraft} />
+      <LlmAssistantPanel ticketId={ticket.id} contextText={contextText} onUseReply={setComposerDraft} />
     </div>
   );
 }

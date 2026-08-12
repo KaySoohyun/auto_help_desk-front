@@ -19,13 +19,13 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T3 · Integración en el panel LLM
 
-- [ ] `TicketDetailView.tsx`: armar `contextText` (asunto + descripción + mensajes vía `useMessages`) y pasarlo como prop opcional a `LlmAssistantPanel`.
-- [ ] `LlmAssistantPanel.tsx`: evaluar riesgos por cada salida (clasificar, resumir, chat, sugerencias, streaming) usando `evaluateLlmRisks`.
-- [ ] Mostrar `RiskBanner` por riesgo y `PromptInjectionWarning` si hay injection high.
-- [ ] Bloquear apply: deshabilitar "Usar en respuesta" / "Usar sugerencia" cuando `hasBlockingRisk`, con texto explicativo visible.
-- [ ] Mostrar `InsufficientContextNotice` en pestañas de generación cuando aplique.
-- [ ] Reemplazar `ConfidenceBadge`/`WarningList` inline por los componentes nuevos (sin perder funcionalidad).
-- [ ] Mantener intactos: tabs, feedback, redacción PII, streaming, cancelación.
+- [x] `TicketDetailView.tsx`: armar `contextText` (asunto + descripción + mensajes vía `useMessages`) y pasarlo como prop opcional a `LlmAssistantPanel`.
+- [x] `LlmAssistantPanel.tsx`: evaluar riesgos por cada salida (clasificar, resumir, chat, sugerencias, streaming) usando `evaluateLlmRisks`.
+- [x] Mostrar `RiskBanner` por riesgo y `PromptInjectionWarning` si hay injection high.
+- [x] Bloquear apply: deshabilitar "Usar en respuesta" / "Usar sugerencia" cuando `hasBlockingRisk`, con texto explicativo visible.
+- [x] Mostrar `InsufficientContextNotice` en pestañas de generación cuando aplique.
+- [x] Reemplazar `ConfidenceBadge`/`WarningList` inline por los componentes nuevos (sin perder funcionalidad).
+- [x] Mantener intactos: tabs, feedback, redacción PII, streaming, cancelación.
 
 ## T4 · Integración y cierre
 

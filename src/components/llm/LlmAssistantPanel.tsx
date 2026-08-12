@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import {
   AlertTriangleIcon,
@@ -14,13 +14,20 @@ import {
   SquareIcon,
   XIcon,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useLlm } from "@/hooks/llm/useLlm";
 import type { StreamHandlers } from "@/hooks/llm/useLlm";
 import { useSessionStore } from "@/stores/session.store";
 import { hasTicketPermission } from "@/lib/permissions";
-import { detectPii, PII_LABELS, type PiiDetection } from "@/lib/pii/detect";
+import { detectPromptInjection } from "@/lib/llm/injection";
+import { isInsufficientContext } from "@/lib/llm/context";
+import { detectPii } from "@/lib/pii/detect";
+import { evaluateLlmRisks } from "@/lib/llm/risks";
+import type { LlmRiskEvaluation } from "@/types/llm.types";
 import { PRIORITY_LABELS } from "@/components/features/tickets/TicketBadges";
+import { ConfidenceBadge } from "@/components/features/llm/ConfidenceBadge";
+import { RiskBanner } from "@/components/features/llm/RiskBanner";
+import { PromptInjectionWarning } from "@/components/features/llm/PromptInjectionWarning";
+import { InsufficientContextNotice } from "@/components/features/llm/InsufficientContextNotice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,64 +63,18 @@ const ACTION_LABELS: Record<LlmFeedbackAction, string> = {
   flagged: "Marcar",
 };
 
-type ConfidenceLevel = "high" | "medium" | "low";
+const APPLY_BLOCKED_TITLE = "Aplicación bloqueada por riesgo de prompt injection. Revisá manualmente.";
 
-function confidenceLevel(confidence: number): ConfidenceLevel {
-  if (confidence >= 0.8) return "high";
-  if (confidence >= 0.6) return "medium";
-  return "low";
-}
-
-const CONFIDENCE_CLASSES: Record<ConfidenceLevel, string> = {
-  high: "text-sla-ok border-sla-ok/40",
-  medium: "text-risk-low-confidence border-risk-low-confidence/40",
-  low: "text-priority-urgent border-priority-urgent/40",
-};
-
-function ConfidenceBadge({ confidence }: { confidence: number }) {
-  const level = confidenceLevel(confidence);
+function RiskList({ evaluation }: { evaluation: LlmRiskEvaluation | null }) {
+  if (!evaluation || evaluation.risks.length === 0) return null;
   return (
-    <span
-      className={cn(
-        "inline-flex w-fit items-center gap-1 rounded-[min(var(--radius-sm),8px)] border px-2 py-0.5 text-xs font-medium whitespace-nowrap",
-        CONFIDENCE_CLASSES[level]
-      )}
-    >
-      Confianza {Math.round(confidence * 100)}%
-    </span>
-  );
-}
-
-function WarningList({ warnings }: { warnings: string[] }) {
-  if (warnings.length === 0) return null;
-  return (
-    <ul className="space-y-1">
-      {warnings.map((warning) => (
-        <li
-          key={warning}
-          className="flex items-start gap-1.5 text-xs text-risk-low-confidence"
-        >
-          <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" aria-hidden />
-          <span>{warning}</span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function PiiDetectionList({ detections }: { detections: PiiDetection[] }) {
-  if (detections.length === 0) return null;
-  return (
-    <div className="flex flex-wrap gap-1.5" role="status">
-      {detections.map((detection) => (
-        <span
-          key={detection.type}
-          className="inline-flex w-fit items-center gap-1 rounded-[min(var(--radius-sm),8px)] border border-risk-pii/40 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-risk-pii"
-        >
-          <ShieldAlertIcon aria-hidden />
-          {PII_LABELS[detection.type]}: {detection.count}
-        </span>
-      ))}
+    <div className="space-y-2">
+      {evaluation.blocked ? <PromptInjectionWarning /> : null}
+      {evaluation.risks
+        .filter((risk) => !(risk.kind === "prompt_injection" && risk.level === "high"))
+        .map((risk, index) => (
+          <RiskBanner key={`${risk.kind}-${index}`} risk={risk} />
+        ))}
     </div>
   );
 }
@@ -215,11 +176,13 @@ function FeedbackRow({
 
 function ClassifyResult({
   result,
+  evaluation,
   feedbackSent,
   feedbackDisabled,
   onFeedback,
 }: {
   result: LlmClassifyOutput;
+  evaluation: LlmRiskEvaluation | null;
   feedbackSent: LlmFeedbackAction | null;
   feedbackDisabled: boolean;
   onFeedback: (action: LlmFeedbackAction) => void;
@@ -250,7 +213,7 @@ function ClassifyResult({
           {result.rationale}
         </p>
       ) : null}
-      <WarningList warnings={result.warnings} />
+      <RiskList evaluation={evaluation} />
       <FeedbackRow
         sent={feedbackSent}
         onFeedback={onFeedback}
@@ -262,11 +225,13 @@ function ClassifyResult({
 
 function SummarizeResult({
   result,
+  evaluation,
   feedbackSent,
   feedbackDisabled,
   onFeedback,
 }: {
   result: LlmSummarizeOutput;
+  evaluation: LlmRiskEvaluation | null;
   feedbackSent: LlmFeedbackAction | null;
   feedbackDisabled: boolean;
   onFeedback: (action: LlmFeedbackAction) => void;
@@ -281,7 +246,7 @@ function SummarizeResult({
           {result.missing_information}
         </p>
       ) : null}
-      <WarningList warnings={result.warnings} />
+      <RiskList evaluation={evaluation} />
       <FeedbackRow
         sent={feedbackSent}
         onFeedback={onFeedback}
@@ -293,9 +258,11 @@ function SummarizeResult({
 
 export function LlmAssistantPanel({
   ticketId,
+  contextText,
   onUseReply,
 }: {
   ticketId: number;
+  contextText?: string;
   onUseReply?: (text: string) => void;
 }) {
   const user = useSessionStore((s) => s.user);
@@ -312,6 +279,12 @@ export function LlmAssistantPanel({
   } = useLlm();
   const canUseLlm = hasTicketPermission(user?.role ?? null, "ai:suggest");
 
+  const injectionRisk = useMemo(() => detectPromptInjection(contextText ?? ""), [contextText]);
+  const insufficientContext = useMemo(
+    () => isInsufficientContext(contextText ?? ""),
+    [contextText]
+  );
+
   const [classifyOut, setClassifyOut] = useState<LlmClassifyOutput | null>(null);
   const [summarizeOut, setSummarizeOut] = useState<LlmSummarizeOutput | null>(null);
   const [chatOut, setChatOut] = useState<LlmChatOutput | null>(null);
@@ -325,6 +298,44 @@ export function LlmAssistantPanel({
   const [streamConfidence, setStreamConfidence] = useState<number | null>(null);
   const [feedbackSent, setFeedbackSent] = useState<Record<number, LlmFeedbackAction>>({});
   const streamAbortRef = useRef<(() => void) | null>(null);
+
+  const classifyRisks = useMemo<LlmRiskEvaluation | null>(() => {
+    if (!classifyOut) return null;
+    return evaluateLlmRisks({
+      confidence: classifyOut.confidence,
+      warnings: classifyOut.warnings,
+      injectionRisk,
+    });
+  }, [classifyOut, injectionRisk]);
+
+  const summarizeRisks = useMemo<LlmRiskEvaluation | null>(() => {
+    if (!summarizeOut) return null;
+    return evaluateLlmRisks({
+      confidence: summarizeOut.confidence,
+      warnings: summarizeOut.warnings,
+      injectionRisk,
+    });
+  }, [summarizeOut, injectionRisk]);
+
+  const chatRisks = useMemo<LlmRiskEvaluation | null>(() => {
+    if (!chatOut) return null;
+    return evaluateLlmRisks({
+      confidence: chatOut.confidence,
+      warnings: chatOut.warnings,
+      policyFlags: chatOut.policy_flags,
+      piiDetections: detectPii(chatDraft),
+      injectionRisk,
+    });
+  }, [chatOut, chatDraft, injectionRisk]);
+
+  const streamRisks = useMemo<LlmRiskEvaluation | null>(() => {
+    if (!streamOutput) return null;
+    return evaluateLlmRisks({
+      confidence: streamConfidence ?? undefined,
+      piiDetections: detectPii(streamOutput),
+      injectionRisk,
+    });
+  }, [streamOutput, streamConfidence, injectionRisk]);
 
   const handleClassify = () => classify.mutate({ ticketId }, { onSuccess: setClassifyOut });
 
@@ -352,7 +363,7 @@ export function LlmAssistantPanel({
     );
 
   const applyChatInComposer = async () => {
-    if (!chatOut || !chatDraft.trim()) return;
+    if (!chatOut || !chatDraft.trim() || chatRisks?.blocked) return;
     const changed = chatDraft !== chatOut.suggested_reply;
     onUseReply?.(chatDraft);
     if (!feedbackSent[chatOut.suggestion_id]) {
@@ -490,6 +501,7 @@ export function LlmAssistantPanel({
               {classifyOut ? (
                 <ClassifyResult
                   result={classifyOut}
+                  evaluation={classifyRisks}
                   feedbackSent={feedbackSent[classifyOut.suggestion_id] ?? null}
                   feedbackDisabled={feedback.isPending}
                   onFeedback={(action) => void sendFeedback(classifyOut.suggestion_id, action)}
@@ -522,6 +534,7 @@ export function LlmAssistantPanel({
               {summarizeOut ? (
                 <SummarizeResult
                   result={summarizeOut}
+                  evaluation={summarizeRisks}
                   feedbackSent={feedbackSent[summarizeOut.suggestion_id] ?? null}
                   feedbackDisabled={feedback.isPending}
                   onFeedback={(action) => void sendFeedback(summarizeOut.suggestion_id, action)}
@@ -530,6 +543,7 @@ export function LlmAssistantPanel({
             </TabsContent>
 
             <TabsContent value="chat" className="mt-3 space-y-3">
+              {insufficientContext ? <InsufficientContextNotice /> : null}
               <p className="text-xs text-muted-foreground">
                 Genera una respuesta editable basada en el contexto del ticket.
               </p>
@@ -560,7 +574,7 @@ export function LlmAssistantPanel({
                     aria-label="Respuesta de la IA"
                     disabled={chat.isPending}
                   />
-                  <PiiDetectionList detections={detectPii(chatDraft)} />
+                  <RiskList evaluation={chatRisks} />
                   <div className="flex flex-wrap items-center gap-1.5">
                     <ConfidenceBadge confidence={chatOut.confidence} />
                     {chatOut.sources.length > 0 ? (
@@ -570,42 +584,43 @@ export function LlmAssistantPanel({
                       </span>
                     ) : null}
                   </div>
-              <WarningList warnings={chatOut.warnings} />
-              <div className="flex flex-wrap gap-1.5">
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => void applyChatInComposer()}
-                  disabled={!chatDraft.trim()}
-                >
-                  <PenLineIcon aria-hidden />
-                  Usar en respuesta
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={() => void redactChat()}
-                  disabled={piiRedact.isPending || !chatDraft.trim()}
-                >
-                  {piiRedact.isPending ? (
-                    <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                  ) : (
-                    <ShieldAlertIcon aria-hidden />
-                  )}
-                  Redactar PII
-                </Button>
-              </div>
-              <FeedbackRow
-                sent={feedbackSent[chatOut.suggestion_id] ?? null}
-                onFeedback={(action) => void sendFeedback(chatOut.suggestion_id, action)}
-                disabled={feedback.isPending}
-              />
+                  <div className="flex flex-wrap gap-1.5">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => void applyChatInComposer()}
+                      disabled={!chatDraft.trim() || (chatRisks?.blocked ?? false)}
+                      title={chatRisks?.blocked ? APPLY_BLOCKED_TITLE : undefined}
+                    >
+                      <PenLineIcon aria-hidden />
+                      Usar en respuesta
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => void redactChat()}
+                      disabled={piiRedact.isPending || !chatDraft.trim()}
+                    >
+                      {piiRedact.isPending ? (
+                        <Loader2Icon className="size-4 animate-spin" aria-hidden />
+                      ) : (
+                        <ShieldAlertIcon aria-hidden />
+                      )}
+                      Redactar PII
+                    </Button>
+                  </div>
+                  <FeedbackRow
+                    sent={feedbackSent[chatOut.suggestion_id] ?? null}
+                    onFeedback={(action) => void sendFeedback(chatOut.suggestion_id, action)}
+                    disabled={feedback.isPending}
+                  />
                 </div>
               ) : null}
             </TabsContent>
 
             <TabsContent value="suggestions" className="mt-3 space-y-3">
+              {insufficientContext ? <InsufficientContextNotice /> : null}
               <p className="text-xs text-muted-foreground">
                 Genera 3 respuestas con distintos tonos para elegir.
               </p>
@@ -628,6 +643,13 @@ export function LlmAssistantPanel({
                 ? suggestions.map((suggestion, idx) => {
                     const tone = SUGGEST_TONES[idx];
                     const draftValue = suggestDrafts[idx] ?? suggestion.suggested_reply;
+                    const evaluation = evaluateLlmRisks({
+                      confidence: suggestion.confidence,
+                      warnings: suggestion.warnings,
+                      policyFlags: suggestion.policy_flags,
+                      piiDetections: detectPii(draftValue),
+                      injectionRisk,
+                    });
                     return (
                       <div
                         key={idx}
@@ -644,16 +666,15 @@ export function LlmAssistantPanel({
                           }
                           aria-label={`Sugerencia ${idx + 1} (tono ${tone.label})`}
                         />
-                        <div className="flex flex-wrap items-center gap-1.5">
-                          <ConfidenceBadge confidence={suggestion.confidence} />
-                        </div>
-                        <WarningList warnings={suggestion.warnings} />
+                        <ConfidenceBadge confidence={suggestion.confidence} />
+                        <RiskList evaluation={evaluation} />
                         <div className="flex flex-wrap gap-1.5">
                           <Button
                             type="button"
                             size="sm"
                             onClick={() => void handleUseSuggestion(suggestion, draftValue)}
-                            disabled={!draftValue.trim()}
+                            disabled={!draftValue.trim() || evaluation.blocked}
+                            title={evaluation.blocked ? APPLY_BLOCKED_TITLE : undefined}
                           >
                             <PenLineIcon aria-hidden />
                             Usar sugerencia
@@ -672,6 +693,7 @@ export function LlmAssistantPanel({
             </TabsContent>
 
             <TabsContent value="streaming" className="mt-3 space-y-3">
+              {insufficientContext ? <InsufficientContextNotice /> : null}
               <p className="text-xs text-muted-foreground">
                 Genera la respuesta y la muestra en tiempo real vía Server-Sent Events.
               </p>
@@ -713,6 +735,7 @@ export function LlmAssistantPanel({
                       {streamTokens.length} eventos recibidos
                     </span>
                   </div>
+                  <RiskList evaluation={streamRisks} />
                 </div>
               ) : null}
             </TabsContent>
