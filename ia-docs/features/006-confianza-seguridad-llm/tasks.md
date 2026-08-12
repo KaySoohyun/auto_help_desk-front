@@ -12,10 +12,10 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T2 · Componentes presentacionales
 
-- [ ] Crear `src/components/features/llm/ConfidenceBadge.tsx`: niveles high/medium/low con tokens semánticos (extraído del panel actual).
-- [ ] Crear `src/components/features/llm/RiskBanner.tsx`: ícono por kind, color por level, `role="alert"` en high, mensaje.
-- [ ] Crear `src/components/features/llm/PromptInjectionWarning.tsx`: banner destacado que explica el bloqueo y pide revisión manual.
-- [ ] Crear `src/components/features/llm/InsufficientContextNotice.tsx`: aviso "No hay suficiente contexto para una sugerencia confiable. Revisá manualmente."
+- [x] Crear `src/components/features/llm/ConfidenceBadge.tsx`: niveles high/medium/low con tokens semánticos (extraído del panel actual).
+- [x] Crear `src/components/features/llm/RiskBanner.tsx`: ícono por kind, color por level, `role="alert"` en high, mensaje.
+- [x] Crear `src/components/features/llm/PromptInjectionWarning.tsx`: banner destacado que explica el bloqueo y pide revisión manual.
+- [x] Crear `src/components/features/llm/InsufficientContextNotice.tsx`: aviso "No hay suficiente contexto para una sugerencia confiable. Revisá manualmente."
 
 ## T3 · Integración en el panel LLM
 
