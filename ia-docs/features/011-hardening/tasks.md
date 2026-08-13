@@ -19,9 +19,9 @@
 
 ## T4 · Observabilidad
 
-- [ ] `bffFetch`: correlation id (`crypto.randomUUID()`), header `x-correlation-id`, adjuntado al `ApiError` en errores.
-- [ ] `src/app/error.tsx` (client): mensaje + ID de error + "Recargar".
-- [ ] `src/app/global-error.tsx`: versión raíz con el mismo patrón.
+- [x] `bffFetch`: correlation id (`crypto.randomUUID()`), header `x-correlation-id`, adjuntado al `ApiError` en errores.
+- [x] `src/app/error.tsx` (client): mensaje + ID de error + "Recargar".
+- [x] `src/app/global-error.tsx`: versión raíz con el mismo patrón.
 
 ## T5 · Performance
 
