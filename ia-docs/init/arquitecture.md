@@ -176,12 +176,18 @@ POST /api/bff/knowledge/articles/[articleId]/archive
 POST /api/bff/knowledge/articles/[articleId]/restore
 GET  /api/bff/knowledge/articles/[articleId]/versions
 
+GET  /api/bff/admin/users
+POST /api/bff/admin/users
+PATCH /api/bff/admin/users/[userId]
+
 GET  /api/bff/tenant/[tenantSlug]/audit/events
 ```
 
 > Nota: el backend real no expone `/chat` ni `/suggest`. Los BFF `chat` y `stream` proxean a `POST /v1/ai/tickets/{id}/suggested-reply`; `stream` envuelve la respuesta como evento SSE único y el cliente la emite chunked como tokens en tiempo real. `/api/bff/llm/suggest` fue eliminado (endpoint inexistente).
 >
 > Los endpoints de **Knowledge Base** (`/api/bff/knowledge/*`) proxean a `/v1/kb/*`, contratos definidos por la feature 007 y **pendientes de implementación en FastAPI** (ver `ia-docs/backend/api.md` § Knowledge Base). El frontend ya está implementado contra esos contratos; la validación funcional real queda pendiente hasta que el backend exista.
+>
+> Los endpoints de **Administración** (`/api/bff/admin/users*`) proxean a `/admin/users*` (existentes en FastAPI). El resto de la configuración operativa (equipos, roles, SLA, canales, categorías, tags, plantillas) está **pendiente en FastAPI** y solo documentado (ver § Configuración operativa); sin UI en el frontend.
 
 ## Routing
 
@@ -270,6 +276,17 @@ Estados de ticket: `open`, `pending`, `waiting_customer`, `solved`, `closed`. Pr
 - **UI:** `/app/knowledge/*` (listado con filtros en URL, detalle, editor RHF+Zod, historial de versiones, taxonomy de categorías). Agente = solo lectura de `published`; supervisor/admin gestionan (`kb:edit`) y publican (`kb:publish`).
 - **Contenido:** texto plano, renderizado con `whitespace-pre-wrap`; sin `dangerouslySetInnerHTML` ni markdown.
 - **Integración tickets/LLM:** `LlmAssistantPanel` muestra una sección "Artículos relacionados" (artículos `published` por categoría del ticket vía `useArticles`) y "Insertar referencia" agrega una línea citable al composer vía `onUseReply`, sin envío automático.
+
+### Administración
+
+| Entidad   | Campos clave                                                  |
+|-----------|---------------------------------------------------------------|
+| `AdminUser` | id, email, rol, tenant_id, activo, creado (`UserOut`)        |
+
+- **UI:** `/app/admin/users` (listado con búsqueda client-side por email y filtro por rol, crear y editar rol/activación). Solo `tenant_admin`/`platform_admin` (`users:read`/`users:edit`); la UI oculta acciones y el backend decide.
+- **Restricciones por rol:** `tenant_admin` no ofrece `platform_admin` al crear/editar ni puede desactivar su propia cuenta.
+- **BFF:** `/api/bff/admin/users*` → `/admin/users*` (existentes en FastAPI).
+- **Contratos pendientes:** equipos, roles CRUD, invitaciones, SLA, canales, categorías, tags y plantillas documentados como pendientes en `backend/api.md` y `models.md`; sin UI.
 
 ### LLM
 

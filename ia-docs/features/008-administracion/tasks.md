@@ -28,14 +28,14 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T5 · Rutas y estados
 
-- [ ] `src/app/app/admin/page.tsx`: redirige a `/app/admin/users`.
-- [ ] Estados de acceso denegado (sin `users:read`) en la vista client.
-- [ ] Activación de `Conocimiento` no afectada; nav Administración con link activo para subrutas.
+- [x] `src/app/app/admin/page.tsx`: redirige a `/app/admin/users`.
+- [x] Estados de acceso denegado (sin `users:read`) en la vista client.
+- [x] Activación de `Conocimiento` no afectada; nav Administración con link activo para subrutas.
 
 ## T6 · Cierre
 
-- [ ] Documentar en `ia-docs/backend/api.md` la sección "Configuración operativa — Pendiente en FastAPI" (equipos, roles, invitaciones, SLA, canales, categorías, tags, plantillas) con tablas de endpoints propuestos.
-- [ ] Documentar tablas pendientes en `ia-docs/backend/models.md` (teams, team_members, sla_policies, channels, categories, tags, templates).
-- [ ] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
-- [ ] Verificación manual con el backend real (listado, crear con restricciones de rol, editar rol, desactivar/activar, acceso agente denegado).
-- [ ] Documentar en `ia-docs/init/changes.md`, actualizar `arquitecture.md` (rutas BFF admin, componentes/hooks) y mover 008 a "En progreso" en `ia-docs/constitution/roadmap.md`.
+- [x] Documentar en `ia-docs/backend/api.md` la sección "Configuración operativa — Pendiente en FastAPI" (equipos, roles, invitaciones, SLA, canales, categorías, tags, plantillas) con tablas de endpoints propuestos.
+- [x] Documentar tablas pendientes en `ia-docs/backend/models.md` (teams, team_members, sla_policies, channels, categories, tags, templates).
+- [x] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- [ ] Verificación manual con el backend real (listado, crear con restricciones de rol, editar rol, desactivar/activar, acceso agente denegado). *(pendiente: requiere `pnpm dev` + backend FastAPI)*
+- [x] Documentar en `ia-docs/init/changes.md`, actualizar `arquitecture.md` (rutas BFF admin, componentes/hooks) y mover 008 a "En progreso" en `ia-docs/constitution/roadmap.md`.

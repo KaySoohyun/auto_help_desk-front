@@ -227,6 +227,78 @@ Snapshots de versiones de artículos (uno por PATCH). Solo lectura en MVP; sin r
 
 ---
 
+## Tablas de administración — ⚠️ Pendientes en FastAPI
+
+Tablas propuestas por la feature 008 del frontend (Etapa 4.2 del plan). **No implementadas** aún; solo documentación, sin UI en el frontend.
+
+### `teams`
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `tenant_id` | string(64) | index | |
+| `name` | string(100) | | |
+| `description` | text | nullable | |
+| `created_at` | datetime (tz) | default now(UTC) | |
+
+### `team_members`
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `team_id` | int | FK `teams.id` (ON DELETE CASCADE), index | |
+| `user_id` | int | FK `users.id`, index | |
+| `created_at` | datetime (tz) | default now(UTC) | |
+
+Índice único: `(team_id, user_id)`.
+
+### `sla_policies`
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `tenant_id` | string(64) | index | |
+| `name` | string(100) | | |
+| `priority` | string(20) | nullable | `low` \| `medium` \| `high` \| `urgent` |
+| `response_hours` | float | | Límite de primera respuesta |
+| `resolution_hours` | float | nullable | Límite de resolución |
+| `enabled` | bool | default `true` | |
+| `created_at` | datetime (tz) | default now(UTC) | |
+
+### `channels`
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `tenant_id` | string(64) | index | |
+| `name` | string(100) | | `email` \| `chat` \| `webform` \| `telefono` ... |
+| `enabled` | bool | default `true` | |
+| `created_at` | datetime (tz) | default now(UTC) | |
+
+### `categories`
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `tenant_id` | string(64) | index | |
+| `name` | string(100) | | Catálogo de categorías (los tickets/artículos referencian por string) |
+| `created_at` | datetime (tz) | default now(UTC) | |
+
+### `tags`
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `tenant_id` | string(64) | index | |
+| `name` | string(50) | | |
+| `created_at` | datetime (tz) | default now(UTC) | |
+
+### `templates`
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `tenant_id` | string(64) | index | |
+| `name` | string(100) | | |
+| `body` | text | **cifrado** | Plantilla de respuesta |
+| `created_at` | datetime (tz) | default now(UTC) | |
+| `updated_at` | datetime (tz) | onupdate now(UTC) | |
+
+---
+
 ## Relaciones
 
 ```

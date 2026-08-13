@@ -1,5 +1,16 @@
 # Cambios
 
+## 2026-08-13 — Feature 008 · Administración (usuarios)
+
+- **Tipos y BFF** (`src/types/admin.types.ts` + `src/app/api/bff/admin/users*`): `AdminUser` (= `UserOut`), `AdminUserCreatePayload`, `AdminUserUpdatePayload`. Rutas `GET/POST /api/bff/admin/users` y `PATCH /api/bff/admin/users/[userId]` con Zod y proxy a `/admin/users*` (endpoints reales de FastAPI).
+- **Hooks TanStack Query** (`src/hooks/admin/`): `useAdminUsers` (lista con `AbortController`), `useCreateAdminUser`, `useUpdateAdminUser` con invalidación de la lista. Query keys con prefijo `'admin'` y tenant.
+- **Permisos UI** (`src/lib/permissions.ts`): `AdminPermission` (`users:read|users:edit`) para `tenant_admin`/`platform_admin`; `supervisor`/`agent` sin acceso. El nav "Administración" en `Sidebar.tsx` se activa dinámicamente según `users:read` (`enabled: "admin"`, `matchPrefix` para subrutas).
+- **UI en `/app/admin/users`**: `AdminUsersView` (tabla con búsqueda client-side por email, filtro por rol, estados loading/error/empty y acceso denegado), `UserCreateForm` (RHF+Zod; rol limitado según permiso; `tenant_id` solo para `platform_admin`) y `UserEditDialog` (rol sin `platform_admin` para `tenant_admin`, activo/inactivo con `AlertDialog` de confirmación, no se puede desactivar la propia cuenta). `/app/admin` redirige a `/app/admin/users`.
+- **Fix lint**: `watch()` de React Hook Form genera warning `react-hooks/incompatible-library` (React Compiler); el rol del formulario de creación se maneja con estado local en vez de `watch`.
+- **Docs**: sección "Configuración operativa — Pendiente en FastAPI" en `ia-docs/backend/api.md` (invitaciones, equipos, roles, SLA, canales, categorías, tags, plantillas) y tablas pendientes en `ia-docs/backend/models.md`; `arquitecture.md` actualizado (endpoints BFF admin, modelo Administración).
+- **Verificación**: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- **Pendiente**: verificación funcional contra FastAPI real (listado, crear con restricciones de rol, editar rol, desactivar/activar, acceso agente denegado).
+
 ## 2026-08-13 — Feature 007 · Base de conocimiento
 
 - **Tipos y contratos BFF** (`src/types/knowledge.types.ts` + `src/app/api/bff/knowledge/*`): `KbArticleStatus`, `KbArticle`, `KbArticleSummary`, `KbArticleList`, `KbArticleVersion`, query/payload types. Rutas `articles`, `articles/[articleId]`, `publish|archive|restore` y `versions` con Zod y proxy a `/v1/kb/*` (contratos pendientes en FastAPI).

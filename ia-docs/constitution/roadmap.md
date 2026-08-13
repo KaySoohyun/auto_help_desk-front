@@ -14,12 +14,12 @@ _005 y 006 están implementadas (build/lint/typecheck OK) pero pendientes de val
 - **005 · Panel LLM avanzado** — streaming SSE, sugerencias en composer, accept/edit/regenerate/reject, PII filtering. Implementado. ⏳ _(Fase 2 · Etapa 2.2)_ Pendiente: validación funcional + a11y.
 - **006 · Confianza y seguridad LLM** — ConfidenceBadge, riesgos, PII, prompt injection, bloqueo de apply, bajo contexto. Implementado. ⏳ _(Fase 2 · Etapa 2.3)_ Pendiente: validación funcional contra FastAPI real + a11y.
 - **007 · Base de conocimiento** — listado con filtros, editor con draft/published/archived, versionado por snapshot, permisos por rol e integración con tickets/LLM (artículos relacionados + insertar referencia). Implementado. ⏳ _(Fase 3)_ Pendiente: validación funcional contra FastAPI real (el backend no expone `/v1/kb/*` aún) + a11y.
+- **008 · Administración** — gestión de usuarios del tenant (listar, crear, editar rol/activación) contra `/admin/users` real; equipos/roles/SLA/canales/categorías/tags/plantillas documentados como pendientes en FastAPI. Implementado. ⏳ _(Fase 4 · Etapas 4.1–4.2)_ Pendiente: validación funcional contra FastAPI real.
 
 ## Backlog / ideas 💡
 
 _Sin comprometer ni ordenar del todo. Ideas que respetan la constitución._
 
-- **008 · Administración** — usuarios, equipos, roles, SLA, canales, tags, plantillas. _(Fase 4 · Etapas 4.1–4.2)_
 - **009 · Auditoría** — eventos de usuario y LLM, PII, exportaciones. _(Fase 4 · Etapa 4.3)_
 - **010 · Privacidad, retención y límites LLM** — políticas y configuración. _(Fase 4 · Etapa 4.4)_
 - **011 · Hardening** — performance, seguridad, accesibilidad y observabilidad. _(Fase 5)_

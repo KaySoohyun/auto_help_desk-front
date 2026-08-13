@@ -267,6 +267,27 @@ Actualiza overrides globales. Solo persiste los campos enviados; los demás usan
 
 ---
 
+## Configuración operativa — ⚠️ Pendiente en FastAPI
+
+> **Estado:** contratos propuestos por la feature 008 del frontend (Etapa 4.2 del plan). **No implementados** en FastAPI aún. Solo documentación; no hay UI en el frontend hasta que el backend exista.
+>
+> Base `/admin/...`, requieren `CONFIGURE_TENANT` (`tenant_admin` / `platform_admin`). El frontend no consume estos endpoints todavía.
+
+| Método | Ruta | Descripción |
+| --- | --- | --- |
+| GET/POST | `/admin/invitations` | Invitaciones por email (Etapa 4.1) |
+| GET/POST/PATCH | `/admin/teams` | Equipos del tenant (Etapa 4.1) |
+| GET/POST/PATCH | `/admin/roles` | Roles y matriz de permisos (Etapa 4.1) |
+| GET/PUT | `/admin/sla` | Políticas SLA (Etapa 4.2) |
+| GET/POST/PATCH | `/admin/channels` | Canales de soporte (Etapa 4.2) |
+| GET/POST/PATCH | `/admin/categories` | Catálogo de categorías (Etapa 4.2) |
+| GET/POST/PATCH | `/admin/tags` | Catálogo de tags (Etapa 4.2) |
+| GET/POST/PATCH | `/admin/templates` | Plantillas de respuesta (Etapa 4.2) |
+
+> Nota: la gestión de **usuarios** (`/admin/users`) y **políticas LLM** (`/admin/ai-policy*`) sí están implementadas; ver § Admin arriba.
+
+---
+
 ## IA — `/v1/ai`
 
 Requieren `ai:suggest`. Los endpoints de clasificación/resumen/respuesta/ping pueden devolver:
