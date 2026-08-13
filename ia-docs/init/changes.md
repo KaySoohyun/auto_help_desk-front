@@ -1,5 +1,16 @@
 # Cambios
 
+## 2026-08-13 — Feature 010 · Privacidad, retención y límites LLM
+
+- **Tipos y BFF** (`src/types/admin.types.ts` + `/api/bff/admin/`): `AdminAiPolicy`/`AdminAiPolicyUpdate`, `GlobalAiPolicy`/`GlobalAiPolicyUpdate`, `OrchestratorInfo`. Rutas `GET/PUT /api/bff/admin/ai-policy` (Zod: `tone` ≤50, `language` ≤10, `allowed_categories` ≤100, `escalation_rules` record), `GET/PUT /api/bff/admin/ai-policies/global` (Zod: `ai_confidence_threshold` 0–1, `llm_rate_max_calls` ≥1) y `GET /api/bff/admin/ai-info` → `/v1/ai/info`.
+- **Hooks TanStack Query** (`src/hooks/admin/`): `useAiPolicy`, `useUpdateAiPolicy`, `useGlobalAiPolicy`, `useUpdateGlobalAiPolicy`, `useAiInfo` con invalidación y queryKeys nuevas (`ai-policy`, `ai-policies/global`, `ai-info`).
+- **Permisos UI** (`src/lib/permissions.ts`): `AdminPermission` extiende con `ai:configure` (`tenant_admin`/`platform_admin`) y `ai:configure-global` (solo `platform_admin`).
+- **UI en `/app/admin/llm`** (`AdminLlmView`): card de política IA del tenant (toggle `ai_enabled` con Checkbox, `tone`, `language`, editor de tags de categorías con Enter/Agregar/quitar, filas de reglas de escalado clave→valor), card de política global (modelo, umbral de confianza 0–1, guardrails, límite de llamadas; deshabilitada con nota para `tenant_admin`) y card read-only del orquestador con "Actualizar". Sub-nav `AdminNav` ("Usuarios | Configuración LLM") en `/app/admin/users` y `/app/admin/llm`.
+- **Detalle React Compiler**: los formularios usan estado local inicializado desde el query y se resincronizan con la respuesta del `mutateAsync` (evita `setState` en effect → sin warning `react-hooks/set-state-in-effect`; tampoco RHF `watch()`).
+- **Docs**: `arquitecture.md` actualizado (BFF admin, entidades de política, sub-nav, pendientes), `backend/api.md` marcado como consumido y sección "Privacidad y retención — ⚠️ Pendiente en FastAPI" (retención, preferencias de privacidad, config de redacción PII por tenant), entrada en `changes.md`.
+- **Verificación**: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- **Pendiente**: verificación funcional contra FastAPI real (leer/editar política tenant, editar global como `platform_admin`, bloqueo de edición global como `tenant_admin`, info del orquestador, tags y reglas de escalado).
+
 ## 2026-08-13 — Feature 009 · Auditoría
 
 - **Tipos y BFF** (`src/types/audit.types.ts` + `src/app/api/bff/audit/events/route.ts`): `AuditEvent` (= `AuditEventOut`), `AuditEventResult` (`success|failure|disabled`), `AuditEventService` (`auth|tickets|admin|ai|audit|pii`), `AuditEventListQuery`. `GET` con Zod de query params (`action`, `service`, `user_id`, `result`, `date_from`, `date_to`, `limit` 1–200 default 50, `offset`) y proxy a `/audit/events` (endpoint real de FastAPI).

@@ -30,7 +30,7 @@
 
 ## T6 · Docs y cierre
 
-- [ ] Actualizar `ia-docs/init/changes.md` (entrada 010), `ia-docs/init/arquitecture.md` (BFF, AdminLlmView, sub-nav), `ia-docs/backend/api.md` (marcar `ai-policy`/`ai-policies/global`/`ai/info` como consumidos; retención/privacidad/redacción PII como pendientes).
-- [ ] Mover 010 a "En progreso" en `ia-docs/constitution/roadmap.md`.
+- [x] Actualizar `ia-docs/init/changes.md` (entrada 010), `ia-docs/init/arquitecture.md` (BFF, AdminLlmView, sub-nav), `ia-docs/backend/api.md` (marcar `ai-policy`/`ai-policies/global`/`ai/info` como consumidos; retención/privacidad/redacción PII como pendientes).
+- [x] Mover 010 a "En progreso" en `ia-docs/constitution/roadmap.md`.
 - [ ] Verificación manual contra FastAPI real *(pendiente: requiere `pnpm dev` + backend)*.
-- [ ] Build/lint/typecheck final.
+- [x] Build/lint/typecheck final.

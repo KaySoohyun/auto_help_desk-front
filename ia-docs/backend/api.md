@@ -183,6 +183,8 @@ Cierra el ticket (estado `closed`). Permiso: `responses:send`.
 
 ## Admin — `/admin`
 
+> Consumido por el frontend (features 008 y 010) vía `GET/POST /api/bff/admin/users*`, `GET/PUT /api/bff/admin/ai-policy`, `GET/PUT /api/bff/admin/ai-policies/global` y `GET /api/bff/admin/ai-info` (→ `/v1/ai/info`).
+
 Requieren `CONFIGURE_TENANT` (`tenant_admin` / `platform_admin`). La gestión de políticas globales requiere `MANAGE_AI_POLICIES` (`platform_admin`).
 
 ### `GET /admin/users`
@@ -385,6 +387,16 @@ Redacta PII de un texto. Permiso: `ai:suggest`.
 - `mode` (`off|detect|redact`, default `redact`).
 - **200** → `PIIRedactResponse`
 - **422** → modo inválido
+
+---
+
+## Privacidad y retención — ⚠️ Pendiente en FastAPI
+
+> **Estado:** contratos propuestos por la feature 010 del frontend (Etapa 4.4 del plan). **No implementados** en FastAPI aún. Solo documentación; no hay UI en el frontend hasta que el backend exista.
+
+- **Políticas de retención** — tiempos de retención de tickets, mensajes, sesiones y auditoría por tipo de dato.
+- **Preferencias de privacidad del usuario** — preferencias personales de privacidad/PII por usuario.
+- **Configuración de redacción de PII por tenant** — modo default (`off|detect|redact`) y tipos a redactar. La redacción puntual (`POST /v1/pii/redact`) ya se consume en el panel LLM.
 
 ---
 

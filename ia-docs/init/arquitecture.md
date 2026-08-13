@@ -179,6 +179,11 @@ GET  /api/bff/knowledge/articles/[articleId]/versions
 GET  /api/bff/admin/users
 POST /api/bff/admin/users
 PATCH /api/bff/admin/users/[userId]
+GET  /api/bff/admin/ai-policy
+PUT  /api/bff/admin/ai-policy
+GET  /api/bff/admin/ai-policies/global
+PUT  /api/bff/admin/ai-policies/global
+GET  /api/bff/admin/ai-info
 
 GET  /api/bff/audit/events
 ```
@@ -187,7 +192,7 @@ GET  /api/bff/audit/events
 >
 > Los endpoints de **Knowledge Base** (`/api/bff/knowledge/*`) proxean a `/v1/kb/*`, contratos definidos por la feature 007 y **pendientes de implementación en FastAPI** (ver `ia-docs/backend/api.md` § Knowledge Base). El frontend ya está implementado contra esos contratos; la validación funcional real queda pendiente hasta que el backend exista.
 >
-> Los endpoints de **Administración** (`/api/bff/admin/users*`) proxean a `/admin/users*` (existentes en FastAPI). El resto de la configuración operativa (equipos, roles, SLA, canales, categorías, tags, plantillas) está **pendiente en FastAPI** y solo documentado (ver § Configuración operativa); sin UI en el frontend.
+> Los endpoints de **Administración** (`/api/bff/admin/users*`, `/api/bff/admin/ai-policy`, `/api/bff/admin/ai-policies/global`, `/api/bff/admin/ai-info`) proxean a `/admin/users*`, `/admin/ai-policy`, `/admin/ai-policies/global` y `/v1/ai/info` (existentes en FastAPI). El resto de la configuración operativa (equipos, roles, SLA, canales, categorías, tags, plantillas) y de privacidad/retención (políticas de retención, preferencias de privacidad, config de redacción PII por tenant) está **pendiente en FastAPI** y solo documentado (ver § Configuración operativa y § Privacidad y retención en `backend/api.md`); sin UI en el frontend.
 >
 > Los endpoints de **Auditoría** (`/api/bff/audit/events`) proxean a `/audit/events` (existente en FastAPI). La exportación a CSV se genera client-side sobre los eventos obtenidos (hasta 200 por request, límite del backend); no hay endpoint de exportación.
 
@@ -284,11 +289,14 @@ Estados de ticket: `open`, `pending`, `waiting_customer`, `solved`, `closed`. Pr
 | Entidad   | Campos clave                                                  |
 |-----------|---------------------------------------------------------------|
 | `AdminUser` | id, email, rol, tenant_id, activo, creado (`UserOut`)        |
+| `AdminAiPolicy` | tenant_id, ai_enabled, tone, language, allowed_categories, escalation_rules, updated_at |
+| `GlobalAiPolicy` | llm_model, ai_confidence_threshold, guardrails_enabled, llm_rate_max_calls |
+| `OrchestratorInfo` | provider, model, rate_max_calls, rate_window_seconds, max_retries |
 
-- **UI:** `/app/admin/users` (listado con búsqueda client-side por email y filtro por rol, crear y editar rol/activación). Solo `tenant_admin`/`platform_admin` (`users:read`/`users:edit`); la UI oculta acciones y el backend decide.
-- **Restricciones por rol:** `tenant_admin` no ofrece `platform_admin` al crear/editar ni puede desactivar su propia cuenta.
-- **BFF:** `/api/bff/admin/users*` → `/admin/users*` (existentes en FastAPI).
-- **Contratos pendientes:** equipos, roles CRUD, invitaciones, SLA, canales, categorías, tags y plantillas documentados como pendientes en `backend/api.md` y `models.md`; sin UI.
+- **UI:** `/app/admin/users` (listado con búsqueda client-side por email y filtro por rol, crear y editar rol/activación) y `/app/admin/llm` (política IA del tenant, política global y estado del orquestador). Sub-nav `AdminNav` ("Usuarios | Configuración LLM"). Solo `tenant_admin`/`platform_admin` (`users:read`); la UI oculta acciones y el backend decide.
+- **Restricciones por rol:** `tenant_admin` no ofrece `platform_admin` al crear/editar ni puede desactivar su propia cuenta. La política global solo la edita `platform_admin` (`ai:configure-global`); `tenant_admin` la ve deshabilitada.
+- **BFF:** `/api/bff/admin/users*` → `/admin/users*`, `/api/bff/admin/ai-policy` → `/admin/ai-policy`, `/api/bff/admin/ai-policies/global` → `/admin/ai-policies/global`, `/api/bff/admin/ai-info` → `/v1/ai/info` (existentes en FastAPI). Los formularios de política usan estado local inicializado desde el query y se resincronizan desde la respuesta del guardado (sin `setState` en effect, compatible con el React Compiler).
+- **Contratos pendientes:** equipos, roles CRUD, invitaciones, SLA, canales, categorías, tags y plantillas (Etapa 4.2) y políticas de retención, preferencias de privacidad y config de redacción PII por tenant (Etapa 4.4) documentados como pendientes en `backend/api.md` y `models.md`; sin UI.
 
 ### LLM
 
