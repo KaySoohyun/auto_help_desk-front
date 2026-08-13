@@ -40,7 +40,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ userId: s
   const result = await authenticatedFetch<AdminUser>(`/admin/users/${parsedParams.data.userId}`, {
     method: "PATCH",
     body: parsed.data as { role?: UserRole; is_active?: boolean },
-  });
+  }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

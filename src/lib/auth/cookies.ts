@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { ACCESS_TOKEN_COOKIE, REFRESH_TOKEN_COOKIE } from "./constants";
+import { setCsrfCookie } from "./csrf";
 
 const REFRESH_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 
@@ -33,6 +34,7 @@ export async function setAuthCookies(
     path: "/",
     maxAge: REFRESH_MAX_AGE_SECONDS,
   });
+  await setCsrfCookie();
 }
 
 export async function clearAuthCookies(): Promise<void> {

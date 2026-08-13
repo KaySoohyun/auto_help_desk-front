@@ -51,7 +51,7 @@ export async function POST(req: NextRequest) {
   const result = await authenticatedFetch<AdminUser>("/admin/users", {
     method: "POST",
     body: parsed.data as { email: string; password: string; role: UserRole; tenant_id?: string },
-  });
+  }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data, { status: 201 });
 }

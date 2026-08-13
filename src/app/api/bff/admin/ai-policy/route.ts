@@ -35,7 +35,7 @@ export async function PUT(req: NextRequest) {
   const result = await authenticatedFetch<AdminAiPolicy>("/admin/ai-policy", {
     method: "PUT",
     body: parsed.data as AdminAiPolicyUpdate,
-  });
+  }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

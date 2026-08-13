@@ -50,7 +50,8 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ articleId
 
   const result = await authenticatedFetch<KbArticle>(
     `/v1/kb/articles/${parsedParams.data.articleId}`,
-    { method: "PATCH", body: parsed.data }
+    { method: "PATCH", body: parsed.data },
+    req
   );
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);

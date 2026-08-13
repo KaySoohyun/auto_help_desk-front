@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
 
   const result = await authenticatedFetch<LlmSummarizeOutput>(
     `/v1/ai/tickets/${parsed.data.ticketId}/summary`,
-    { method: "POST" }
+    { method: "POST" },
+    req
   );
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);

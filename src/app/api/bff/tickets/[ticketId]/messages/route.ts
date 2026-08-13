@@ -43,7 +43,7 @@ export async function POST(req: NextRequest, ctx: { params: Promise<{ ticketId: 
   const result = await authenticatedFetch<TicketMessage>(`/v1/tickets/${parsed.data.ticketId}/messages`, {
     method: "POST",
     body: parsedBody.data,
-  });
+  }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data, { status: 201 });
 }

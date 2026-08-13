@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { fastApiFetch } from "./fastapi";
 import { ApiError } from "./errors";
 import { clearAuthCookies, getAccessToken, getRefreshToken, setAuthCookies } from "@/lib/auth/cookies";
+import { getCsrfToken, setCsrfCookie, verifyCsrf } from "@/lib/auth/csrf";
 import type { TokenResponse } from "@/types/auth.types";
 
 interface AuthenticatedFetchOptions {
@@ -11,18 +13,29 @@ interface AuthenticatedFetchOptions {
 }
 
 /**
- * Ejecuta una request autenticada a FastAPI con refresh automático (1 retry).
+ * Ejecuta una request autenticada a FastAPI con refresh automático (1 retry)
+ * y verificación de token CSRF para métodos mutantes.
  * Devuelve el JSON de éxito o un NextResponse de error.
  */
 export async function authenticatedFetch<T>(
   path: string,
-  options: AuthenticatedFetchOptions = {}
+  options: AuthenticatedFetchOptions = {},
+  req?: NextRequest
 ): Promise<{ data: T } | NextResponse> {
   const { method = "GET", body, headers = {} } = options;
 
   const accessToken = await getAccessToken();
   if (!accessToken) {
     return NextResponse.json({ error: "Sin sesión." }, { status: 401 });
+  }
+
+  if (method !== "GET") {
+    const csrfValid = await verifyCsrf(req);
+    if (!csrfValid) {
+      return NextResponse.json({ error: "Token CSRF inválido." }, { status: 403 });
+    }
+  } else if (!(await getCsrfToken())) {
+    await setCsrfCookie();
   }
 
   const call = (token: string) =>

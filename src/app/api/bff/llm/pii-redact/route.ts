@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
   const result = await authenticatedFetch<LlmPiiRedactOutput>("/v1/pii/redact", {
     method: "POST",
     body: parsed.data,
-  });
+  }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

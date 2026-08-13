@@ -39,7 +39,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ ticketId:
   const result = await authenticatedFetch<Ticket>(`/v1/tickets/${parsedParams.data.ticketId}`, {
     method: "PATCH",
     body: parsed.data,
-  });
+  }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

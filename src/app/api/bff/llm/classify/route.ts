@@ -22,7 +22,8 @@ export async function POST(req: NextRequest) {
 
   const result = await authenticatedFetch<LlmClassifyOutput>(
     `/v1/ai/tickets/${parsed.data.ticketId}/classify`,
-    { method: "POST" }
+    { method: "POST" },
+    req
   );
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);

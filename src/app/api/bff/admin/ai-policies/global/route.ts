@@ -32,7 +32,7 @@ export async function PUT(req: NextRequest) {
   const result = await authenticatedFetch<GlobalAiPolicy>("/admin/ai-policies/global", {
     method: "PUT",
     body: parsed.data as GlobalAiPolicyUpdate,
-  });
+  }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

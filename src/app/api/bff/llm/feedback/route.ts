@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
   const { ticketId, ...feedback } = parsed.data;
   const result = await authenticatedFetch<LlmFeedbackOutput>(
     `/v1/ai/tickets/${ticketId}/feedback`,
-    { method: "POST", body: feedback }
+    { method: "POST", body: feedback },
+    req
   );
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);

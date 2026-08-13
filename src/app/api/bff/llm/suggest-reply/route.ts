@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
   const { ticketId, ...rest } = parsed.data;
   const result = await authenticatedFetch<LlmSuggestReplyOutput>(
     `/v1/ai/tickets/${ticketId}/suggested-reply`,
-    { method: "POST", body: rest }
+    { method: "POST", body: rest },
+    req
   );
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);

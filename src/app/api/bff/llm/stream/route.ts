@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
 
   const result = await authenticatedFetch<LlmChatOutput>(
     `/v1/ai/tickets/${ticketId}/suggested-reply`,
-    { method: "POST", body: { tone, language } }
+    { method: "POST", body: { tone, language } },
+    req
   );
   if (result instanceof NextResponse) return result;
 

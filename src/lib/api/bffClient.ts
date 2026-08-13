@@ -1,4 +1,5 @@
 import { ApiError } from "./errors";
+import { CSRF_TOKEN_COOKIE } from "@/lib/auth/constants";
 
 interface BffRequestOptions {
   method?: "GET" | "POST" | "PATCH" | "PUT" | "DELETE";
@@ -7,8 +8,18 @@ interface BffRequestOptions {
   signal?: AbortSignal;
 }
 
+function getCsrfTokenFromCookie(): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie
+    .split("; ")
+    .find((cookie) => cookie.startsWith(`${CSRF_TOKEN_COOKIE}=`));
+  return match ? match.slice(CSRF_TOKEN_COOKIE.length + 1) : undefined;
+}
+
 export async function bffFetch<T>(path: string, options: BffRequestOptions = {}): Promise<T> {
   const { method = "GET", body, headers = {}, signal } = options;
+
+  const csrfToken = method !== "GET" ? getCsrfTokenFromCookie() : undefined;
 
   let res: Response;
   try {
@@ -16,6 +27,7 @@ export async function bffFetch<T>(path: string, options: BffRequestOptions = {})
       method,
       headers: {
         "Content-Type": "application/json",
+        ...(csrfToken ? { "x-csrf-token": csrfToken } : {}),
         ...headers,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,

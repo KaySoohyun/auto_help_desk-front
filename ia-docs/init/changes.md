@@ -1,5 +1,19 @@
 # Cambios
 
+## 2026-08-13 — Seguridad · Headers + CSRF (endurecimiento BFF)
+
+- **Headers de seguridad globales** (`next.config.ts`): `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` y `Permissions-Policy` (sin cámara/micrófono/geolocalización) para todas las rutas. CSP estricto (`default-src 'self'`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`) **solo en producción**: en dev rompe HMR/React Refresh (`'unsafe-inline'`/`'unsafe-eval'` para scripts, `connect-src 'self'`).
+- **CSRF para el BFF** (mutaciones), esquema **cookies + header**:
+  - `src/lib/auth/csrf.ts` (nuevo): `setCsrfCookie` (cookie `csrf_token`, **no HttpOnly**, SameSite=Lax, random UUID), `verifyCsrf` (compara cookie vs header `x-csrf-token` con `timingSafeEqual`).
+  - `src/lib/auth/cookies.ts`: `setAuthCookies` ahora emite también la cookie CSRF al login/refresh.
+  - `src/lib/api/authenticated.ts`: `authenticatedFetch(path, options, req)` verifica CSRF en **todo método ≠ GET** (403 si falta/coincide mal; fail-closed) y en GET garantiza la cookie CSRF si no existe (para que el cliente la tenga).
+  - Todas las rutas BFF mutantes (tickets, messages, close, admin users, ai-policy, kb articles publish/archive/restore, llm chat/stream/classify/summarize/feedback/suggest-reply/pii-redact) pasan `req`; los handlers `_req: Request` de close/restore/publish/archive ahora usan `NextRequest`.
+  - `src/lib/api/bffClient.ts`: en métodos ≠ GET lee la cookie `csrf_token` de `document.cookie` y la envía como header `x-csrf-token`.
+- **Verificación**: `pnpm typecheck` y `pnpm lint` en verde (0 errores, 0 warnings).
+- **Pendiente**: `pnpm build` (validar CSP de producción) y verificación funcional (login → crear/editar ticket, kb publish/restore, acciones LLM) y 403 si falta la cookie.
+
+
+
 ## 2026-08-13 — Feature 010 · Privacidad, retención y límites LLM
 
 - **Tipos y BFF** (`src/types/admin.types.ts` + `/api/bff/admin/`): `AdminAiPolicy`/`AdminAiPolicyUpdate`, `GlobalAiPolicy`/`GlobalAiPolicyUpdate`, `OrchestratorInfo`. Rutas `GET/PUT /api/bff/admin/ai-policy` (Zod: `tone` ≤50, `language` ≤10, `allowed_categories` ≤100, `escalation_rules` record), `GET/PUT /api/bff/admin/ai-policies/global` (Zod: `ai_confidence_threshold` 0–1, `llm_rate_max_calls` ≥1) y `GET /api/bff/admin/ai-info` → `/v1/ai/info`.
