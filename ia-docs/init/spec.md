@@ -587,36 +587,35 @@ Si existe un admin de plataforma global:
 3. **Administrador de tenant**
 4. **Administrador de plataforma**
 5. **Auditor**
-6. **Solo lectura**
 
 ---
 
 ## 4.2 Matriz de permisos propuesta
 
-| Capacidad | Agente | Supervisor | Tenant Admin | Platform Admin | Auditor | Solo lectura |
-|---|---:|---:|---:|---:|---:|---:|
-| Ver dashboard | ✅ | ✅ | ✅ | ✅ | ✅ limitado | ✅ limitado |
-| Ver tickets | ✅ | ✅ | ✅ | ✅ | ✅ read-only | ✅ limitado |
-| Responder públicamente | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| Capacidad | Agente | Supervisor | Tenant Admin | Platform Admin | Auditor |
+|---|---:|---:|---:|---:|---:|
+| Ver dashboard | ✅ | ✅ | ✅ | ✅ | ✅ limitado |
+| Ver tickets | ✅ | ✅ | ✅ | ✅ | ✅ read-only |
+| Responder públicamente | ✅ | ✅ | ✅ | ✅ | ❌ |
 | Notas internas | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Asignar/reasignar tickets | 🔶 | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Acciones bulk | 🔶 | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Usar asistente LLM | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Aceptar/editar sugerencia LLM | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Revelar PII | 🔶 | ✅ | ✅ | ✅ | 🔶 | ❌ |
-| Gestionar KB borradores | 🔶 | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Publicar KB | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Gestionar usuarios | ❌ | 🔶 | ✅ | ✅ | ❌ | ❌ |
-| Gestionar equipos | ❌ | 🔶 | ✅ | ✅ | ❌ | ❌ |
-| Gestionar roles | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Configurar SLA | ❌ | 🔶 | ✅ | ✅ | ❌ | ❌ |
-| Configurar canales/categorías/tags | ❌ | 🔶 | ✅ | ✅ | ❌ | ❌ |
-| Configurar plantillas | ❌ | ✅ | ✅ | ✅ | ❌ | ❌ |
-| Configurar retención/privacidad | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Configurar LLM/límites | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
-| Ver auditoría | ❌ | 🔶 | ✅ | ✅ | ✅ | ❌ |
-| Exportar auditoría | ❌ | ❌ | 🔶 | ✅ | 🔶 | ❌ |
-| Administrar tenants | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Asignar/reasignar tickets | 🔶 | ✅ | ✅ | ✅ | ❌ |
+| Acciones bulk | 🔶 | ✅ | ✅ | ✅ | ❌ |
+| Usar asistente LLM | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Aceptar/editar sugerencia LLM | ✅ | ✅ | ✅ | ✅ | ❌ |
+| Revelar PII | 🔶 | ✅ | ✅ | ✅ | 🔶 |
+| Gestionar KB borradores | 🔶 | ✅ | ✅ | ✅ | ❌ |
+| Publicar KB | ❌ | ✅ | ✅ | ✅ | ❌ ||
+| Gestionar usuarios | ❌ | 🔶 | ✅ | ✅ | ❌ |
+| Gestionar equipos | ❌ | 🔶 | ✅ | ✅ | ❌ |
+| Gestionar roles | ❌ | ❌ | ✅ | ✅ | ❌ |
+| Configurar SLA | ❌ | 🔶 | ✅ | ✅ | ❌ |
+| Configurar canales/categorías/tags | ❌ | 🔶 | ✅ | ✅ | ❌ |
+| Configurar plantillas | ❌ | ✅ | ✅ | ✅ | ❌ |
+| Configurar retención/privacidad | ❌ | ❌ | ✅ | ✅ | ❌ |
+| Configurar LLM/límites | ❌ | ❌ | ✅ | ✅ | ❌ |
+| Ver auditoría | ❌ | 🔶 | ✅ | ✅ | ✅ |
+| Exportar auditoría | ❌ | ❌ | 🔶 | ✅ | 🔶 |
+| Administrar tenants | ❌ | ❌ | ❌ | ✅ | ❌ |
 
 ### Notas
 - ✅ permitido por defecto.
@@ -659,11 +658,6 @@ Si existe un admin de plataforma global:
 - Puede revisar auditoría de acciones humanas y LLM.
 - No debe poder ejecutar acciones operativas.
 - Revelado de PII solo si política lo permite.
-
-### Solo lectura
-- Acceso limitado a consulta.
-- Sin acciones mutativas.
-- Útil para stakeholders o usuarios de reporting.
 
 ---
 
