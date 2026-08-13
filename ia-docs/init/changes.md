@@ -1,5 +1,22 @@
 # Cambios
 
+## 2026-08-13 — Suite de tests funcionales contra el backend real
+
+- **Runner**: Vitest (devDependency, `pnpm add -D vitest`). Scripts `test:functional` (levanta `next dev` en :3199 con `URL_BACKEND_DEV`, espera readiness, corre Vitest y mata el árbol de procesos con `process.kill(-pid)`) y `test:functional:watch`. Config en `vitest.config.ts` (environment node, `tests/**/*.test.ts`, setup que carga `.env` manualmente — no existe `@next/env` standalone).
+- **Helper** `tests/support/client.ts`: `TestClient` que replica el navegador (jar de cookies + header `x-csrf-token` en mutantes, siguiendo `bffClient.ts`), login con credenciales de `.env` o usuario custom, y `seedAgent()` que registra un agent único en `test-tenant` vía `/auth/register` de FastAPI (la app no expone registro; se siembra directo para datos de test). Nota: el backend rechaza dominios ≠ `@example.com` con 422.
+- **Suites (9 archivos, 82 tests)**:
+  - `auth.test.ts` (5): login/me/logout reales, 401/422.
+  - `tickets.test.ts` (11): listado, filtros, crear, detalle, update, asignación, mensajes, cierre, validaciones. Opera con agent sembrado (el `platform_admin` de `.env` no tiene tenant).
+  - `dashboard.test.ts` (6): query real del dashboard (`limit=100`) + datos de KPIs (asignados a mí / sin asignar / abiertos) y filtros.
+  - `knowledge.test.ts` (8): documenta que FastAPI **no expone `/v1/kb/*`** → 404 en todas las operaciones; validaciones BFF 422 OK.
+  - `admin.test.ts` (7): RBAC real — agent → 403 "Permiso insuficiente"; `platform_admin` puede POST crear (201) y PATCH editar (200) a nivel plataforma, pero GET listado es tenant-scoped → 403 "Rol sin tenant asignado". Validaciones BFF 422.
+  - `audit.test.ts` (7): RBAC 403 (agent / platform_admin) + validaciones BFF 422.
+  - `ai-policy.test.ts` (9): global policy es a nivel plataforma (platform_admin GET/PUT 200, round-trip idempotente); tenant policy tenant-scoped (403); `ai-info` requiere rol admin (agent → 403). Validaciones BFF.
+  - `llm.test.ts` (10): **PII-redact funciona real** (enmascara email + report). Orquestador ticket-scoped del **mock devuelve 422 "Campos de ... inválidos" siempre** (classify/summary/suggested-reply/chat/stream) → pendiente de investigar en FastAPI; feedback valida (404 si no existe la sugerencia). Validaciones BFF 422.
+  - `hardening.test.ts` (9): headers siempre activos (nosniff, DENY, referrer-policy, permissions-policy) en páginas y BFF; **CSRF fail-closed** (403 sin header, 403 con token incorrecto, 201 con token correcto, GET sin CSRF OK); 401 JSON en `/me` sin sesión y en mutaciones sin sesión (el redirect a `/login` es comportamiento del cliente, no testeable por HTTP).
+- **Hallazgos backend**: `total` del listado de tickets se computa en query separada del `items` (se desfasó 17 vs 18 con tests en paralelo → ajuste de aserción); `platform_admin` (sin tenant) opera a nivel plataforma (crear/editar usuarios, policy global) pero no en tenant-scoped; credenciales tenant_admin/auditor necesarias para validar admin/audit/ai-policy completos.
+- **Estado**: 82/82 en verde contra backend real en `http://localhost:8000` (mock LLM). `typecheck` y `lint` limpios.
+
 ## 2026-08-13 — Feature 011 · Hardening (seguridad, a11y, performance, observabilidad)
 
 - **Headers de seguridad globales** (`next.config.ts`): `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` y `Permissions-Policy` (sin cámara/micrófono/geolocalización) para todas las rutas. CSP estricto (`default-src 'self'`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`) **solo en producción**: en dev rompe HMR/React Refresh (`'unsafe-inline'`/`'unsafe-eval'` para scripts, `connect-src 'self'`).
