@@ -13,13 +13,13 @@ import {
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui.store";
 import { useSessionStore } from "@/stores/session.store";
-import { hasAdminPermission } from "@/lib/permissions";
+import { hasAdminPermission, hasAuditPermission } from "@/lib/permissions";
 
 interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  enabled: boolean | "admin";
+  enabled: boolean | "admin" | "audit";
   matchPrefix?: boolean;
 }
 
@@ -46,7 +46,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Gestión",
     items: [
-      { href: "/app/audit", label: "Auditoría", icon: ShieldCheckIcon, enabled: false },
+      { href: "/app/audit", label: "Auditoría", icon: ShieldCheckIcon, enabled: "audit", matchPrefix: true },
       {
         href: "/app/admin",
         label: "Administración",
@@ -63,6 +63,7 @@ export function Sidebar() {
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const user = useSessionStore((s) => s.user);
   const canAdmin = hasAdminPermission(user?.role ?? null, "users:read");
+  const canAudit = hasAuditPermission(user?.role ?? null, "audit:view");
 
   return (
     <aside
@@ -89,7 +90,8 @@ export function Sidebar() {
             ) : null}
             {section.items.map((item) => {
               const Icon = item.icon;
-              const enabled = item.enabled === "admin" ? canAdmin : item.enabled;
+              const enabled =
+                item.enabled === "admin" ? canAdmin : item.enabled === "audit" ? canAudit : item.enabled;
               const active =
                 enabled && (item.matchPrefix ? pathname.startsWith(item.href) : pathname === item.href);
 

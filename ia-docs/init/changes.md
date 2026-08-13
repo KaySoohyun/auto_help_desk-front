@@ -1,5 +1,16 @@
 # Cambios
 
+## 2026-08-13 — Feature 009 · Auditoría
+
+- **Tipos y BFF** (`src/types/audit.types.ts` + `src/app/api/bff/audit/events/route.ts`): `AuditEvent` (= `AuditEventOut`), `AuditEventResult` (`success|failure|disabled`), `AuditEventService` (`auth|tickets|admin|ai|audit|pii`), `AuditEventListQuery`. `GET` con Zod de query params (`action`, `service`, `user_id`, `result`, `date_from`, `date_to`, `limit` 1–200 default 50, `offset`) y proxy a `/audit/events` (endpoint real de FastAPI).
+- **Hooks TanStack Query** (`src/hooks/audit/`): `useAuditEvents` con query keys `['tenant', tenantId, 'audit', 'events', filters]`. Helper compartido `toAuditQueryString` en `src/lib/audit.ts` (usado por el hook y la exportación).
+- **Permisos UI** (`src/lib/permissions.ts`): `AuditPermission` (`audit:view` para `tenant_admin`/`platform_admin`/`supervisor`; `audit:export` solo `tenant_admin`/`platform_admin`). El nav "Auditoría" en `Sidebar.tsx` se activa dinámicamente según `audit:view` (`enabled: "audit"`).
+- **UI en `/app/audit`**: `AuditEventsView` con filtros en URL (`service`, `result`, `action`, `user_id`, `date_from`, `date_to`, `page`), tabla con fila expandible (`trace_id`, versiones de modelo/prompt, `detail` como JSON en `<pre>`, nunca HTML), badges de resultado, estados loading/error/empty y acceso denegado. Paginación offset de 50 (sin `total` del backend: "Siguiente" solo si la página viene llena).
+- **Exportación CSV** (solo `audit:export`): consulta el BFF con los filtros actuales y `limit: 200`, genera CSV con BOM UTF-8 (`eventsToCsv` en `src/lib/audit.ts`) y lo descarga. Límite visible en la UI.
+- **Docs**: `arquitecture.md` actualizado (BFF `GET /api/bff/audit/events`, sección Auditoría, query key de auditoría), `backend/api.md` marcado como consumido, entrada en `changes.md`.
+- **Verificación**: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- **Pendiente**: verificación funcional contra FastAPI real (listado, filtros, detalle expandible, export CSV, acceso agente denegado).
+
 ## 2026-08-13 — Feature 008 · Administración (usuarios)
 
 - **Tipos y BFF** (`src/types/admin.types.ts` + `src/app/api/bff/admin/users*`): `AdminUser` (= `UserOut`), `AdminUserCreatePayload`, `AdminUserUpdatePayload`. Rutas `GET/POST /api/bff/admin/users` y `PATCH /api/bff/admin/users/[userId]` con Zod y proxy a `/admin/users*` (endpoints reales de FastAPI).

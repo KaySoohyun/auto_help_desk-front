@@ -390,6 +390,8 @@ Redacta PII de un texto. Permiso: `ai:suggest`.
 
 ## Auditoría — `/audit`
 
+> Consumido por el frontend (feature 009) vía `GET /api/bff/audit/events` (→ `/audit/events`). La exportación CSV es client-side (no existe endpoint de exportación).
+
 ### `GET /audit/events`
 Lista eventos de auditoría del tenant (append-only), ordenados por `created_at` desc. Permiso: `audit:view`.
 

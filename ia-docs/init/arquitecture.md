@@ -180,7 +180,7 @@ GET  /api/bff/admin/users
 POST /api/bff/admin/users
 PATCH /api/bff/admin/users/[userId]
 
-GET  /api/bff/tenant/[tenantSlug]/audit/events
+GET  /api/bff/audit/events
 ```
 
 > Nota: el backend real no expone `/chat` ni `/suggest`. Los BFF `chat` y `stream` proxean a `POST /v1/ai/tickets/{id}/suggested-reply`; `stream` envuelve la respuesta como evento SSE único y el cliente la emite chunked como tokens en tiempo real. `/api/bff/llm/suggest` fue eliminado (endpoint inexistente).
@@ -188,6 +188,8 @@ GET  /api/bff/tenant/[tenantSlug]/audit/events
 > Los endpoints de **Knowledge Base** (`/api/bff/knowledge/*`) proxean a `/v1/kb/*`, contratos definidos por la feature 007 y **pendientes de implementación en FastAPI** (ver `ia-docs/backend/api.md` § Knowledge Base). El frontend ya está implementado contra esos contratos; la validación funcional real queda pendiente hasta que el backend exista.
 >
 > Los endpoints de **Administración** (`/api/bff/admin/users*`) proxean a `/admin/users*` (existentes en FastAPI). El resto de la configuración operativa (equipos, roles, SLA, canales, categorías, tags, plantillas) está **pendiente en FastAPI** y solo documentado (ver § Configuración operativa); sin UI en el frontend.
+>
+> Los endpoints de **Auditoría** (`/api/bff/audit/events`) proxean a `/audit/events` (existente en FastAPI). La exportación a CSV se genera client-side sobre los eventos obtenidos (hasta 200 por request, límite del backend); no hay endpoint de exportación.
 
 ## Routing
 
@@ -301,7 +303,12 @@ Estados de ticket: `open`, `pending`, `waiting_customer`, `solved`, `closed`. Pr
 
 | Entidad     | Campos clave                                                            |
 |-------------|-------------------------------------------------------------------------|
-| `AuditEvent`| usuario, acción, entidad, tenant, fecha, IP/contexto, resultado, evento LLM asociado |
+| `AuditEvent`| id, created_at, tenant_id, user_id, action, service, model, model_version, prompt_version, trace_id, result, confidence, detail (JSON) |
+
+- **UI:** `/app/audit` (`AuditEventsView`). Filtros en URL (`service`, `result`, `action`, `user_id`, `date_from`, `date_to`, `page`); tabla con fila expandible que muestra `trace_id`, versiones y el `detail` como JSON pre-formateado en `<pre>` (nunca como HTML). Paginación offset de 50 (sin `total` del backend: "Siguiente" solo si la página viene llena).
+- **Exportación:** botón "Exportar CSV" (solo `audit:export`) que consulta el BFF con los filtros actuales y `limit: 200`, y descarga CSV con BOM UTF-8. Límite visible en la UI.
+- **Permisos:** `audit:view` para `tenant_admin`/`platform_admin`/`supervisor`; `audit:export` solo `tenant_admin`/`platform_admin`. El rol "auditor" de la matriz no existe en la app.
+- **BFF:** `/api/bff/audit/events` → `/audit/events` (existente en FastAPI), query params validados con Zod.
 
 ## Manejo de sesión y cookies
 

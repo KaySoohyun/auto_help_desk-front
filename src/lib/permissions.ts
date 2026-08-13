@@ -45,3 +45,17 @@ export function hasAdminPermission(role: UserRole | null, permission: AdminPermi
   if (!role) return false;
   return ADMIN_ROLE_PERMISSIONS[role].includes(permission);
 }
+
+export type AuditPermission = "audit:view" | "audit:export";
+
+const AUDIT_ROLE_PERMISSIONS: Record<UserRole, AuditPermission[]> = {
+  platform_admin: ["audit:view", "audit:export"],
+  tenant_admin: ["audit:view", "audit:export"],
+  supervisor: ["audit:view"],
+  agent: [],
+};
+
+export function hasAuditPermission(role: UserRole | null, permission: AuditPermission): boolean {
+  if (!role) return false;
+  return AUDIT_ROLE_PERMISSIONS[role].includes(permission);
+}
