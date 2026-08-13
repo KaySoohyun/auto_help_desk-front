@@ -19,13 +19,13 @@ const updateArticleSchema = z
     message: "Sin cambios",
   });
 
-export async function GET(_req: Request, ctx: { params: Promise<{ articleId: string }> }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ articleId: string }> }) {
   const parsed = paramsSchema.safeParse(await ctx.params);
   if (!parsed.success) {
     return NextResponse.json({ error: "Artículo inválido." }, { status: 422 });
   }
 
-  const result = await authenticatedFetch<KbArticle>(`/v1/kb/articles/${parsed.data.articleId}`);
+  const result = await authenticatedFetch<KbArticle>(`/v1/kb/articles/${parsed.data.articleId}`, {}, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { TestClient, seedAgent, type SeedUser } from "./support/client";
+import { TestClient, seedAgent, seedTenantAdmin, type SeedUser } from "./support/client";
 
 interface OrchestratorInfo {
   provider: string;
@@ -13,6 +13,14 @@ interface GlobalPolicy {
   llm_rate_max_calls?: number | null;
 }
 
+interface TenantPolicy {
+  ai_enabled: boolean;
+  tone?: string | null;
+  language?: string | null;
+  allowed_categories?: string[];
+  escalation_rules?: Record<string, string>;
+}
+
 /**
  * Configuración IA: la policy del tenant es tenant-scoped (requiere tenant_admin),
  * la policy global es a nivel plataforma (platform_admin) y /v1/ai/info es de
@@ -21,12 +29,17 @@ interface GlobalPolicy {
 describe("ai-policy (configuración LLM)", () => {
   const agentClient = new TestClient();
   const platformClient = new TestClient();
+  const tenantAdminClient = new TestClient();
   let agent: SeedUser;
+  let tenantAdmin: SeedUser;
 
   beforeAll(async () => {
     agent = await seedAgent();
     expect((await agentClient.loginWith(agent)).status).toBe(200);
     expect((await platformClient.login()).status).toBe(200);
+    // Usar un tenant diferente para evitar afectar otros tests
+    tenantAdmin = await seedTenantAdmin("test-tenant-ai-policy");
+    expect((await tenantAdminClient.loginWith(tenantAdmin)).status).toBe(200);
   });
 
   describe("orquestador (solo lectura)", () => {
@@ -37,6 +50,14 @@ describe("ai-policy (configuración LLM)", () => {
 
     it("ai-info con platform_admin → 200 y shape correcto", async () => {
       const res = await platformClient.request("/api/bff/admin/ai-info");
+      expect(res.status).toBe(200);
+      const info = (await res.json()) as OrchestratorInfo;
+      expect(typeof info.provider).toBe("string");
+      expect(typeof info.model).toBe("string");
+    });
+
+    it("ai-info con tenant_admin → 200 (tiene VIEW_AUDIT)", async () => {
+      const res = await tenantAdminClient.request("/api/bff/admin/ai-info");
       expect(res.status).toBe(200);
       const info = (await res.json()) as OrchestratorInfo;
       expect(typeof info.provider).toBe("string");
@@ -61,6 +82,58 @@ describe("ai-policy (configuración LLM)", () => {
         body: { ai_enabled: true },
       });
       expect(res.status).toBe(403);
+    });
+
+    it("GET con tenant_admin → 200 con policy del propio tenant", async () => {
+      const res = await tenantAdminClient.request("/api/bff/admin/ai-policy");
+      expect(res.status).toBe(200);
+      const policy = (await res.json()) as TenantPolicy;
+      expect(typeof policy.ai_enabled).toBe("boolean");
+    });
+
+    it("PUT round-trip idempotente con tenant_admin → 200", async () => {
+      const get = await tenantAdminClient.request("/api/bff/admin/ai-policy");
+      const current = (await get.json()) as TenantPolicy;
+
+      // Filtrar campos null/undefined para que pasen el schema de validación del BFF
+      const updateBody: Record<string, unknown> = {};
+      if (current.ai_enabled !== undefined) updateBody.ai_enabled = current.ai_enabled;
+      if (current.tone) updateBody.tone = current.tone;
+      if (current.language) updateBody.language = current.language;
+      if (current.allowed_categories) updateBody.allowed_categories = current.allowed_categories;
+      if (current.escalation_rules) updateBody.escalation_rules = current.escalation_rules;
+
+      const put = await tenantAdminClient.request("/api/bff/admin/ai-policy", {
+        method: "PUT",
+        body: updateBody,
+      });
+      expect(put.status).toBe(200);
+
+      const after = await tenantAdminClient.request("/api/bff/admin/ai-policy");
+      const afterData = (await after.json()) as TenantPolicy;
+      expect(afterData.ai_enabled).toBe(current.ai_enabled);
+      expect(afterData.tone).toBe(current.tone ?? null);
+    });
+
+    it("PUT con tenant_admin modifica ai_enabled → 200 y refleja el cambio", async () => {
+      // Obtener estado actual
+      const get = await tenantAdminClient.request("/api/bff/admin/ai-policy");
+      const current = (await get.json()) as TenantPolicy;
+
+      // Cambiar ai_enabled
+      const newValue = !current.ai_enabled;
+      const put = await tenantAdminClient.request("/api/bff/admin/ai-policy", {
+        method: "PUT",
+        body: { ai_enabled: newValue },
+      });
+      expect(put.status).toBe(200);
+      expect((await put.json() as TenantPolicy).ai_enabled).toBe(newValue);
+
+      // Restaurar valor original
+      await tenantAdminClient.request("/api/bff/admin/ai-policy", {
+        method: "PUT",
+        body: { ai_enabled: current.ai_enabled },
+      });
     });
   });
 

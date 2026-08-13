@@ -1,17 +1,19 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { fastApiFetch } from "@/lib/api/fastapi";
 import { ApiError } from "@/lib/api/errors";
 import { clearAuthCookies, getAccessToken, getRefreshToken, setAuthCookies } from "@/lib/auth/cookies";
 import type { TokenResponse, UserOut } from "@/types/auth.types";
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const accessToken = await getAccessToken();
   if (!accessToken) {
     return NextResponse.json({ error: "Sin sesión." }, { status: 401 });
   }
 
+  const correlationId = req.headers.get("x-correlation-id") || undefined;
+
   try {
-    const user = await fastApiFetch<UserOut>("/auth/me", { token: accessToken });
+    const user = await fastApiFetch<UserOut>("/auth/me", { token: accessToken, correlationId });
     return NextResponse.json({ user });
   } catch (err) {
     if (!(err instanceof ApiError) || err.status !== 401) {
@@ -32,7 +34,7 @@ export async function GET() {
       });
       await setAuthCookies(tokens.access_token, tokens.expires_in, tokens.refresh_token);
 
-      const user = await fastApiFetch<UserOut>("/auth/me", { token: tokens.access_token });
+      const user = await fastApiFetch<UserOut>("/auth/me", { token: tokens.access_token, correlationId });
       return NextResponse.json({ user });
     } catch {
       await clearAuthCookies();

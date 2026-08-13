@@ -37,7 +37,7 @@ export async function GET(req: NextRequest) {
     if (value !== undefined && value !== "") qs.set(key, String(value));
   }
 
-  const result = await authenticatedFetch<TicketList>(`/v1/tickets?${qs.toString()}`);
+  const result = await authenticatedFetch<TicketList>(`/v1/tickets?${qs.toString()}`, {}, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

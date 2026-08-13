@@ -37,6 +37,17 @@ Hacer el proveedor mock dependiente de la tarea:
 
 **Tests:** unit del mock por tarea + integración del orquestador con `task=classify|summary|reply` que atraviesa los parsers. Correr `pytest`.
 
+### ✅ Implementado y verificado (2026-08-13)
+
+- El código ya implementaba el mock task-aware en `app/services/llm.py:141-179` con `_mock_content(task)`.
+- Tests de regresión existentes:
+  - `test_mock_provider_is_task_aware` (`tests/test_llm.py:43`)
+  - `test_classify_success_with_default_mock` (`tests/test_classify.py:185`)
+  - `test_summary_success_with_default_mock` (`tests/test_summary.py:108`)
+  - `test_reply_success_with_default_mock` (`tests/test_reply.py:114`)
+- Suite backend: **236 tests pasados** (sin regresión).
+- Documentado en `ia_docs/cambios.md` del backend.
+
 ---
 
 ## Hallazgo 2 — KB `/v1/kb/*` no existe (404 en todo)
@@ -77,6 +88,22 @@ Piezas a implementar (siguiendo patrones existentes: `TicketRepository`/`TenantS
 4. **Transiciones**: validar explícitamente cada transición (p. ej. archive solo desde published; publish solo desde draft; restore solo desde archived) con 422 si es inválida.
 5. **Búsqueda `search`**: `LIKE` case-insensitive sobre title y body (`func.lower()`).
 
+### ✅ Implementado y verificado (2026-08-13)
+
+- Feature 019 creada en `/home/kona/backend-python/ia_docs/features/019-base-conocimiento/` con spec.md, plan.md y tasks.md.
+- Implementación completa:
+  - Permisos `kb:read`, `kb:edit`, `kb:publish` en `app/core/permissions.py`.
+  - Modelos `KbArticle`, `KbArticleVersion`, `KbArticleTag` en `app/models/kb.py`.
+  - Schemas en `app/schemas/kb.py`.
+  - Repositorio `KbRepository` en `app/repositories/kb.py` con list (filtros), create, update (versionado), publish/archive/restore (transiciones validadas), list_versions.
+  - 8 endpoints en `app/api/routes_kb.py` con isolación por tenant y auditoría.
+- Tests: 23 tests en `tests/test_kb.py` (CRUD, permisos, isolación, versionado, transiciones, búsqueda, filtro por tag, auditoría).
+- Frontend: `tests/knowledge.test.ts` actualizado con 11 tests para validar flujo completo.
+- Suite backend: **259 tests pasados**.
+- Suite frontend: **106 tests pasados**.
+- Decisiones confirmadas: sin cifrado, tabla normalizada para tags, versionado por snapshot, transiciones validadas, búsqueda LIKE.
+- Documentado en `ia_docs/cambios.md` del backend.
+
 ---
 
 ## Hallazgo 3 — RBAC: falta validar rutas tenant-scoped con un `tenant_admin` real
@@ -93,6 +120,19 @@ Revisado el código, no se ve bug evidente: `tenant_admin` tiene `CONFIGURE_TENA
 2. **Suite frontend** (nuevo `tests/admin-tenant.test.ts`): validar con tenant_admin → `GET /admin/users` 200 (solo su tenant), `PATCH /admin/users/{id}` 200 (rol/activación), `GET/PUT /admin/ai-policy` 200 round-trip idempotente, `GET /audit/events` 200, `GET /v1/ai/info` 200 (VIEW_AUDIT).
 3. **pytest backend**: ampliar `tests/test_admin.py`/`test_audit.py` con casos tenant_admin: listar usuarios de su tenant, 403 al editar usuario de otro tenant, 403 al crear en otro tenant, GET/PUT ai-policy propio. Corregir solo si aparece un bug real.
 4. **Decisión de producto a confirmar**: ¿el `platform_admin` sin tenant debería poder operar a nivel plataforma sobre cualquier tenant (listar usuarios, leer políticas)? Hoy 403 en tenant-scoped. Opciones: (a) mantener 403 y documentar (recomendado, ya validado por el frontend), o (b) permitir `?tenant_id=` explícito solo a platform_admin. Proponer (a).
+
+### ✅ Implementado y verificado (2026-08-13)
+
+- Se agregó `seedTenantAdmin()` en `tests/support/client.ts` para crear usuarios `tenant_admin` directamente contra FastAPI.
+- Tests agregados en el frontend:
+  - `tests/admin.test.ts`: 6 tests nuevos para `tenant_admin` (listar, crear, editar usuarios del propio tenant; 403 al crear en otro tenant o crear platform_admin; 404 al editar usuario de otro tenant).
+  - `tests/audit.test.ts`: 2 tests nuevos para `tenant_admin` (leer eventos del propio tenant, filtrar por action).
+  - `tests/ai-policy.test.ts`: 3 tests nuevos para `tenant_admin` (ai-info → 200, GET policy → 200, PUT round-trip idempotente, PUT modifica ai_enabled).
+- Los tests usan tenants diferentes para evitar interferencias entre suites.
+- Suite frontend: **95 tests pasados** (sin regresión).
+- No se encontraron bugs en el backend; el RBAC funciona correctamente.
+- Decisión de producto: se mantiene el 403 para `platform_admin` sin tenant en rutas tenant-scoped (opción a).
+- Documentado en `ia_docs/cambios.md` del backend.
 
 ---
 
@@ -135,6 +175,16 @@ El backend está listo; falta la cadena en el **frontend**.
 2. **`src/lib/api/authenticated.ts`**: leer `req?.headers.get("x-correlation-id")` del request del cliente y pasarlo a `fastApiFetch` (en la llamada inicial y el retry). Como el backend ya lo devuelve en su header `X-Request-ID`, el `ApiError` queda con el trace real del backend.
 
 **Tests funcionales:** el BFF no expone hoy `X-Request-ID` al cliente; para poder verificarlo, `apiErrorResponse` (authenticated.ts:75) debería incluir el `correlationId` (del backend) en el JSON de error (p. ej. campo `correlation_id`) cuando esté disponible. El test envía un `x-correlation-id` custom a una ruta que falla (p. ej. KB inexistente o feedback con sugerencia inválida) y asertar que el error del BFF lleve ese trace.
+
+### ✅ Implementado y verificado (2026-08-13)
+
+- El código ya implementaba la cadena de correlation id en `fastapi.ts` y `authenticated.ts`.
+- Se corrigieron 12 Route Handlers GET que no pasaban el `req` a `authenticatedFetch`, impidiendo que el `correlationId` se reenviara al backend.
+- Tests actualizados:
+  - `tests/hardening.test.ts`: nuevo test `correlation-id: el error del BFF incluye el trace del backend`.
+  - `tests/llm.test.ts`: actualizado para reflejar que el mock task-aware funciona (200 en lugar de 422).
+- Suite frontend: **83 tests pasados** (sin regresión).
+- Documentado en `ia_docs/cambios.md` del backend.
 
 ---
 

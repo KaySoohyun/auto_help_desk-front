@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
   qs.set("limit", String(limit));
   qs.set("offset", String(offset));
 
-  const result = await authenticatedFetch<AuditEvent[]>(`/audit/events?${qs.toString()}`);
+  const result = await authenticatedFetch<AuditEvent[]>(`/audit/events?${qs.toString()}`, {}, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

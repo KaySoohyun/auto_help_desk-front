@@ -6,11 +6,9 @@ interface Ticket {
 }
 
 /**
- * LLM (asistente). El orquestador del backend es un MOCK: /v1/ai/info,
- * /v1/ai/ping y /v1/pii/redact responden 200 con datos; los endpoints
- * ticket-scoped (/v1/ai/tickets/{id}/classify|summary|suggested-reply)
- * rechazan con 422 "Campos de ... inválidos" sin importar el input — una
- * limitación del mock a investigar en FastAPI. El BFF proxya esos errores.
+ * LLM (asistente). El orquestador del backend usa un mock task-aware que
+ * devuelve JSON válido para classify/summary/reply. Los endpoints ticket-scoped
+ * responden 200 con datos estructurados.
  */
 describe("llm (asistente)", () => {
   const client = new TestClient();
@@ -45,44 +43,54 @@ describe("llm (asistente)", () => {
     expect(data.text).not.toContain("usuario@example.com");
   });
 
-  it("classify → 422 del backend mock (pendiente de validación real)", async () => {
+  it("classify → 200 con clasificación del mock task-aware", async () => {
     const res = await client.request("/api/bff/llm/classify", {
       method: "POST",
       body: { ticketId },
     });
-    expect(res.status).toBe(422);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { category: string; intent: string; confidence: number };
+    expect(data.category).toBeTruthy();
+    expect(data.intent).toBeTruthy();
+    expect(data.confidence).toBeGreaterThan(0);
   });
 
-  it("summarize → 422 del backend mock (pendiente de validación real)", async () => {
+  it("summarize → 200 con resumen del mock task-aware", async () => {
     const res = await client.request("/api/bff/llm/summarize", {
       method: "POST",
       body: { ticketId },
     });
-    expect(res.status).toBe(422);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { summary: string; confidence: number };
+    expect(data.summary).toBeTruthy();
+    expect(data.confidence).toBeGreaterThan(0);
   });
 
-  it("suggest-reply → 422 del backend mock (pendiente de validación real)", async () => {
+  it("suggest-reply → 200 con sugerencia del mock task-aware", async () => {
     const res = await client.request("/api/bff/llm/suggest-reply", {
       method: "POST",
       body: { ticketId, tone: "formal", language: "es" },
     });
-    expect(res.status).toBe(422);
+    expect(res.status).toBe(200);
+    const data = (await res.json()) as { suggested_reply: string; confidence: number };
+    expect(data.suggested_reply).toBeTruthy();
+    expect(data.confidence).toBeGreaterThan(0);
   });
 
-  it("chat → 422 del backend mock (mismo endpoint que suggest-reply)", async () => {
+  it("chat → 200 (mismo endpoint que suggest-reply)", async () => {
     const res = await client.request("/api/bff/llm/chat", {
       method: "POST",
       body: { ticketId },
     });
-    expect(res.status).toBe(422);
+    expect(res.status).toBe(200);
   });
 
-  it("stream → 422 del backend mock (envuelve suggested-reply)", async () => {
+  it("stream → 200 (envuelve suggested-reply)", async () => {
     const res = await client.request("/api/bff/llm/stream", {
       method: "POST",
       body: { ticketId },
     });
-    expect(res.status).toBe(422);
+    expect(res.status).toBe(200);
   });
 
   it("feedback → 404 del backend (valida que la sugerencia exista)", async () => {

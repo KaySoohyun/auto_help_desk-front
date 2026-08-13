@@ -13,8 +13,8 @@ const updatePolicySchema = z.object({
     .optional(),
 });
 
-export async function GET() {
-  const result = await authenticatedFetch<AdminAiPolicy>("/admin/ai-policy");
+export async function GET(req: NextRequest) {
+  const result = await authenticatedFetch<AdminAiPolicy>("/admin/ai-policy", {}, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

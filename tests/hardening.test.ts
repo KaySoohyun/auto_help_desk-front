@@ -113,4 +113,14 @@ describe("hardening", () => {
     });
     expect(res.status).toBe(200);
   });
+
+  it("correlation-id: el error del BFF incluye el trace del backend", async () => {
+    const customCorrelationId = `test-corr-${Date.now()}`;
+    const res = await client.request("/api/bff/tickets/999999", {
+      headers: { "x-correlation-id": customCorrelationId },
+    });
+    expect(res.status).toBe(404);
+    const data = (await res.json()) as { error: string; correlation_id?: string };
+    expect(data.correlation_id).toBe(customCorrelationId);
+  });
 });

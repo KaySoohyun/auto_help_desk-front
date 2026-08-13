@@ -58,6 +58,42 @@ export async function seedAgent(): Promise<SeedUser> {
 }
 
 /**
+ * Crea un tenant_admin directamente contra FastAPI (vía platform_admin).
+ * El platform_admin del .env crea el usuario y luego hacemos login con él.
+ */
+export async function seedTenantAdmin(tenantId: string = "test-tenant"): Promise<SeedUser> {
+  const { email: adminEmail, password: adminPassword } = adminCredentials();
+
+  // Login como platform_admin
+  const loginRes = await fetch(`${backendUrl()}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: adminEmail, password: adminPassword }),
+  });
+  if (!loginRes.ok) {
+    throw new Error(`No se pudo login como platform_admin (HTTP ${loginRes.status})`);
+  }
+  const { access_token } = (await loginRes.json()) as { access_token: string };
+
+  // Crear tenant_admin
+  const email = `ta-${Date.now()}-${Math.floor(Math.random() * 10000)}@example.com`;
+  const password = "ta-pass-123";
+  const createRes = await fetch(`${backendUrl()}/admin/users`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${access_token}`,
+    },
+    body: JSON.stringify({ email, password, role: "tenant_admin", tenant_id: tenantId }),
+  });
+  if (!createRes.ok) {
+    throw new Error(`No se pudo sembrar el tenant_admin (HTTP ${createRes.status})`);
+  }
+  const user = (await createRes.json()) as { id: number; email: string; role: SeedUser["role"]; tenant_id: string | null };
+  return { id: user.id, email, password, role: user.role, tenantId: user.tenant_id };
+}
+
+/**
  * Cliente HTTP de test: replica el comportamiento del navegador frente al BFF.
  * Mantiene el jar de cookies (access/refresh/csrf) y adjunta el header
  * x-csrf-token en métodos mutantes, tal como lo hace bffClient.ts.

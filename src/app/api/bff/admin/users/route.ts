@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     offset: String(parsed.data.offset),
   });
 
-  const result = await authenticatedFetch<AdminUser[]>(`/admin/users?${qs.toString()}`);
+  const result = await authenticatedFetch<AdminUser[]>(`/admin/users?${qs.toString()}`, {}, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

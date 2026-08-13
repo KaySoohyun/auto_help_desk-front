@@ -10,8 +10,8 @@ const updateGlobalSchema = z.object({
   llm_rate_max_calls: z.coerce.number().int().min(1).optional(),
 });
 
-export async function GET() {
-  const result = await authenticatedFetch<GlobalAiPolicy>("/admin/ai-policies/global");
+export async function GET(req: NextRequest) {
+  const result = await authenticatedFetch<GlobalAiPolicy>("/admin/ai-policies/global", {}, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

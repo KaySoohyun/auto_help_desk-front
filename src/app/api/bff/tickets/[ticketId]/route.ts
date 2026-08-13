@@ -44,13 +44,13 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ ticketId:
   return NextResponse.json(result.data);
 }
 
-export async function GET(_req: Request, ctx: { params: Promise<{ ticketId: string }> }) {
+export async function GET(req: NextRequest, ctx: { params: Promise<{ ticketId: string }> }) {
   const parsed = paramsSchema.safeParse(await ctx.params);
   if (!parsed.success) {
     return NextResponse.json({ error: "Ticket inválido." }, { status: 422 });
   }
 
-  const result = await authenticatedFetch<Ticket>(`/v1/tickets/${parsed.data.ticketId}`);
+  const result = await authenticatedFetch<Ticket>(`/v1/tickets/${parsed.data.ticketId}`, {}, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }

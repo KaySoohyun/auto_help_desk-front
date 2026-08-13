@@ -1,21 +1,25 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { TestClient, seedAgent, type SeedUser } from "./support/client";
+import { TestClient, seedAgent, seedTenantAdmin, type SeedUser } from "./support/client";
 
 /**
- * Auditoría (eventos del tenant). Sin credenciales tenant_admin/auditor a la
- * vista, estos tests validan el RBAC del backend (403 con roles insuficientes)
- * y el contrato de validación del BFF (422). La lectura real de eventos queda
- * pendiente hasta contar con un usuario con permiso audit:view.
+ * Auditoría (eventos del tenant). Valida RBAC del backend (403 con roles
+ * insuficientes), el contrato de validación del BFF (422), y la lectura real
+ * de eventos con tenant_admin (que tiene permiso audit:view).
  */
 describe("audit (eventos)", () => {
   const agentClient = new TestClient();
   const platformClient = new TestClient();
+  const tenantAdminClient = new TestClient();
   let agent: SeedUser;
+  let tenantAdmin: SeedUser;
 
   beforeAll(async () => {
     agent = await seedAgent();
     expect((await agentClient.loginWith(agent)).status).toBe(200);
     expect((await platformClient.login()).status).toBe(200);
+    // Usar un tenant diferente para evitar afectar otros tests
+    tenantAdmin = await seedTenantAdmin("test-tenant-audit");
+    expect((await tenantAdminClient.loginWith(tenantAdmin)).status).toBe(200);
   });
 
   describe("RBAC", () => {
@@ -27,6 +31,22 @@ describe("audit (eventos)", () => {
     it("platform_admin sin tenant → 403 Rol sin tenant asignado", async () => {
       const res = await platformClient.request("/api/bff/audit/events?limit=10");
       expect(res.status).toBe(403);
+    });
+
+    it("tenant_admin con permiso audit:view → 200 con eventos del propio tenant", async () => {
+      const res = await tenantAdminClient.request("/api/bff/audit/events?limit=10");
+      expect(res.status).toBe(200);
+      const data = (await res.json()) as Array<{ tenant_id: string; action: string }>;
+      expect(Array.isArray(data)).toBe(true);
+      // Todos los eventos deben ser del mismo tenant
+      expect(data.every((e) => e.tenant_id === tenantAdmin.tenantId)).toBe(true);
+    });
+
+    it("tenant_admin puede filtrar por action", async () => {
+      const res = await tenantAdminClient.request("/api/bff/audit/events?action=auth.login_success&limit=10");
+      expect(res.status).toBe(200);
+      const data = (await res.json()) as Array<{ action: string }>;
+      expect(data.every((e) => e.action === "auth.login_success")).toBe(true);
     });
   });
 
