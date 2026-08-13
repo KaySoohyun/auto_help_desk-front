@@ -17,6 +17,7 @@ _005 y 006 están implementadas (build/lint/typecheck OK) pero pendientes de val
 - **008 · Administración** — gestión de usuarios del tenant (listar, crear, editar rol/activación) contra `/admin/users` real; equipos/roles/SLA/canales/categorías/tags/plantillas documentados como pendientes en FastAPI). Implementado. ⏳ _(Fase 4 · Etapas 4.1–4.2)_ Pendiente: validación funcional contra FastAPI real.
 - **009 · Auditoría** — vista de eventos de auditoría del tenant (`/audit/events` real) con filtros por servicio/resultado/acción/usuario/fechas, detalle expandible (JSON en `<pre>`, nunca HTML), paginación offset y exportación CSV client-side (hasta 200 eventos). Permisos `audit:view`/`audit:export`. Implementado. ⏳ _(Fase 4 · Etapa 4.3)_ Pendiente: validación funcional contra FastAPI real.
 - **010 · Privacidad, retención y límites LLM** — política IA del tenant y política global del orquestador (`/admin/ai-policy`, `/admin/ai-policies/global` reales) editables en `/app/admin/llm` (con `ai:configure`/`ai:configure-global`), estado del orquestador en solo lectura (`/v1/ai/info`) y sub-nav "Usuarios | Configuración LLM". Retención, privacidad del usuario y config de redacción PII por tenant documentadas como pendientes en FastAPI. Implementado. ⏳ _(Fase 4 · Etapa 4.4)_ Pendiente: validación funcional contra FastAPI real.
+- **011 · Hardening** — headers de seguridad y CSP (prod), CSRF doble submit en el BFF (cookies + header, fail-closed en mutaciones), manejo global de 401 (redirect a `/login`), observabilidad (correlation id + error boundaries), `next/dynamic` del panel LLM, accesibilidad (skip-link, WCAG 2.2 AA). Implementado. ⏳ _(Fase 5)_ Pendiente: verificación funcional contra FastAPI real, E2E, load testing, virtualización, densidad configurable.
 
 ## Backlog / ideas 💡
 
@@ -24,6 +25,6 @@ _Sin comprometer ni ordenar del todo. Ideas que respetan la constitución._
 
 - **009 · Auditoría** — eventos de usuario y LLM, PII, exportaciones. _(Fase 4 · Etapa 4.3)_ ✅ Hecho (ver arriba)
 - **010 · Privacidad, retención y límites LLM** — políticas y configuración. _(Fase 4 · Etapa 4.4)_ ✅ Hecho (ver arriba)
-- **011 · Hardening** — performance, seguridad, accesibilidad y observabilidad. _(Fase 5)_
+- **011 · Hardening** — performance, seguridad, accesibilidad y observabilidad. _(Fase 5)_ 🟡 En progreso (ver arriba)
 
 > Cada feature nueva se crea como `features/NNN-nombre-feature/` con `spec.md`, `plan.md` y `tasks.md` antes de tocar código.

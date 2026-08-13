@@ -25,17 +25,17 @@
 
 ## T5 · Performance
 
-- [ ] `next/dynamic` para `LlmAssistantPanel` en `TicketDetailView`.
-- [ ] Comparar salida de `next build` (chunks de `/app/tickets/[ticketId]`).
+- [x] `next/dynamic` para `LlmAssistantPanel` en `TicketDetailView`.
+- [x] Comparar salida de `next build` (chunks de `/app/tickets/[ticketId]`).
 
 ## T6 · Accesibilidad
 
-- [ ] Skip-link "Saltar al contenido" en `AppShell` + `id="main-content"` con `tabIndex={-1}` en `<main>`.
-- [ ] Revisar botones icon-only sin `aria-label` en flujos clave y corregir los que falten.
-- [ ] Nota WCAG AA en docs.
+- [x] Skip-link "Saltar al contenido" en `AppShell` + `id="main-content"` con `tabIndex={-1}` en `<main>`.
+- [x] Revisar botones icon-only sin `aria-label` en flujos clave y corregir los que falten.
+- [x] Nota WCAG AA en docs.
 
 ## T7 · Docs y cierre
 
-- [ ] Actualizar `ia-docs/init/changes.md` (entrada 011), `ia-docs/init/arquitecture.md` (sección Seguridad/Observabilidad, headers, CSRF, error boundaries), `roadmap.md` → 011 "En progreso".
-- [ ] Pendientes documentados: E2E tests, load testing, virtualización, densidad configurable.
-- [ ] Verificación: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde; `curl -I` con headers; 401 → redirect.
+- [x] Actualizar `ia-docs/init/changes.md` (entrada 011), `ia-docs/init/arquitecture.md` (sección Seguridad/Observabilidad, headers, CSRF, error boundaries), `roadmap.md` → 011 "En progreso".
+- [x] Pendientes documentados: E2E tests, load testing, virtualización, densidad configurable.
+- [x] Verificación: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde; `curl -I` con headers; 401 → redirect.

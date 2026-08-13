@@ -362,8 +362,15 @@ Liviano, no decide autorización fina:
 - PII enmascarada por defecto; revelado con permiso, motivo opcional y auditoría. Copia redactada, desalentar copia de PII.
 - Prevención XSS: escape de React, sin `dangerouslySetInnerHTML` salvo sanitización explícita, CSP estricta, contenido del cliente siempre no confiable.
 - Prompt injection: contenido del cliente tratado como input no confiable; si se sospecha, warning visible, confianza baja y bloqueo de apply automático.
-- CSRF: cookies SameSite Lax/Strict + validación Origin/Referer en mutations.
+- **Headers de seguridad** (`next.config.ts`): `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` (sin cámara/micrófono/geolocalización) y CSP estricta en producción (`default-src 'self'`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`).
+- **CSRF doble submit en el BFF** (mutaciones, `src/lib/auth/csrf.ts` + `authenticated.ts`): cookie `csrf_token` no-HttpOnly SameSite=Lax + header `x-csrf-token` comparados con `timingSafeEqual` en todo método ≠ GET (403 fail-closed). El cliente (`bffClient.ts`) lee la cookie y envía el header. La cookie se emite al login/refresh (`setAuthCookies`) y se garantiza en cualquier GET autenticado.
+- **Manejo global de 401** (`src/lib/api/sessionEvents.ts`): pub/sub con cooldown; `bffFetch` emite ante 401 (excluye `/api/bff/auth/*`) y `Providers` redirige a `/login` (recarga total). Complementa el estado `expired` del session store.
 - Auditoría de acciones sensibles desde frontend: login/logout, revelado de PII, exportación, sugerencias LLM aceptadas/rechazadas, feedback, cambios de configuración.
+
+## Observabilidad
+
+- **Correlation id** (`src/lib/api/bffClient.ts`): cada request genera `x-correlation-id` (`crypto.randomUUID()` con fallback), se envía como header y se adjunta al `ApiError` para reportar/rastrear fallos.
+- **Error boundaries**: `src/app/error.tsx` (segmento, muestra mensaje + ID de error + "Recargar") y `src/app/global-error.tsx` (raíz, con `<html>/<body>` propios y estilos inline por reemplazar el layout). Ambos registran el error en consola con el correlation id.
 
 ## Dependencias principales
 

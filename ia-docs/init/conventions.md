@@ -57,8 +57,9 @@ Cada cambio significativo debe documentarse en `ia-docs/init/`:
 
 ## Accesibilidad (a11y)
 
-- Contraste AA mínimo.
-- `aria-label` en botones interactivos; `aria-pressed` en toggles.
+- Objetivo **WCAG 2.2 AA** en toda la UI operativa (contraste AA mínimo, navegación por teclado completa, focus visible).
+- Skip-link "Saltar al contenido" al inicio de `AppShell`; `<main>` con `id="main-content"` y `tabIndex={-1}`.
+- `aria-label` en botones interactivos (incluidos los icon-only); `aria-pressed` en toggles.
 - `:focus-visible` con outline visible en todos los elementos interactivos.
 - Jerarquía de headings correcta (h1 → h2 → h3).
 - Estados de error que no dependan solo del color.

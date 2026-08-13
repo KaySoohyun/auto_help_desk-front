@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { useTicket } from "@/hooks/tickets/useTicket";
 import { useUpdateTicket } from "@/hooks/tickets/useUpdateTicket";
@@ -12,10 +13,26 @@ import { TicketMetadata } from "@/components/features/tickets/TicketDetail";
 import { TicketThread } from "@/components/features/tickets/TicketThread";
 import { MessageComposer } from "@/components/features/tickets/MessageComposer";
 import { TicketActions } from "@/components/features/tickets/TicketActions";
-import { LlmAssistantPanel } from "@/components/llm/LlmAssistantPanel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { AlertTriangleIcon, UserPlusIcon, UserMinusIcon } from "lucide-react";
+
+const LlmAssistantPanel = dynamic(
+  () =>
+    import("@/components/llm/LlmAssistantPanel").then(
+      (mod) => mod.LlmAssistantPanel
+    ),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="space-y-3 rounded-lg border border-border bg-card p-4" aria-label="Cargando asistente LLM">
+        <Skeleton className="h-6 w-32" />
+        <Skeleton className="h-40 w-full" />
+        <Skeleton className="h-10 w-full" />
+      </div>
+    ),
+  }
+);
 
 export function TicketDetailView({ ticketId }: { ticketId: number }) {
   const { data: ticket, isLoading, isError, error } = useTicket(ticketId);

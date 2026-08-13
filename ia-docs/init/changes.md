@@ -1,6 +1,6 @@
 # Cambios
 
-## 2026-08-13 — Seguridad · Headers + CSRF (endurecimiento BFF)
+## 2026-08-13 — Feature 011 · Hardening (seguridad, a11y, performance, observabilidad)
 
 - **Headers de seguridad globales** (`next.config.ts`): `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin` y `Permissions-Policy` (sin cámara/micrófono/geolocalización) para todas las rutas. CSP estricto (`default-src 'self'`, `frame-ancestors 'none'`, `base-uri 'self'`, `form-action 'self'`) **solo en producción**: en dev rompe HMR/React Refresh (`'unsafe-inline'`/`'unsafe-eval'` para scripts, `connect-src 'self'`).
 - **CSRF para el BFF** (mutaciones), esquema **cookies + header**:
@@ -11,8 +11,10 @@
   - `src/lib/api/bffClient.ts`: en métodos ≠ GET lee la cookie `csrf_token` de `document.cookie` y la envía como header `x-csrf-token`.
 - **Manejo global de 401** (`src/lib/api/sessionEvents.ts` + `providers.tsx` + `bffClient.ts`): pub/sub `onSessionExpired`/`emitSessionExpired` con cooldown (10s) para emitir una sola vez. `bffFetch` emite ante 401 (excluye `/api/bff/auth/*`: login/me/logout no deben redirigir); `Providers` suscribe y, si no está en `/login`, hace `window.location.href = "/login"` (recarga total intencional para resetear caché y estado; `eslint-disable` justificado).
 - **Observabilidad** (`src/lib/api/bffClient.ts` + `errors.ts` + error boundaries): `bffFetch` genera `correlationId` por request (`crypto.randomUUID()` con fallback), lo envía como header `x-correlation-id` y lo adjunta al `ApiError` (4º parámetro). `src/app/error.tsx` (segmento) y `src/app/global-error.tsx` (raíz, con su propio `<html>/<body>`, estilos inline por reemplazar el layout) muestran mensaje + ID de error + botón "Recargar" (`reset()`).
-- **Verificación**: `pnpm typecheck` y `pnpm lint` en verde (0 errores, 0 warnings).
-- **Pendiente**: `pnpm build` (validar CSP de producción) y verificación funcional (login → crear/editar ticket, kb publish/restore, acciones LLM) y 403 si falta la cookie.
+- **Performance** (`src/components/features/tickets/TicketDetailView.tsx`): `LlmAssistantPanel` pasa a `next/dynamic` con `ssr: false` y skeleton de carga (evita render server y carga el chunk solo al montar). Comparación de `next build`: antes 34 chunks / el panel dentro del bundle eager de `/app/tickets/[ticketId]` (41 KB); después 35 chunks / panel en chunk separado lazy (31.7 KB), ~1 KB extra por el wrapper dynamic + skeleton.
+- **Accesibilidad**: skip-link "Saltar al contenido" en `AppShell` + `<main id="main-content" tabIndex={-1}>`; auditoría de botones icon-only en flujos clave (Topbar, Sidebar, tickets, knowledge, feedback LLM, admin) sin faltantes → no requirió correcciones; nota WCAG 2.2 AA en `conventions.md`.
+- **Verificación**: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings); `curl -I` con headers de seguridad presentes en producción.
+- **Pendientes documentados**: E2E tests, load testing, virtualización de listas grandes, densidad configurable; verificación funcional contra FastAPI real (mutaciones con CSRF, 403 si falta cookie, redirect 401 → `/login`).
 
 
 
