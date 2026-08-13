@@ -25,6 +25,6 @@ _Sin comprometer ni ordenar del todo. Ideas que respetan la constitución._
 
 - **009 · Auditoría** — eventos de usuario y LLM, PII, exportaciones. _(Fase 4 · Etapa 4.3)_ ✅ Hecho (ver arriba)
 - **010 · Privacidad, retención y límites LLM** — políticas y configuración. _(Fase 4 · Etapa 4.4)_ ✅ Hecho (ver arriba)
-- **011 · Hardening** — performance, seguridad, accesibilidad y observabilidad. _(Fase 5)_ 🟡 En progreso (ver arriba)
+- **011 · Hardening** — performance, seguridad, accesibilidad y observabilidad. _(Fase 5)_ ✅ Hecho (ver arriba)
 
 > Cada feature nueva se crea como `features/NNN-nombre-feature/` con `spec.md`, `plan.md` y `tasks.md` antes de tocar código.
