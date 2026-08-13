@@ -32,11 +32,11 @@ export function hasKbPermission(role: UserRole | null, permission: KbPermission)
   return KB_ROLE_PERMISSIONS[role].includes(permission);
 }
 
-export type AdminPermission = "users:read" | "users:edit";
+export type AdminPermission = "users:read" | "users:edit" | "ai:configure" | "ai:configure-global";
 
 const ADMIN_ROLE_PERMISSIONS: Record<UserRole, AdminPermission[]> = {
-  platform_admin: ["users:read", "users:edit"],
-  tenant_admin: ["users:read", "users:edit"],
+  platform_admin: ["users:read", "users:edit", "ai:configure", "ai:configure-global"],
+  tenant_admin: ["users:read", "users:edit", "ai:configure"],
   supervisor: [],
   agent: [],
 };
