@@ -183,17 +183,65 @@ Los valores efectivos que consume la API se calculan en runtime: override de `Gl
 
 ---
 
+## `kb_articles` ⚠️ Pendiente en FastAPI
+
+Artículos de la base de conocimiento por tenant (contratos definidos por la feature 007 del frontend; tabla aún **no implementada** en el backend).
+
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `tenant_id` | string(64) | index | Filtro de aislamiento por tenant |
+| `title` | string(200) | **cifrado** | |
+| `body` | text | **cifrado**, carga diferida | Texto plano; no se incluye en listados |
+| `category` | string(100) | nullable, index | String plano (sin CRUD de catálogo en MVP) |
+| `tags` | JSON | default `[]` | Array ≤10 strings ≤50 |
+| `status` | string(20) | index, default `"draft"` | `draft` \| `published` \| `archived` |
+| `author_id` | int | FK `users.id`, index | Autor de la última edición |
+| `current_version` | int | default `1` | Incrementa en cada PATCH |
+| `published_at` | datetime (tz) | nullable | Se setea al publicar |
+| `created_at` | datetime (tz) | default now(UTC) | |
+| `updated_at` | datetime (tz) | onupdate now(UTC) | |
+
+Índices compuestos: `(tenant_id, status)`, `(tenant_id, category)`.
+
+---
+
+## `kb_article_versions` ⚠️ Pendiente en FastAPI
+
+Snapshots de versiones de artículos (uno por PATCH). Solo lectura en MVP; sin rollback. Tabla aún **no implementada** en el backend.
+
+| Columna | Tipo | Restricciones | Notas |
+| --- | --- | --- | --- |
+| `id` | int | PK | |
+| `article_id` | int | FK `kb_articles.id` (ON DELETE CASCADE), index | |
+| `version` | int | | Número de versión del snapshot |
+| `title` | string(200) | **cifrado** | |
+| `body` | text | **cifrado**, carga diferida | |
+| `category` | string(100) | nullable | |
+| `tags` | JSON | default `[]` | |
+| `author_id` | int | FK `users.id` | |
+| `change_note` | string(300) | nullable | |
+| `created_at` | datetime (tz) | default now(UTC) | |
+
+Índice compuesto: `(article_id, version)`.
+
+---
+
 ## Relaciones
 
 ```
 User 1──N RefreshToken
 User 1──N TicketMessage (author)
 User 1──N Ticket (assignee)
+User 1──N KbArticle (author)
 
 Tenant (1) ──N Ticket
 Ticket 1──N TicketMessage
 Ticket 1──N AISuggestion
 AISuggestion 1──1 Feedback
+
+Tenant (1) ──N KbArticle
+KbArticle 1──N KbArticleVersion
 
 User 1──N AuditEvent
 TenantPolicy (1 por tenant)

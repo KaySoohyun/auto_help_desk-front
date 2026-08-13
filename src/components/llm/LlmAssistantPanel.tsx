@@ -28,6 +28,8 @@ import { ConfidenceBadge } from "@/components/features/llm/ConfidenceBadge";
 import { RiskBanner } from "@/components/features/llm/RiskBanner";
 import { PromptInjectionWarning } from "@/components/features/llm/PromptInjectionWarning";
 import { InsufficientContextNotice } from "@/components/features/llm/InsufficientContextNotice";
+import { RelatedArticles } from "@/components/features/knowledge/RelatedArticles";
+import type { KbArticleSummary } from "@/types/knowledge.types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -260,10 +262,14 @@ export function LlmAssistantPanel({
   ticketId,
   contextText,
   onUseReply,
+  ticketCategory,
+  onInsertReference,
 }: {
   ticketId: number;
   contextText?: string;
   onUseReply?: (text: string) => void;
+  ticketCategory?: string | null;
+  onInsertReference?: (text: string) => void;
 }) {
   const user = useSessionStore((s) => s.user);
   const {
@@ -413,6 +419,12 @@ export function LlmAssistantPanel({
         draft === suggestion.suggested_reply ? "accepted" : "edited"
       );
     }
+  };
+
+  const insertReference = (article: KbArticleSummary) => {
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
+    const link = `${origin}/app/knowledge/articles/${article.id}`;
+    onInsertReference?.(`Referencia (base de conocimiento): ${article.title} — ${link}`);
   };
 
   const handleStream = () => {
@@ -740,6 +752,16 @@ export function LlmAssistantPanel({
               ) : null}
             </TabsContent>
           </Tabs>
+
+          <section className="mt-4 space-y-2" aria-label="Artículos relacionados">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Artículos relacionados
+            </h3>
+            <RelatedArticles
+              category={ticketCategory}
+              onInsertReference={insertReference}
+            />
+          </section>
         </div>
       </div>
     </aside>

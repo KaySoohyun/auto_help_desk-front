@@ -1,5 +1,16 @@
 # Cambios
 
+## 2026-08-13 — Feature 007 · Base de conocimiento
+
+- **Tipos y contratos BFF** (`src/types/knowledge.types.ts` + `src/app/api/bff/knowledge/*`): `KbArticleStatus`, `KbArticle`, `KbArticleSummary`, `KbArticleList`, `KbArticleVersion`, query/payload types. Rutas `articles`, `articles/[articleId]`, `publish|archive|restore` y `versions` con Zod y proxy a `/v1/kb/*` (contratos pendientes en FastAPI).
+- **Hooks TanStack Query** (`src/hooks/knowledge/`): `useArticles`, `useArticle`, `useArticleVersions` y mutaciones `useCreateArticle`, `useUpdateArticle`, `usePublishArticle`, `useArchiveArticle`, `useRestoreArticle` con invalidación de lista + detalle + versiones. Query keys con prefijo `'knowledge'` y tenant.
+- **UI en `/app/knowledge/*`**: listado con filtros por estado/categoría en URL (Zod) y búsqueda client-side con debounce, paginación, detalle con body en texto plano (`whitespace-pre-wrap`, sin `dangerouslySetInnerHTML`), editor RHF+Zod (crear/editar), transiciones publicar/archivar/restaurar con `AlertDialog` de confirmación, historial de versiones solo lectura y taxonomy view de categorías (sin CRUD).
+- **Permisos UI** (`src/lib/permissions.ts`): `KbPermission` (`kb:read|kb:edit|kb:publish`); agent = `kb:read` (solo lee `published`), supervisor/tenant_admin/platform_admin = los tres. La UI oculta acciones; el backend decide.
+- **Integración con tickets/LLM (T6)**: `src/components/features/knowledge/RelatedArticles.tsx` lista artículos `published` por categoría del ticket; `LlmAssistantPanel` suma la sección "Artículos relacionados" y "Insertar referencia" agrega una línea citable (`Referencia (base de conocimiento): {título} — {origin}/app/knowledge/articles/{id}`) al composer vía `onUseReply`, sin envío automático. `TicketDetailView` pasa `ticket.category` y un handler que **agrega** la referencia al borrador sin pisar contenido previo.
+- **Docs**: contratos KB documentados como **pendientes** en `ia-docs/backend/api.md` (§ Knowledge Base) y tablas `kb_articles`/`kb_article_versions` en `ia-docs/backend/models.md`; `arquitecture.md` actualizado (endpoints BFF, modelo knowledge, integración LLM).
+- **Verificación**: `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- **Pendiente**: validación funcional contra FastAPI real (el backend no expone `/v1/kb/*` aún) y verificación a11y visual.
+
 ## 2026-08-12 — Feature 006 · Confianza y seguridad LLM
 
 - **Modelo de riesgos tipado** (`src/types/llm.types.ts`): `LlmRiskLevel` (`low|medium|high`), `LlmRiskKind` (`low_confidence|hallucination|pii|prompt_injection|insufficient_context|policy|warning`), `LlmRisk` y `LlmRiskEvaluation` (`{ risks, blocked }`).

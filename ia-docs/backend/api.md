@@ -388,6 +388,87 @@ Métricas en formato texto Prometheus. Permiso: `audit:view`.
 
 ---
 
+## Knowledge Base — `/v1/kb` ⚠️ Pendiente en FastAPI
+
+> **Estado:** contratos definidos por la feature 007 del frontend. **No implementados** en FastAPI aún. El BFF proxya a estas rutas; la validación funcional queda pendiente hasta que el backend las implemente.
+>
+> Base `/v1/kb`, requieren tenant. El body de los artículos es texto plano; no se renderiza como HTML confiable.
+
+| Método | Ruta | Permiso | Descripción |
+| --- | --- | --- | --- |
+| GET | `/v1/kb/articles` | `kb:read` | Lista (sin `body`). Query: `status`, `category`, `tag`, `search`, `limit`, `offset` |
+| POST | `/v1/kb/articles` | `kb:edit` | Crea artículo en `draft` |
+| GET | `/v1/kb/articles/{id}` | `kb:read` | Detalle con `body` |
+| PATCH | `/v1/kb/articles/{id}` | `kb:edit` | Actualiza título/cuerpo/categoría/tags; genera snapshot de versión |
+| POST | `/v1/kb/articles/{id}/publish` | `kb:publish` | `draft → published` |
+| POST | `/v1/kb/articles/{id}/archive` | `kb:edit` | `published → archived` |
+| POST | `/v1/kb/articles/{id}/restore` | `kb:edit` | `archived → draft` |
+| GET | `/v1/kb/articles/{id}/versions` | `kb:read` | Historial de versiones |
+
+**Errores:**
+- **403** → sin permiso KB o rol sin tenant
+- **404** → artículo inexistente o de otro tenant
+- **422** → validación del body/query falló
+
+### `GET /v1/kb/articles`
+Lista artículos del tenant (sin `body`). Los agentes solo consultan `status=published`.
+
+**Query params:** `status` (`draft|published|archived`), `category` (≤100), `tag` (≤50), `search` (≤200), `limit` (1–200, default 50), `offset` (≥0).
+
+- **200** → `KbArticleListOut`
+
+### `POST /v1/kb/articles`
+Crea un artículo en estado `draft`. Permiso: `kb:edit`.
+
+**Body:**
+```json
+{ "title": "Cómo reiniciar el router", "body": "Paso a paso...", "category": "technical", "tags": ["router", "conectividad"] }
+```
+
+- `title`: 1–200. `body`: 1–10000. `category`: ≤100. `tags`: array ≤10 de strings ≤50.
+- **201** → `KbArticleOut` (versión inicial `current_version: 1`)
+
+### `GET /v1/kb/articles/{id}`
+Detalle con `body`. Permiso: `kb:read`.
+
+- **200** → `KbArticleOut`
+
+### `PATCH /v1/kb/articles/{id}`
+Actualización parcial (título, cuerpo, categoría o tags; al menos un campo). Persiste una `KbArticleVersion` (snapshot) y suma 1 a `current_version`. Permiso: `kb:edit`.
+
+**Body:**
+```json
+{ "title": "Título nuevo", "body": "Nuevo cuerpo", "category": "billing", "tags": ["factura"], "change_note": "Corrige pasos 3 y 4" }
+```
+
+- `change_note` opcional (≤300). **Sin body PATCH no crea versión.**
+- **200** → `KbArticleOut` con `current_version` incrementado
+
+### `POST /v1/kb/articles/{id}/publish`
+`draft → published`, setea `published_at`. Permiso: `kb:publish`.
+
+- **200** → `KbArticleOut`
+- **409** → no está en `draft`
+
+### `POST /v1/kb/articles/{id}/archive`
+`published → archived`. Permiso: `kb:edit`.
+
+- **200** → `KbArticleOut`
+- **409** → no está en `published`
+
+### `POST /v1/kb/articles/{id}/restore`
+`archived → draft`. Permiso: `kb:edit`.
+
+- **200** → `KbArticleOut`
+- **409** → no está en `archived`
+
+### `GET /v1/kb/articles/{id}/versions`
+Historial de versiones (snapshots), ordenado por `version` desc. Permiso: `kb:read`. Solo lectura en MVP; sin rollback.
+
+- **200** → `[KbArticleVersionOut]`
+
+---
+
 ## Schemas de respuesta
 
 ### `UserOut`
@@ -553,6 +634,50 @@ Igual que `TicketOut` **sin** `description`.
   "result": "success",
   "confidence": null,
   "detail": { "ticket_id": 5 }
+}
+```
+
+### `KbArticleOut`
+```json
+{
+  "id": 3,
+  "tenant_id": "tenant-abc",
+  "title": "Cómo reiniciar el router",
+  "body": "Paso a paso...",
+  "category": "technical",
+  "tags": ["router", "conectividad"],
+  "status": "published",
+  "author_id": 5,
+  "current_version": 2,
+  "created_at": "2026-08-12T10:00:00Z",
+  "updated_at": "2026-08-12T11:00:00Z",
+  "published_at": "2026-08-12T11:00:00Z"
+}
+```
+
+`status`: `draft` | `published` | `archived`. El body es texto plano (nunca se renderiza como HTML).
+
+### `KbArticleSummaryOut` (ítem de listas)
+Igual que `KbArticleOut` **sin** `body`.
+
+### `KbArticleListOut`
+```json
+{ "items": [ { /* KbArticleSummaryOut */ } ], "total": 7, "limit": 50, "offset": 0 }
+```
+
+### `KbArticleVersionOut`
+```json
+{
+  "id": 9,
+  "article_id": 3,
+  "version": 2,
+  "title": "Cómo reiniciar el router",
+  "body": "Paso a paso...",
+  "category": "technical",
+  "tags": ["router", "conectividad"],
+  "author_id": 5,
+  "change_note": "Corrige pasos 3 y 4",
+  "created_at": "2026-08-12T11:00:00Z"
 }
 ```
 

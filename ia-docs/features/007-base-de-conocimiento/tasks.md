@@ -41,14 +41,14 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T6 · Integración con tickets y LLM
 
-- [ ] En `LlmAssistantPanel.tsx` (o `src/components/features/knowledge/RelatedArticles.tsx`): sección "Artículos relacionados" que lista artículos publicados por categoría del ticket / término del asunto (usa `useArticles` con la categoría del ticket si existe).
-- [ ] Botón "Insertar referencia" por artículo: agrega línea citable (título + link) al composer vía el mecanismo `onUseReply` existente. Sin envío automático.
-- [ ] Enlace al detalle del artículo desde la lista de relacionados (nueva pestaña / navegación al tenant actual).
+- [x] En `LlmAssistantPanel.tsx` (o `src/components/features/knowledge/RelatedArticles.tsx`): sección "Artículos relacionados" que lista artículos publicados por categoría del ticket / término del asunto (usa `useArticles` con la categoría del ticket si existe).
+- [x] Botón "Insertar referencia" por artículo: agrega línea citable (título + link) al composer vía el mecanismo `onUseReply` existente. Sin envío automático.
+- [x] Enlace al detalle del artículo desde la lista de relacionados (nueva pestaña / navegación al tenant actual).
 
 ## T7 · Cierre
 
-- [ ] Documentar contratos KB pendientes en `ia-docs/backend/api.md` (§ KB con tablas de endpoints/schemas/errores) y tabla en `ia-docs/backend/models.md` (`kb_articles`, `kb_article_versions`).
-- [ ] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
-- [ ] Verificación manual con respuestas simuladas (listado, filtros, crear/editar/publicar/archivar/restaurar, versiones, permisos, referencia en composer).
+- [x] Documentar contratos KB pendientes en `ia-docs/backend/api.md` (§ KB con tablas de endpoints/schemas/errores) y tabla en `ia-docs/backend/models.md` (`kb_articles`, `kb_article_versions`).
+- [x] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- [ ] Verificación manual con respuestas simuladas (listado, filtros, crear/editar/publicar/archivar/restaurar, versiones, permisos, referencia en composer). *(pendiente: requiere `pnpm dev` + mock del backend)*
 - [ ] Validación funcional contra FastAPI real (pendiente hasta que el backend implemente `/v1/kb/*`).
-- [ ] Documentar en `ia-docs/init/changes.md`, actualizar `arquitecture.md` (rutas BFF knowledge, componentes/hooks nuevos) y mover 007 KB a "En progreso" en `ia-docs/constitution/roadmap.md`.
+- [x] Documentar en `ia-docs/init/changes.md`, actualizar `arquitecture.md` (rutas BFF knowledge, componentes/hooks nuevos) y mover 007 KB a "En progreso" en `ia-docs/constitution/roadmap.md`.

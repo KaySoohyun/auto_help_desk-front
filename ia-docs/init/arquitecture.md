@@ -167,13 +167,21 @@ POST /api/bff/llm/suggest-reply
 POST /api/bff/llm/pii-redact
 POST /api/bff/llm/feedback
 
-GET  /api/bff/tenant/[tenantSlug]/knowledge/articles
-POST /api/bff/tenant/[tenantSlug]/knowledge/articles
+GET  /api/bff/knowledge/articles
+POST /api/bff/knowledge/articles
+GET  /api/bff/knowledge/articles/[articleId]
+PATCH /api/bff/knowledge/articles/[articleId]
+POST /api/bff/knowledge/articles/[articleId]/publish
+POST /api/bff/knowledge/articles/[articleId]/archive
+POST /api/bff/knowledge/articles/[articleId]/restore
+GET  /api/bff/knowledge/articles/[articleId]/versions
 
 GET  /api/bff/tenant/[tenantSlug]/audit/events
 ```
 
 > Nota: el backend real no expone `/chat` ni `/suggest`. Los BFF `chat` y `stream` proxean a `POST /v1/ai/tickets/{id}/suggested-reply`; `stream` envuelve la respuesta como evento SSE único y el cliente la emite chunked como tokens en tiempo real. `/api/bff/llm/suggest` fue eliminado (endpoint inexistente).
+>
+> Los endpoints de **Knowledge Base** (`/api/bff/knowledge/*`) proxean a `/v1/kb/*`, contratos definidos por la feature 007 y **pendientes de implementación en FastAPI** (ver `ia-docs/backend/api.md` § Knowledge Base). El frontend ya está implementado contra esos contratos; la validación funcional real queda pendiente hasta que el backend exista.
 
 ## Routing
 
@@ -258,6 +266,10 @@ Estados de ticket: `open`, `pending`, `waiting_customer`, `solved`, `closed`. Pr
 |---------------|-------------------------------------------------------------------------|
 | `Article`     | id, título, categoría, tags, estado (draft/published/archived), versión, autor, métricas |
 | `ArticleVersion` | versión, autor, cambios, timestamp                                   |
+
+- **UI:** `/app/knowledge/*` (listado con filtros en URL, detalle, editor RHF+Zod, historial de versiones, taxonomy de categorías). Agente = solo lectura de `published`; supervisor/admin gestionan (`kb:edit`) y publican (`kb:publish`).
+- **Contenido:** texto plano, renderizado con `whitespace-pre-wrap`; sin `dangerouslySetInnerHTML` ni markdown.
+- **Integración tickets/LLM:** `LlmAssistantPanel` muestra una sección "Artículos relacionados" (artículos `published` por categoría del ticket vía `useArticles`) y "Insertar referencia" agrega una línea citable al composer vía `onUseReply`, sin envío automático.
 
 ### LLM
 

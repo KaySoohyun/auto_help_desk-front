@@ -24,6 +24,13 @@ export function TicketDetailView({ ticketId }: { ticketId: number }) {
   const user = useSessionStore((s) => s.user);
   const [composerDraft, setComposerDraft] = useState<string | undefined>(undefined);
 
+  const handleInsertReference = (reference: string) => {
+    setComposerDraft((prev) => {
+      const base = prev?.trim() ?? "";
+      return base ? `${base}\n\n${reference}` : reference;
+    });
+  };
+
   const contextText = useMemo(
     () =>
       buildTicketContext({
@@ -120,7 +127,13 @@ export function TicketDetailView({ ticketId }: { ticketId: number }) {
         </section>
       </div>
 
-      <LlmAssistantPanel ticketId={ticket.id} contextText={contextText} onUseReply={setComposerDraft} />
+      <LlmAssistantPanel
+        ticketId={ticket.id}
+        contextText={contextText}
+        onUseReply={setComposerDraft}
+        ticketCategory={ticket.category}
+        onInsertReference={handleInsertReference}
+      />
     </div>
   );
 }
