@@ -13,9 +13,9 @@
 
 ## T3 · Manejo global de 401
 
-- [ ] `src/lib/api/sessionEvents.ts`: pub/sub `onSessionExpired`/`emitSessionExpired`.
-- [ ] `bffFetch` emite ante 401 (una vez).
-- [ ] `Providers` suscribe: si no está en `/login`, `window.location.href = "/login"`.
+- [x] `src/lib/api/sessionEvents.ts`: pub/sub `onSessionExpired`/`emitSessionExpired`.
+- [x] `bffFetch` emite ante 401 (una vez, con cooldown y sin emitir para `/api/bff/auth/*`).
+- [x] `Providers` suscribe: si no está en `/login`, `window.location.href = "/login"`.
 
 ## T4 · Observabilidad
 

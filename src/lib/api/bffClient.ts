@@ -1,4 +1,5 @@
 import { ApiError } from "./errors";
+import { emitSessionExpired } from "./sessionEvents";
 import { CSRF_TOKEN_COOKIE } from "@/lib/auth/constants";
 
 interface BffRequestOptions {
@@ -7,6 +8,8 @@ interface BffRequestOptions {
   headers?: Record<string, string>;
   signal?: AbortSignal;
 }
+
+const AUTH_PATH_PREFIX = "/api/bff/auth/";
 
 function getCsrfTokenFromCookie(): string | undefined {
   if (typeof document === "undefined") return undefined;
@@ -39,6 +42,9 @@ export async function bffFetch<T>(path: string, options: BffRequestOptions = {})
   }
 
   if (!res.ok) {
+    if (res.status === 401 && !path.startsWith(AUTH_PATH_PREFIX)) {
+      emitSessionExpired();
+    }
     let message = `Error ${res.status}.`;
     try {
       const data = await res.json();

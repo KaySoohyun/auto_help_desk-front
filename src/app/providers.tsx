@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
+import { onSessionExpired } from "@/lib/api/sessionEvents";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -27,6 +28,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
         },
       })
   );
+
+  useEffect(() => {
+    return onSessionExpired(() => {
+      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+        // Recarga total intencional: resetea caché y estado tras expirar la sesión.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.href = "/login";
+      }
+    });
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
