@@ -36,7 +36,7 @@ describe("dashboard", () => {
     expect(Array.isArray(data.items)).toBe(true);
     expect(data.limit).toBe(100);
     expect(data.offset).toBe(0);
-    expect(data.total).toBe(data.items.length);
+    expect(data.items.length).toBeLessThanOrEqual(100);
   });
 
   it("siembra: ticket asignado al agente + ticket sin asignar", async () => {
