@@ -31,3 +31,17 @@ export function hasKbPermission(role: UserRole | null, permission: KbPermission)
   if (!role) return false;
   return KB_ROLE_PERMISSIONS[role].includes(permission);
 }
+
+export type AdminPermission = "users:read" | "users:edit";
+
+const ADMIN_ROLE_PERMISSIONS: Record<UserRole, AdminPermission[]> = {
+  platform_admin: ["users:read", "users:edit"],
+  tenant_admin: ["users:read", "users:edit"],
+  supervisor: [],
+  agent: [],
+};
+
+export function hasAdminPermission(role: UserRole | null, permission: AdminPermission): boolean {
+  if (!role) return false;
+  return ADMIN_ROLE_PERMISSIONS[role].includes(permission);
+}

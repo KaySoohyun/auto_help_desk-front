@@ -12,12 +12,14 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui.store";
+import { useSessionStore } from "@/stores/session.store";
+import { hasAdminPermission } from "@/lib/permissions";
 
 interface NavItem {
   href: string;
   label: string;
   icon: LucideIcon;
-  enabled: boolean;
+  enabled: boolean | "admin";
   matchPrefix?: boolean;
 }
 
@@ -45,7 +47,13 @@ const NAV_SECTIONS: NavSection[] = [
     title: "Gestión",
     items: [
       { href: "/app/audit", label: "Auditoría", icon: ShieldCheckIcon, enabled: false },
-      { href: "/app/admin", label: "Administración", icon: SettingsIcon, enabled: false },
+      {
+        href: "/app/admin",
+        label: "Administración",
+        icon: SettingsIcon,
+        enabled: "admin",
+        matchPrefix: true,
+      },
     ],
   },
 ];
@@ -53,6 +61,8 @@ const NAV_SECTIONS: NavSection[] = [
 export function Sidebar() {
   const pathname = usePathname();
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
+  const user = useSessionStore((s) => s.user);
+  const canAdmin = hasAdminPermission(user?.role ?? null, "users:read");
 
   return (
     <aside
@@ -79,10 +89,11 @@ export function Sidebar() {
             ) : null}
             {section.items.map((item) => {
               const Icon = item.icon;
+              const enabled = item.enabled === "admin" ? canAdmin : item.enabled;
               const active =
-                item.enabled && (item.matchPrefix ? pathname.startsWith(item.href) : pathname === item.href);
+                enabled && (item.matchPrefix ? pathname.startsWith(item.href) : pathname === item.href);
 
-              if (!item.enabled) {
+              if (!enabled) {
                 return (
                   <div
                     key={item.href}

@@ -16,15 +16,15 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T3 · Permisos UI y nav
 
-- [ ] `src/lib/permissions.ts`: agregar `AdminPermission` (`users:read|users:edit`) y matriz por rol (tenant_admin/platform_admin: ambos; supervisor/agent: ninguno).
-- [ ] `src/components/layout/Sidebar.tsx`: activar "Administración" (enabled según `users:read`, `matchPrefix: true`) con el usuario de la sesión; ocultar/deshabilitar sin permiso.
+- [x] `src/lib/permissions.ts`: agregar `AdminPermission` (`users:read|users:edit`) y matriz por rol (tenant_admin/platform_admin: ambos; supervisor/agent: ninguno).
+- [x] `src/components/layout/Sidebar.tsx`: activar "Administración" (enabled según `users:read`, `matchPrefix: true`) con el usuario de la sesión; ocultar/deshabilitar sin permiso.
 
 ## T4 · Listado y formularios
 
-- [ ] `src/app/app/admin/users/page.tsx` (Server) + `src/components/features/admin/AdminUsersView.tsx` (Client): tabla de usuarios (email, rol, estado activo, creado), búsqueda client-side por email, filtro por rol, estados loading (skeleton)/error/empty.
-- [ ] `src/components/features/admin/UserCreateForm.tsx` (RHF + Zod): email, password, rol (según permiso del usuario autenticado), tenant_id solo para platform_admin. Errores del BFF (409 email duplicado, 403, 422) visibles.
-- [ ] `src/components/features/admin/UserEditDialog.tsx` (o form inline): cambiar rol (sin `platform_admin` para tenant_admin) y activar/desactivar con `AlertDialog` de confirmación; `tenant_admin` no puede desactivarse a sí mismo.
-- [ ] Acciones de edición/creación visibles solo con `users:edit`; la UI oculta, el backend decide.
+- [x] `src/app/app/admin/users/page.tsx` (Server) + `src/components/features/admin/AdminUsersView.tsx` (Client): tabla de usuarios (email, rol, estado activo, creado), búsqueda client-side por email, filtro por rol, estados loading (skeleton)/error/empty.
+- [x] `src/components/features/admin/UserCreateForm.tsx` (RHF + Zod): email, password, rol (según permiso del usuario autenticado), tenant_id solo para platform_admin. Errores del BFF (409 email duplicado, 403, 422) visibles.
+- [x] `src/components/features/admin/UserEditDialog.tsx` (o form inline): cambiar rol (sin `platform_admin` para tenant_admin) y activar/desactivar con `AlertDialog` de confirmación; `tenant_admin` no puede desactivarse a sí mismo.
+- [x] Acciones de edición/creación visibles solo con `users:edit`; la UI oculta, el backend decide.
 
 ## T5 · Rutas y estados
 
