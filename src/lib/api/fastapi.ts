@@ -7,6 +7,7 @@ interface FastApiRequestOptions {
   token?: string | null;
   headers?: Record<string, string>;
   signal?: AbortSignal;
+  correlationId?: string | null;
 }
 
 function extractDetail(payload: unknown): string | undefined {
@@ -29,7 +30,7 @@ export async function fastApiFetch<T>(
   path: string,
   options: FastApiRequestOptions = {}
 ): Promise<T> {
-  const { method = "GET", body, token, headers = {}, signal } = options;
+  const { method = "GET", body, token, headers = {}, signal, correlationId } = options;
 
   let res: Response;
   try {
@@ -38,6 +39,7 @@ export async function fastApiFetch<T>(
       headers: {
         "Content-Type": "application/json",
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(correlationId ? { "X-Request-ID": correlationId } : {}),
         ...headers,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
@@ -49,6 +51,8 @@ export async function fastApiFetch<T>(
     throw new ApiError(0, "No se pudo conectar con el servicio.", String(cause));
   }
 
+  const backendTraceId = res.headers.get("x-request-id") || undefined;
+
   if (!res.ok) {
     let detail: string | undefined;
     try {
@@ -56,7 +60,7 @@ export async function fastApiFetch<T>(
     } catch {
       /* sin body JSON */
     }
-    throw new ApiError(res.status, detail ?? `Error ${res.status} del servicio.`, detail);
+    throw new ApiError(res.status, detail ?? `Error ${res.status} del servicio.`, detail, backendTraceId);
   }
 
   if (res.status === 204) return undefined as T;

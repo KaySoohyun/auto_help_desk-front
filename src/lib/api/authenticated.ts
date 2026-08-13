@@ -24,6 +24,8 @@ export async function authenticatedFetch<T>(
 ): Promise<{ data: T } | NextResponse> {
   const { method = "GET", body, headers = {} } = options;
 
+  const correlationId = req?.headers.get("x-correlation-id") || null;
+
   const accessToken = await getAccessToken();
   if (!accessToken) {
     return NextResponse.json({ error: "Sin sesión." }, { status: 401 });
@@ -39,7 +41,7 @@ export async function authenticatedFetch<T>(
   }
 
   const call = (token: string) =>
-    fastApiFetch<T>(path, { method, body, token, headers });
+    fastApiFetch<T>(path, { method, body, token, headers, correlationId });
 
   try {
     return { data: await call(accessToken) };
@@ -74,10 +76,16 @@ export async function authenticatedFetch<T>(
 
 export function apiErrorResponse(err: unknown): NextResponse {
   if (err instanceof ApiError && err.status === 0) {
-    return NextResponse.json({ error: "No se pudo conectar con el servicio." }, { status: 502 });
+    return NextResponse.json(
+      { error: "No se pudo conectar con el servicio.", correlation_id: err.correlationId },
+      { status: 502 }
+    );
   }
   if (err instanceof ApiError) {
-    return NextResponse.json({ error: err.detail ?? "Error del servicio." }, { status: err.status });
+    return NextResponse.json(
+      { error: err.detail ?? "Error del servicio.", correlation_id: err.correlationId },
+      { status: err.status }
+    );
   }
   return NextResponse.json({ error: "Error inesperado." }, { status: 500 });
 }
