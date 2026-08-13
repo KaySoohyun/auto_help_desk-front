@@ -15,6 +15,14 @@ export interface AdminCredentials {
   password: string;
 }
 
+export interface SeedUser {
+  id: number;
+  email: string;
+  password: string;
+  role: "agent" | "tenant_admin" | "supervisor" | "platform_admin";
+  tenantId: string | null;
+}
+
 export function adminCredentials(): AdminCredentials {
   const email = process.env.ADMIN_EMAIL;
   const password = process.env.ADMIN_PASSWORD;
@@ -22,6 +30,31 @@ export function adminCredentials(): AdminCredentials {
     throw new Error("Faltan ADMIN_EMAIL / ADMIN_PASSWORD en .env");
   }
   return { email, password };
+}
+
+/** URL del backend FastAPI (para sembrar datos de test). */
+export function backendUrl(): string {
+  return process.env.TEST_BACKEND_URL ?? process.env.URL_BACKEND_DEV ?? "http://localhost:8000";
+}
+
+/**
+ * Registra un usuario agente en `test-tenant` directamente contra FastAPI.
+ * Solo se usa para sembrar datos de test en el backend dev: el frontend no
+ * expone registro y los flujos de la app siempre van por el BFF.
+ */
+export async function seedAgent(): Promise<SeedUser> {
+  const email = `tester-${Date.now()}-${Math.floor(Math.random() * 10000)}@example.com`;
+  const password = "tester-pass-123";
+  const res = await fetch(`${backendUrl()}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password, role: "agent", tenant_id: "test-tenant" }),
+  });
+  if (!res.ok) {
+    throw new Error(`No se pudo sembrar el agent de test (HTTP ${res.status})`);
+  }
+  const user = (await res.json()) as { id: number; email: string; role: SeedUser["role"]; tenant_id: string | null };
+  return { id: user.id, email, password, role: user.role, tenantId: user.tenant_id };
 }
 
 /**
@@ -88,6 +121,14 @@ export class TestClient {
     return this.request("/api/bff/auth/login", {
       method: "POST",
       body: { email, password },
+    });
+  }
+
+  /** Login con un usuario específico (p. ej. un agent sembrado). */
+  async loginWith(user: Pick<SeedUser, "email" | "password">): Promise<Response> {
+    return this.request("/api/bff/auth/login", {
+      method: "POST",
+      body: { email: user.email, password: user.password },
     });
   }
 }

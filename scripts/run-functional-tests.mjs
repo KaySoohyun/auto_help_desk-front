@@ -8,9 +8,22 @@ const appUrl = process.env.TEST_APP_URL ?? `http://localhost:${port}`;
 
 const server = spawn("pnpm", ["next", "dev", "-p", port], {
   cwd: root,
+  detached: true,
   env: { ...process.env, PORT: port, NEXT_TELEMETRY_DISABLED: "1" },
   stdio: ["ignore", "pipe", "pipe"],
 });
+
+function killServer() {
+  try {
+    process.kill(-server.pid, "SIGKILL");
+  } catch {
+    try {
+      server.kill("SIGKILL");
+    } catch {
+      /* ya terminó */
+    }
+  }
+}
 
 let serverLog = "";
 server.stdout.on("data", (d) => (serverLog += d));
@@ -20,7 +33,7 @@ async function waitReady(timeoutMs = 120_000) {
   const start = Date.now();
   while (Date.now() - start < timeoutMs) {
     try {
-      const res = await fetch(`${appUrl}/login`);
+      const res = await fetch(`${appUrl}/login`, { signal: AbortSignal.timeout(3_000) });
       if (res.status < 500) return true;
     } catch {
       /* aún compilando */
@@ -33,7 +46,7 @@ async function waitReady(timeoutMs = 120_000) {
 const ready = await waitReady();
 if (!ready) {
   console.error("La app no quedó lista. Log:\n" + serverLog);
-  server.kill("SIGKILL");
+  killServer();
   process.exit(1);
 }
 
@@ -49,7 +62,7 @@ try {
 } catch {
   failed = true;
 } finally {
-  server.kill("SIGKILL");
+  killServer();
 }
 
 process.exit(failed ? 1 : 0);
