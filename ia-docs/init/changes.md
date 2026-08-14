@@ -1,5 +1,36 @@
 # Cambios
 
+## 2026-08-14 — Multi-tenant en frontend
+
+- **Landing page** (`src/app/(public)/page.tsx`):
+  - Dos portales de acceso: "Personas" y "Empresas"
+  - Diseño basado en `ia-docs/desing/multi-login.md`
+  - Features section con beneficios del sistema
+  
+- **Login multi-tenant** (`LoginForm.tsx`):
+  - Después del login, si el usuario tiene múltiples tenants, muestra selector
+  - Selector de tenant con lista de tenants y roles
+  - Opción "Continuar sin seleccionar tenant" para ver todos los tickets
+  
+- **Componentes nuevos**:
+  - `TenantSelector.tsx`: UI para seleccionar tenant después del login
+  - `src/app/(public)/empresas/login/page.tsx`: placeholder para portal de empresas
+  
+- **BFF endpoints nuevos**:
+  - `POST /api/bff/auth/switch-tenant`: cambiar de tenant después del login
+  - `GET /api/bff/auth/tenants`: listar tenants del usuario
+  
+- **Tipos actualizados**:
+  - `TenantInfo`: id, name, slug, role
+  - `UserOut`: ahora incluye lista de tenants
+  - `SessionUser`: ahora incluye lista de tenants
+  
+- **Session store actualizado**:
+  - `login()`: acepta `tenant_id` opcional
+  - `switchTenant()`: nuevo método para cambiar de tenant
+  
+- **Verificación**: `pnpm typecheck` y `pnpm lint` en verde (0 errores, 0 warnings)
+
 ## 2026-08-14 — Feature 012 · Rediseño del detalle de ticket (Fase 6: Integración y tests)
 
 - **Verificación de build**: `pnpm build` exitoso, todos los endpoints BFF correctamente registrados

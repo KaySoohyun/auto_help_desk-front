@@ -84,7 +84,7 @@ Navegador ──► proxy.ts (sesión/tenant básico, ex middleware)
 
 Base URL `http://localhost:8000`. Auth: `Authorization: Bearer <access>`.
 
-- **Auth `/auth`:** register (solo agent/supervisor, 201/403/409), login (200 TokenResponse/401/403), refresh (rotación, 200/401), logout (204), me (UserOut).
+- **Auth `/auth`:** register (solo agent/supervisor, 201/403/409), login (200 TokenResponse/401/403, acepta `tenant_id` opcional para multi-tenant), refresh (rotación, 200/401), logout (204), me (UserOut con lista de tenants), switch-tenant (cambiar tenant activo, 200), tenants (listar tenants del usuario, 200).
 - **Tickets `/v1/tickets`** (requieren tenant):
   - POST `/v1/tickets` crear (201 TicketOut) · GET `/v1/tickets` listar con query params `status|categoría|priority|assignee_id|date_from|date_to|limit(1-200,def 50)|offset` → TicketListOut
   - GET/PATCH `/v1/tickets/{id}` (PATCH: status, priority, category, assignee_id)

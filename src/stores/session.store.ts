@@ -6,6 +6,7 @@ import { toSessionUser, type SessionStatus, type SessionUser, type UserOut } fro
 interface LoginCredentials {
   email: string;
   password: string;
+  tenant_id?: string;
 }
 
 interface SessionStore {
@@ -13,6 +14,7 @@ interface SessionStore {
   user: SessionUser | null;
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
+  switchTenant: (tenantId: string) => Promise<void>;
   loadMe: () => Promise<void>;
   logout: () => Promise<void>;
   reset: () => void;
@@ -23,16 +25,36 @@ export const useSessionStore = create<SessionStore>((set) => ({
   user: null,
   error: null,
 
-  login: async ({ email, password }) => {
+  login: async ({ email, password, tenant_id }) => {
     set({ status: "authenticating", error: null });
     try {
+      const body: { email: string; password: string; tenant_id?: string } = { email, password };
+      if (tenant_id) {
+        body.tenant_id = tenant_id;
+      }
+      
       const data = await bffFetch<{ user: UserOut }>("/api/bff/auth/login", {
         method: "POST",
-        body: { email, password },
+        body,
       });
       set({ status: "authenticated", user: toSessionUser(data.user), error: null });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error al iniciar sesión.";
+      set({ status: "error", error: message });
+      throw err;
+    }
+  },
+
+  switchTenant: async (tenantId: string) => {
+    set({ status: "refreshing", error: null });
+    try {
+      const data = await bffFetch<{ user: UserOut }>("/api/bff/auth/switch-tenant", {
+        method: "POST",
+        body: { tenant_id: tenantId },
+      });
+      set({ status: "authenticated", user: toSessionUser(data.user), error: null });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al cambiar de tenant.";
       set({ status: "error", error: message });
       throw err;
     }

@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSessionStore } from "@/stores/session.store";
+import type { TenantInfo } from "@/types/auth.types";
+import { TenantSelector } from "./TenantSelector";
 
 const loginSchema = z.object({
   email: z.string().trim().min(1, "Ingresá tu email.").email("Email inválido."),
@@ -21,7 +23,10 @@ type LoginValues = z.infer<typeof loginSchema>;
 export function LoginForm() {
   const router = useRouter();
   const login = useSessionStore((s) => s.login);
+  const switchTenant = useSessionStore((s) => s.switchTenant);
   const [serverError, setServerError] = useState<string | null>(null);
+  const [showTenantSelector, setShowTenantSelector] = useState(false);
+  const [tenants, setTenants] = useState<TenantInfo[]>([]);
 
   const {
     register,
@@ -33,11 +38,43 @@ export function LoginForm() {
     setServerError(null);
     try {
       await login(values);
-      router.replace("/app");
+      
+      // Después del login, verificar si el usuario tiene múltiples tenants
+      const currentUser = useSessionStore.getState().user;
+      if (currentUser && currentUser.tenants && currentUser.tenants.length > 1) {
+        setTenants(currentUser.tenants);
+        setShowTenantSelector(true);
+      } else {
+        router.replace("/app");
+      }
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Error al iniciar sesión.");
     }
   };
+
+  const handleTenantSelect = async (tenantId: string) => {
+    setServerError(null);
+    try {
+      await switchTenant(tenantId);
+      router.replace("/app");
+    } catch (err) {
+      setServerError(err instanceof Error ? err.message : "Error al cambiar de tenant.");
+    }
+  };
+
+  const handleSkipTenantSelection = () => {
+    router.replace("/app");
+  };
+
+  if (showTenantSelector) {
+    return (
+      <TenantSelector
+        tenants={tenants}
+        onSelect={handleTenantSelect}
+        onSkip={handleSkipTenantSelection}
+      />
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>

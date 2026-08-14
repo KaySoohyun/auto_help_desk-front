@@ -2,16 +2,19 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { fastApiFetch } from "@/lib/api/fastapi";
 import { ApiError } from "@/lib/api/errors";
-import { setAuthCookies } from "@/lib/auth/cookies";
+import { setAuthCookies, getAccessToken } from "@/lib/auth/cookies";
 import type { TokenResponse, UserOut } from "@/types/auth.types";
 
-const loginSchema = z.object({
-  email: z.string().trim().min(1, "Ingresá tu email.").email("Email inválido."),
-  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres."),
-  tenant_id: z.string().trim().optional(),
+const switchTenantSchema = z.object({
+  tenant_id: z.string().trim().min(1, "Seleccioná un tenant."),
 });
 
 export async function POST(req: Request) {
+  const accessToken = await getAccessToken();
+  if (!accessToken) {
+    return NextResponse.json({ error: "Sin sesión." }, { status: 401 });
+  }
+
   let body: unknown;
   try {
     body = await req.json();
@@ -19,7 +22,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "JSON inválido." }, { status: 400 });
   }
 
-  const parsed = loginSchema.safeParse(body);
+  const parsed = switchTenantSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: parsed.error.issues[0]?.message ?? "Datos inválidos." },
@@ -27,17 +30,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const { email, password, tenant_id } = parsed.data;
+  const { tenant_id } = parsed.data;
 
   try {
-    const loginPayload: { email: string; password: string; tenant_id?: string } = { email, password };
-    if (tenant_id) {
-      loginPayload.tenant_id = tenant_id;
-    }
-
-    const tokens = await fastApiFetch<TokenResponse>("/auth/login", {
+    const tokens = await fastApiFetch<TokenResponse>("/auth/switch-tenant", {
       method: "POST",
-      body: loginPayload,
+      body: { tenant_id },
+      token: accessToken,
     });
 
     const user = await fastApiFetch<UserOut>("/auth/me", { token: tokens.access_token });
@@ -48,10 +47,13 @@ export async function POST(req: Request) {
   } catch (err) {
     if (err instanceof ApiError) {
       if (err.status === 401) {
-        return NextResponse.json({ error: "Credenciales inválidas." }, { status: 401 });
+        return NextResponse.json({ error: "Sesión expirada." }, { status: 401 });
       }
       if (err.status === 403) {
-        return NextResponse.json({ error: err.message || "Tu cuenta está inactiva o no tenés acceso a este tenant." }, { status: 403 });
+        return NextResponse.json({ error: "No tenés acceso a este tenant." }, { status: 403 });
+      }
+      if (err.status === 404) {
+        return NextResponse.json({ error: "Tenant no encontrado." }, { status: 404 });
       }
       return NextResponse.json({ error: err.message }, { status: err.status });
     }

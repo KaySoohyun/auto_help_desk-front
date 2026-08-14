@@ -1,5 +1,12 @@
 export type UserRole = "platform_admin" | "tenant_admin" | "supervisor" | "agent";
 
+export interface TenantInfo {
+  id: string;
+  name: string;
+  slug: string;
+  role: UserRole;
+}
+
 export interface UserOut {
   id: number;
   email: string;
@@ -7,6 +14,7 @@ export interface UserOut {
   tenant_id: string | null;
   is_active: boolean;
   created_at: string;
+  tenants: TenantInfo[];
 }
 
 export interface TokenResponse {
@@ -30,6 +38,7 @@ export interface SessionUser {
   email: string;
   role: UserRole;
   tenantId: string | null;
+  tenants: TenantInfo[];
 }
 
 export function toSessionUser(user: UserOut): SessionUser {
@@ -38,5 +47,6 @@ export function toSessionUser(user: UserOut): SessionUser {
     email: user.email,
     role: user.role,
     tenantId: user.tenant_id,
+    tenants: user.tenants || [],
   };
 }
