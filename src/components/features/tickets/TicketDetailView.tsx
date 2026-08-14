@@ -1,15 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { useTicket } from "@/hooks/tickets/useTicket";
 import { useUpdateTicket } from "@/hooks/tickets/useUpdateTicket";
-import { useMessages } from "@/hooks/tickets/useMessages";
 import { useCustomer } from "@/hooks/tickets/useCustomer";
 import { useSessionStore } from "@/stores/session.store";
 import { hasTicketPermission } from "@/lib/permissions";
-import { buildTicketContext } from "@/lib/llm/context";
 import { TicketThread } from "@/components/features/tickets/TicketThread";
 import { MessageComposer } from "@/components/features/tickets/MessageComposer";
 import { TicketActions } from "@/components/features/tickets/TicketActions";
@@ -40,7 +38,6 @@ const LlmAssistantPanel = dynamic(
 
 export function TicketDetailView({ ticketId }: { ticketId: number }) {
   const { data: ticket, isLoading, isError, error } = useTicket(ticketId);
-  const { data: messages } = useMessages(ticketId);
   const updateTicket = useUpdateTicket(ticketId);
   const user = useSessionStore((s) => s.user);
   const [composerDraft, setComposerDraft] = useState<string | undefined>(undefined);
@@ -48,23 +45,6 @@ export function TicketDetailView({ ticketId }: { ticketId: number }) {
   // Obtener datos del cliente si el ticket tiene customer_id
   const { data: customer, isLoading: isLoadingCustomer } = useCustomer(
     ticket?.customer_id ?? null
-  );
-
-  const handleInsertReference = (reference: string) => {
-    setComposerDraft((prev) => {
-      const base = prev?.trim() ?? "";
-      return base ? `${base}\n\n${reference}` : reference;
-    });
-  };
-
-  const contextText = useMemo(
-    () =>
-      buildTicketContext({
-        subject: ticket?.subject,
-        description: ticket?.description,
-        messages,
-      }),
-    [ticket?.subject, ticket?.description, messages]
   );
 
   if (isLoading) {
@@ -168,10 +148,7 @@ export function TicketDetailView({ ticketId }: { ticketId: number }) {
       {/* Columna 3: Asistente LLM (30%) */}
       <LlmAssistantPanel
         ticketId={ticket.id}
-        contextText={contextText}
         onUseReply={setComposerDraft}
-        ticketCategory={ticket.category}
-        onInsertReference={handleInsertReference}
       />
     </div>
   );

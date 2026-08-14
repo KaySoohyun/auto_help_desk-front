@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import {
   AlertTriangleIcon,
@@ -12,34 +12,20 @@ import {
   ShieldAlertIcon,
   SparklesIcon,
   XIcon,
+  BookOpenIcon,
 } from "lucide-react";
+import { useTicketAnalyze } from "@/hooks/tickets/useTicketAnalyze";
 import { useLlm } from "@/hooks/llm/useLlm";
 import { useSessionStore } from "@/stores/session.store";
 import { hasTicketPermission } from "@/lib/permissions";
-import { detectPromptInjection } from "@/lib/llm/injection";
-import { isInsufficientContext } from "@/lib/llm/context";
-import { detectPii } from "@/lib/pii/detect";
-import { evaluateLlmRisks } from "@/lib/llm/risks";
-import type { LlmRiskEvaluation } from "@/types/llm.types";
+import type { LlmAnalyzeOutput, LlmFeedbackAction } from "@/types/llm.types";
 import { PRIORITY_LABELS } from "@/components/features/tickets/TicketBadges";
 import { ConfidenceBadge } from "@/components/features/llm/ConfidenceBadge";
-import { RiskBanner } from "@/components/features/llm/RiskBanner";
-import { PromptInjectionWarning } from "@/components/features/llm/PromptInjectionWarning";
-import { InsufficientContextNotice } from "@/components/features/llm/InsufficientContextNotice";
-import { RelatedArticles } from "@/components/features/knowledge/RelatedArticles";
-import type { KbArticleSummary } from "@/types/knowledge.types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type {
-  LlmClassifyOutput,
-  LlmChatOutput,
-  LlmFeedbackAction,
-  LlmSummarizeOutput,
-} from "@/types/llm.types";
 
-const DISCLAIMER = "Salida generada por IA. Verificar antes de usar.";
+const DISCLAIMER = "Las sugerencias del LLM son orientativas y deben ser revisadas por un agente antes de enviarse.";
 
 const FEEDBACK_LABELS: Record<LlmFeedbackAction, string> = {
   accepted: "Aceptada",
@@ -54,22 +40,6 @@ const ACTION_LABELS: Record<LlmFeedbackAction, string> = {
   rejected: "Rechazar",
   flagged: "Marcar",
 };
-
-const APPLY_BLOCKED_TITLE = "Aplicación bloqueada por riesgo de prompt injection. Revisá manualmente.";
-
-function RiskList({ evaluation }: { evaluation: LlmRiskEvaluation | null }) {
-  if (!evaluation || evaluation.risks.length === 0) return null;
-  return (
-    <div className="space-y-2">
-      {evaluation.blocked ? <PromptInjectionWarning /> : null}
-      {evaluation.risks
-        .filter((risk) => !(risk.kind === "prompt_injection" && risk.level === "high"))
-        .map((risk, index) => (
-          <RiskBanner key={`${risk.kind}-${index}`} risk={risk} />
-        ))}
-    </div>
-  );
-}
 
 function ErrorState({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
@@ -93,12 +63,10 @@ function ErrorState({ message, onRetry }: { message: string; onRetry?: () => voi
 function FeedbackRow({
   sent,
   onFeedback,
-  onRegenerate,
   disabled,
 }: {
   sent: LlmFeedbackAction | null;
   onFeedback: (action: LlmFeedbackAction) => void;
-  onRegenerate?: () => void;
   disabled: boolean;
 }) {
   if (sent) {
@@ -130,18 +98,6 @@ function FeedbackRow({
         <PenLineIcon aria-hidden />
         {ACTION_LABELS.edited}
       </Button>
-      {onRegenerate ? (
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={disabled}
-          onClick={() => onRegenerate()}
-        >
-          <RefreshCwIcon aria-hidden />
-          Regenerar
-        </Button>
-      ) : null}
       <Button
         type="button"
         variant="outline"
@@ -166,166 +122,51 @@ function FeedbackRow({
   );
 }
 
-function ClassifyResult({
-  result,
-  evaluation,
-  feedbackSent,
-  feedbackDisabled,
-  onFeedback,
-  onRegenerate,
-}: {
-  result: LlmClassifyOutput;
-  evaluation: LlmRiskEvaluation | null;
-  feedbackSent: LlmFeedbackAction | null;
-  feedbackDisabled: boolean;
-  onFeedback: (action: LlmFeedbackAction) => void;
-  onRegenerate?: () => void;
-}) {
-  return (
-    <div className="space-y-3 rounded-md border border-border bg-background/40 p-3">
-      <div className="flex flex-wrap items-center gap-1.5">
-        <Badge>{result.category}</Badge>
-        {result.suggested_priority ? (
-          <Badge variant="outline">{PRIORITY_LABELS[result.suggested_priority]}</Badge>
-        ) : null}
-        <ConfidenceBadge confidence={result.confidence} />
-      </div>
-      <dl className="space-y-1 text-sm">
-        {result.subcategory ? (
-          <div className="flex justify-between gap-2">
-            <dt className="text-muted-foreground">Subcategoría</dt>
-            <dd>{result.subcategory}</dd>
-          </div>
-        ) : null}
-        <div className="flex justify-between gap-2">
-          <dt className="text-muted-foreground">Intención</dt>
-          <dd>{result.intent}</dd>
-        </div>
-      </dl>
-      {result.rationale ? (
-        <p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
-          {result.rationale}
-        </p>
-      ) : null}
-      <RiskList evaluation={evaluation} />
-      <FeedbackRow
-        sent={feedbackSent}
-        onFeedback={onFeedback}
-        disabled={feedbackDisabled}
-        onRegenerate={onRegenerate}
-      />
-    </div>
-  );
-}
-
-function SummarizeResult({
-  result,
-  evaluation,
-  feedbackSent,
-  feedbackDisabled,
-  onFeedback,
-  onRegenerate,
-}: {
-  result: LlmSummarizeOutput;
-  evaluation: LlmRiskEvaluation | null;
-  feedbackSent: LlmFeedbackAction | null;
-  feedbackDisabled: boolean;
-  onFeedback: (action: LlmFeedbackAction) => void;
-  onRegenerate?: () => void;
-}) {
-  return (
-    <div className="space-y-3 rounded-md border border-border bg-background/40 p-3">
-      <ConfidenceBadge confidence={result.confidence} />
-      <p className="text-sm whitespace-pre-wrap break-words">{result.summary}</p>
-      {result.missing_information ? (
-        <p className="text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">Falta información: </span>
-          {result.missing_information}
-        </p>
-      ) : null}
-      <RiskList evaluation={evaluation} />
-      <FeedbackRow
-        sent={feedbackSent}
-        onFeedback={onFeedback}
-        disabled={feedbackDisabled}
-        onRegenerate={onRegenerate}
-      />
-    </div>
-  );
-}
-
 export function LlmAssistantPanel({
   ticketId,
-  contextText,
   onUseReply,
-  ticketCategory,
-  onInsertReference,
 }: {
   ticketId: number;
-  contextText?: string;
   onUseReply?: (text: string) => void;
-  ticketCategory?: string | null;
-  onInsertReference?: (text: string) => void;
 }) {
   const user = useSessionStore((s) => s.user);
-  const {
-    classify,
-    summarize,
-    feedback,
-    piiRedact,
-    chat,
-  } = useLlm();
+  const analyze = useTicketAnalyze(ticketId);
+  const { feedback, piiRedact } = useLlm();
   const canUseLlm = hasTicketPermission(user?.role ?? null, "ai:suggest");
 
-  const injectionRisk = useMemo(() => detectPromptInjection(contextText ?? ""), [contextText]);
-  const insufficientContext = useMemo(
-    () => isInsufficientContext(contextText ?? ""),
-    [contextText]
-  );
-
-  const [classifyOut, setClassifyOut] = useState<LlmClassifyOutput | null>(null);
-  const [summarizeOut, setSummarizeOut] = useState<LlmSummarizeOutput | null>(null);
-  const [chatOut, setChatOut] = useState<LlmChatOutput | null>(null);
+  const [analyzeResult, setAnalyzeResult] = useState<LlmAnalyzeOutput | null>(null);
   const [chatDraft, setChatDraft] = useState("");
   const [feedbackSent, setFeedbackSent] = useState<Record<number, LlmFeedbackAction>>({});
+  const [autoAnalyzed, setAutoAnalyzed] = useState(false);
 
-  const classifyRisks = useMemo<LlmRiskEvaluation | null>(() => {
-    if (!classifyOut) return null;
-    return evaluateLlmRisks({
-      confidence: classifyOut.confidence,
-      warnings: classifyOut.warnings,
-      injectionRisk,
+  // Auto-analizar al cargar el ticket
+  useEffect(() => {
+    if (canUseLlm && !autoAnalyzed && !analyzeResult && !analyze.isPending) {
+      analyze.mutate(undefined, {
+        onSuccess: (data) => {
+          setAnalyzeResult(data);
+          if (data.suggested_reply && !("error" in data.suggested_reply)) {
+            setChatDraft(data.suggested_reply.suggested_reply);
+          }
+          setAutoAnalyzed(true);
+        },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canUseLlm, autoAnalyzed, analyzeResult]);
+
+  const handleRegenerateAll = () => {
+    setAutoAnalyzed(false);
+    setAnalyzeResult(null);
+    analyze.mutate(undefined, {
+      onSuccess: (data) => {
+        setAnalyzeResult(data);
+        if (data.suggested_reply && !("error" in data.suggested_reply)) {
+          setChatDraft(data.suggested_reply.suggested_reply);
+        }
+        setAutoAnalyzed(true);
+      },
     });
-  }, [classifyOut, injectionRisk]);
-
-  const summarizeRisks = useMemo<LlmRiskEvaluation | null>(() => {
-    if (!summarizeOut) return null;
-    return evaluateLlmRisks({
-      confidence: summarizeOut.confidence,
-      warnings: summarizeOut.warnings,
-      injectionRisk,
-    });
-  }, [summarizeOut, injectionRisk]);
-
-  const chatRisks = useMemo<LlmRiskEvaluation | null>(() => {
-    if (!chatOut) return null;
-    return evaluateLlmRisks({
-      confidence: chatOut.confidence,
-      warnings: chatOut.warnings,
-      policyFlags: chatOut.policy_flags,
-      piiDetections: detectPii(chatDraft),
-      injectionRisk,
-    });
-  }, [chatOut, chatDraft, injectionRisk]);
-
-  const handleClassify = () => classify.mutate({ ticketId }, { onSuccess: setClassifyOut });
-
-  const handleSummarize = () => summarize.mutate({ ticketId }, { onSuccess: setSummarizeOut });
-
-  const handleStartAll = () => {
-    handleClassify();
-    handleSummarize();
-    handleChat();
   };
 
   const sendFeedback = async (suggestionId: number, action: LlmFeedbackAction) => {
@@ -338,23 +179,15 @@ export function LlmAssistantPanel({
     }
   };
 
-  const handleChat = () =>
-    chat.mutate(
-      { ticketId },
-      {
-        onSuccess: (data) => {
-          setChatOut(data);
-          setChatDraft(data.suggested_reply);
-        },
-      }
-    );
-
   const applyChatInComposer = async () => {
-    if (!chatOut || !chatDraft.trim() || chatRisks?.blocked) return;
-    const changed = chatDraft !== chatOut.suggested_reply;
+    if (!suggestedReply) return;
+    if (!chatDraft.trim()) return;
+    
+    const changed = chatDraft !== suggestedReply.suggested_reply;
     onUseReply?.(chatDraft);
-    if (!feedbackSent[chatOut.suggestion_id]) {
-      await sendFeedback(chatOut.suggestion_id, changed ? "edited" : "accepted");
+    
+    if (!feedbackSent[suggestedReply.suggestion_id]) {
+      await sendFeedback(suggestedReply.suggestion_id, changed ? "edited" : "accepted");
     }
   };
 
@@ -369,15 +202,9 @@ export function LlmAssistantPanel({
     }
   };
 
-  const insertReference = (article: KbArticleSummary) => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const link = `${origin}/app/knowledge/articles/${article.id}`;
-    onInsertReference?.(`Referencia (base de conocimiento): ${article.title} — ${link}`);
-  };
-
   if (!canUseLlm) {
     return (
-      <aside aria-label="Asistente LLM" className="lg:w-[360px] lg:shrink-0">
+      <aside aria-label="Asistente LLM" className="space-y-4">
         <div className="rounded-lg border border-border bg-card p-4 text-center">
           <ShieldAlertIcon className="mx-auto mb-2 size-6 text-risk-pii" aria-hidden />
           <p className="text-sm font-medium">Asistente LLM no disponible</p>
@@ -389,197 +216,261 @@ export function LlmAssistantPanel({
     );
   }
 
+  const isLoading = analyze.isPending;
+  const hasError = analyze.isError;
+  
+  // Type guards para narrowing
+  const classification = analyzeResult?.classification && !("error" in analyzeResult.classification) 
+    ? analyzeResult.classification 
+    : null;
+  const summary = analyzeResult?.summary && !("error" in analyzeResult.summary) 
+    ? analyzeResult.summary 
+    : null;
+  const suggestedReply = analyzeResult?.suggested_reply && !("error" in analyzeResult.suggested_reply) 
+    ? analyzeResult.suggested_reply 
+    : null;
+
   return (
-    <aside aria-label="Asistente LLM" className="lg:w-[360px] lg:shrink-0">
+    <aside aria-label="Asistente LLM" className="space-y-4">
       <div className="rounded-lg border border-content-llm-border/40 bg-card">
-        <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-          <SparklesIcon className="size-4 text-llm" aria-hidden />
-          <h2 className="text-sm font-semibold">Asistente LLM</h2>
+        {/* Header con botón Regenerar */}
+        <div className="flex items-center justify-between border-b border-border px-4 py-3">
+          <div className="flex items-center gap-2">
+            <SparklesIcon className="size-4 text-llm" aria-hidden />
+            <h2 className="text-sm font-semibold">Asistente LLM</h2>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleRegenerateAll}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2Icon className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <RefreshCwIcon aria-hidden />
+            )}
+            {isLoading ? "Analizando..." : "Regenerar"}
+          </Button>
         </div>
-        <div className="p-4">
-          <p className="mb-3 rounded-md bg-content-llm-bg px-3 py-2 text-xs text-muted-foreground">
+
+        <div className="p-4 space-y-4">
+          {/* Disclaimer */}
+          <p className="rounded-md bg-content-llm-bg px-3 py-2 text-xs text-muted-foreground">
             {DISCLAIMER}
           </p>
 
-          <Button
-            type="button"
-            onClick={handleStartAll}
-            disabled={classify.isPending || summarize.isPending || chat.isPending}
-            className="mb-3 w-full"
-          >
-            {(classify.isPending || summarize.isPending || chat.isPending) ? (
-              <Loader2Icon className="size-4 animate-spin" aria-hidden />
-            ) : (
-              <SparklesIcon aria-hidden />
-            )}
-            {(classify.isPending || summarize.isPending || chat.isPending)
-              ? "Procesando…"
-              : "Iniciar asistente"}
-          </Button>
-
-          <Tabs defaultValue="classify">
-            <TabsList className="w-full">
-              <TabsTrigger value="classify">Clasificar</TabsTrigger>
-              <TabsTrigger value="summarize">Resumir</TabsTrigger>
-              <TabsTrigger value="chat">Chat</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="classify" className="mt-3 space-y-3">
-              <p className="text-xs text-muted-foreground">
-                Clasifica el ticket con categoría, intención y prioridad sugerida.
-              </p>
-              <Button
-                type="button"
-                onClick={handleClassify}
-                disabled={classify.isPending}
-              >
-                {classify.isPending ? (
-                  <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                ) : (
-                  <SparklesIcon aria-hidden />
-                )}
-                {classify.isPending ? "Clasificando…" : "Clasificar ticket"}
-              </Button>
-              {classify.isError ? (
-                <ErrorState
-                  message={classify.error?.message ?? "No se pudo clasificar el ticket."}
-                  onRetry={handleClassify}
-                />
-              ) : null}
-              {classifyOut ? (
-                <ClassifyResult
-                  result={classifyOut}
-                  evaluation={classifyRisks}
-                  feedbackSent={feedbackSent[classifyOut.suggestion_id] ?? null}
-                  feedbackDisabled={feedback.isPending}
-                  onFeedback={(action) => void sendFeedback(classifyOut.suggestion_id, action)}
-                  onRegenerate={handleClassify}
-                />
-              ) : null}
-            </TabsContent>
-
-            <TabsContent value="summarize" className="mt-3 space-y-3">
-              <p className="text-xs text-muted-foreground">
-                Genera un resumen del hilo y qué información falta.
-              </p>
-              <Button
-                type="button"
-                onClick={handleSummarize}
-                disabled={summarize.isPending}
-              >
-                {summarize.isPending ? (
-                  <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                ) : (
-                  <SparklesIcon aria-hidden />
-                )}
-                {summarize.isPending ? "Resumiendo…" : "Resumir ticket"}
-              </Button>
-              {summarize.isError ? (
-                <ErrorState
-                  message={summarize.error?.message ?? "No se pudo resumir el ticket."}
-                  onRetry={handleSummarize}
-                />
-              ) : null}
-              {summarizeOut ? (
-                <SummarizeResult
-                  result={summarizeOut}
-                  evaluation={summarizeRisks}
-                  feedbackSent={feedbackSent[summarizeOut.suggestion_id] ?? null}
-                  feedbackDisabled={feedback.isPending}
-                  onFeedback={(action) => void sendFeedback(summarizeOut.suggestion_id, action)}
-                  onRegenerate={handleSummarize}
-                />
-              ) : null}
-            </TabsContent>
-
-            <TabsContent value="chat" className="mt-3 space-y-3">
-              {insufficientContext ? <InsufficientContextNotice /> : null}
-              <p className="text-xs text-muted-foreground">
-                Genera una respuesta editable basada en el contexto del ticket.
-              </p>
-              <Button
-                type="button"
-                onClick={handleChat}
-                disabled={chat.isPending}
-              >
-                {chat.isPending ? (
-                  <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                ) : (
-                  <SparklesIcon aria-hidden />
-                )}
-                {chat.isPending ? "Generando…" : "Generar respuesta"}
-              </Button>
-              {chat.isError ? (
-                <ErrorState
-                  message={chat.error?.message ?? "No se pudo conectar con el asistente."}
-                  onRetry={handleChat}
-                />
-              ) : null}
-              {chatOut ? (
-                <div className="space-y-3">
-                  <Textarea
-                    rows={6}
-                    value={chatDraft}
-                    onChange={(event) => setChatDraft(event.target.value)}
-                    aria-label="Respuesta de la IA"
-                    disabled={chat.isPending}
-                  />
-                  <RiskList evaluation={chatRisks} />
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <ConfidenceBadge confidence={chatOut.confidence} />
-                    {chatOut.sources.length > 0 ? (
-                      <span className="text-xs text-muted-foreground">
-                        {chatOut.sources.length} fuente
-                        {chatOut.sources.length === 1 ? "" : "s"}
-                      </span>
-                    ) : null}
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => void applyChatInComposer()}
-                      disabled={!chatDraft.trim() || (chatRisks?.blocked ?? false)}
-                      title={chatRisks?.blocked ? APPLY_BLOCKED_TITLE : undefined}
-                    >
-                      <PenLineIcon aria-hidden />
-                      Usar en respuesta
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={() => void redactChat()}
-                      disabled={piiRedact.isPending || !chatDraft.trim()}
-                    >
-                      {piiRedact.isPending ? (
-                        <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                      ) : (
-                        <ShieldAlertIcon aria-hidden />
-                      )}
-                      Redactar PII
-                    </Button>
-                  </div>
-                  <FeedbackRow
-                    sent={feedbackSent[chatOut.suggestion_id] ?? null}
-                    onFeedback={(action) => void sendFeedback(chatOut.suggestion_id, action)}
-                    disabled={feedback.isPending}
-                    onRegenerate={handleChat}
-                  />
-                </div>
-              ) : null}
-            </TabsContent>
-          </Tabs>
-
-          <section className="mt-4 space-y-2" aria-label="Artículos relacionados">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              Artículos relacionados
-            </h3>
-            <RelatedArticles
-              category={ticketCategory}
-              onInsertReference={insertReference}
+          {/* Error state */}
+          {hasError && (
+            <ErrorState
+              message={analyze.error?.message ?? "No se pudo analizar el ticket."}
+              onRetry={handleRegenerateAll}
             />
-          </section>
+          )}
+
+          {/* Loading state */}
+          {isLoading && !analyzeResult && (
+            <div className="space-y-3">
+              <div className="h-4 w-3/4 animate-pulse rounded bg-muted" />
+              <div className="h-20 w-full animate-pulse rounded bg-muted" />
+              <div className="h-4 w-1/2 animate-pulse rounded bg-muted" />
+            </div>
+          )}
+
+          {/* Clasificación */}
+          {classification && (
+            <div className="space-y-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Clasificación sugerida
+              </h3>
+              <div className="space-y-2 rounded-md border border-border bg-background/40 p-3">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <Badge>{classification.category}</Badge>
+                  {classification.suggested_priority && (
+                    <Badge variant="outline">
+                      {PRIORITY_LABELS[classification.suggested_priority]}
+                    </Badge>
+                  )}
+                  <ConfidenceBadge confidence={classification.confidence} />
+                </div>
+                {classification.subcategory && (
+                  <p className="text-xs text-muted-foreground">
+                    Subcategoría: {classification.subcategory}
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground">
+                  Intención: {classification.intent}
+                </p>
+                {classification.rationale && (
+                  <p className="text-xs text-muted-foreground whitespace-pre-wrap break-words">
+                    {classification.rationale}
+                  </p>
+                )}
+                {classification.suggestion_id && (
+                  <FeedbackRow
+                    sent={feedbackSent[classification.suggestion_id] ?? null}
+                    onFeedback={(action) => void sendFeedback(classification.suggestion_id, action)}
+                    disabled={feedback.isPending}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Resumen */}
+          {summary && (
+            <div className="space-y-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Resumen
+              </h3>
+              <div className="space-y-2 rounded-md border border-border bg-background/40 p-3">
+                <ConfidenceBadge confidence={summary.confidence} />
+                <p className="text-sm whitespace-pre-wrap break-words">{summary.summary}</p>
+                {summary.missing_information && (
+                  <p className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground">Falta información: </span>
+                    {summary.missing_information}
+                  </p>
+                )}
+                {summary.suggestion_id && (
+                  <FeedbackRow
+                    sent={feedbackSent[summary.suggestion_id] ?? null}
+                    onFeedback={(action) => void sendFeedback(summary.suggestion_id, action)}
+                    disabled={feedback.isPending}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* PII detectada */}
+          {analyzeResult?.pii_detected && analyzeResult.pii_detected.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                PII detectada
+              </h3>
+              <div className="flex flex-wrap gap-1.5">
+                {analyzeResult.pii_detected.map((pii, index) => (
+                  <Badge key={index} variant="destructive">
+                    {pii.type}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Riesgos */}
+          {analyzeResult?.risks && analyzeResult.risks.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Riesgos
+              </h3>
+              <div className="space-y-1.5">
+                {analyzeResult.risks.map((risk, index) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-2 text-xs text-rose-700 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2 dark:text-rose-300 dark:bg-rose-950/20 dark:border-rose-900"
+                  >
+                    <AlertTriangleIcon className="mt-0.5 size-3.5 shrink-0" aria-hidden />
+                    <span>{risk}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Artículos recomendados */}
+          {analyzeResult?.kb_recommendations && analyzeResult.kb_recommendations.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <BookOpenIcon className="size-3.5" aria-hidden />
+                Artículos recomendados
+              </h3>
+              <ul className="space-y-1">
+                {analyzeResult.kb_recommendations.map((rec) => (
+                  <li key={rec.article_id} className="flex items-center gap-2 text-sm">
+                    <span className="size-1 rounded-full bg-muted-foreground" />
+                    <span>{rec.title}</span>
+                    <ConfidenceBadge confidence={rec.score} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Respuesta sugerida */}
+          {suggestedReply && (
+            <div className="space-y-2 border-t border-border pt-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Respuesta sugerida
+                </h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRegenerateAll}
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2Icon className="size-4 animate-spin" aria-hidden />
+                  ) : (
+                    <RefreshCwIcon aria-hidden />
+                  )}
+                  Regenerar
+                </Button>
+              </div>
+              <div className="space-y-3">
+                <Textarea
+                  rows={6}
+                  value={chatDraft}
+                  onChange={(event) => setChatDraft(event.target.value)}
+                  aria-label="Respuesta de la IA"
+                  disabled={isLoading}
+                />
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <ConfidenceBadge confidence={suggestedReply.confidence} />
+                  {suggestedReply.sources.length > 0 && (
+                    <span className="text-xs text-muted-foreground">
+                      {suggestedReply.sources.length} fuente
+                      {suggestedReply.sources.length === 1 ? "" : "s"}
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => void applyChatInComposer()}
+                    disabled={!chatDraft.trim()}
+                  >
+                    <PenLineIcon aria-hidden />
+                    Usar en respuesta
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => void redactChat()}
+                    disabled={piiRedact.isPending || !chatDraft.trim()}
+                  >
+                    {piiRedact.isPending ? (
+                      <Loader2Icon className="size-4 animate-spin" aria-hidden />
+                    ) : (
+                      <ShieldAlertIcon aria-hidden />
+                    )}
+                    Redactar PII
+                  </Button>
+                </div>
+                <FeedbackRow
+                  sent={feedbackSent[suggestedReply.suggestion_id] ?? null}
+                  onFeedback={(action) => void sendFeedback(suggestedReply.suggestion_id, action)}
+                  disabled={feedback.isPending}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </aside>

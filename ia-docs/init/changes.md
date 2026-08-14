@@ -1,5 +1,31 @@
 # Cambios
 
+## 2026-08-14 — Feature 012 · Rediseño del detalle de ticket (Fase 5: Panel LLM unificado)
+
+- **Panel LLM unificado** (`LlmAssistantPanel.tsx`):
+  - Eliminadas las tabs (Clasificar, Resumir, Chat)
+  - Vista unificada que muestra todos los resultados en una sola pantalla
+  - Auto-generación al cargar el ticket usando el endpoint `/analyze`
+  - Botón "Regenerar" en el header del panel
+  - Botón "Regenerar" en la sección de respuesta sugerida
+- **Secciones mostradas**:
+  - Clasificación sugerida (categoría, prioridad, confianza, intención)
+  - Resumen (texto + información faltante)
+  - PII detectada (badges con tipos de PII)
+  - Riesgos (banners de advertencia)
+  - Artículos recomendados (lista con confianza)
+  - Respuesta sugerida (textarea editable + botones de acción)
+- **Estados**:
+  - Loading: skeleton mientras se analiza
+  - Error: mensaje de error con botón "Reintentar"
+  - Aviso: "Las sugerencias del LLM son orientativas..."
+- **Integración**:
+  - Usa `useTicketAnalyze` hook para llamar al endpoint `/analyze`
+  - Auto-análisis al cargar el ticket (solo una vez)
+  - Feedback registrado para cada sugerencia (clasificación, resumen, respuesta)
+  - Redacción de PII en el borrador de respuesta
+- **Verificación**: `pnpm typecheck` y `pnpm lint` en verde (0 errores, 0 warnings)
+
 ## 2026-08-14 — Feature 012 · Rediseño del detalle de ticket (Fase 4: Layout y componentes)
 
 - **Layout de 3 columnas** (`TicketDetailView.tsx`):

@@ -63,19 +63,19 @@
 
 ## Fase 5: Frontend — Panel LLM unificado
 
-- [ ] **T5.1** Rediseñar `LlmAssistantPanel.tsx` (eliminar tabs, vista unificada)
-- [ ] **T5.2** Implementar auto-generación al cargar ticket (useEffect + useTicketAnalyze)
-- [ ] **T5.3** Implementar botón "Regenerar" en header del panel
-- [ ] **T5.4** Implementar botón "Regenerar" en respuesta sugerida
-- [ ] **T5.5** Mostrar sección "Clasificación sugerida" (pill con categoría)
-- [ ] **T5.6** Mostrar sección "Resumen" (texto)
-- [ ] **T5.7** Mostrar sección "PII detectada" (pills, si hay)
-- [ ] **T5.8** Mostrar sección "Riesgos" (banners, si hay)
-- [ ] **T5.9** Mostrar sección "Artículos recomendados" (lista, si hay)
-- [ ] **T5.10** Mostrar sección "Respuesta sugerida" (textarea editable con botones)
-- [ ] **T5.11** Loading states (skeletons por sección)
-- [ ] **T5.12** Error handling (mensaje + reintentar)
-- [ ] **T5.13** Aviso "Las sugerencias del LLM son orientativas..."
+- [x] **T5.1** Rediseñar `LlmAssistantPanel.tsx` (eliminar tabs, vista unificada)
+- [x] **T5.2** Implementar auto-generación al cargar ticket (useEffect + useTicketAnalyze)
+- [x] **T5.3** Implementar botón "Regenerar" en header del panel
+- [x] **T5.4** Implementar botón "Regenerar" en respuesta sugerida
+- [x] **T5.5** Mostrar sección "Clasificación sugerida" (pill con categoría)
+- [x] **T5.6** Mostrar sección "Resumen" (texto)
+- [x] **T5.7** Mostrar sección "PII detectada" (pills, si hay)
+- [x] **T5.8** Mostrar sección "Riesgos" (banners, si hay)
+- [x] **T5.9** Mostrar sección "Artículos recomendados" (lista, si hay)
+- [x] **T5.10** Mostrar sección "Respuesta sugerida" (textarea editable con botones)
+- [x] **T5.11** Loading states (skeletons por sección)
+- [x] **T5.12** Error handling (mensaje + reintentar)
+- [x] **T5.13** Aviso "Las sugerencias del LLM son orientativas..."
 
 ## Fase 6: Integración y tests
 
