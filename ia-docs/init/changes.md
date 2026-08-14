@@ -1,5 +1,23 @@
 # Cambios
 
+## 2026-08-14 — Feature 012 · Rediseño del detalle de ticket (Fase 4: Layout y componentes)
+
+- **Layout de 3 columnas** (`TicketDetailView.tsx`):
+  - Columna 1 (20%): Metadata del ticket (customer, propiedades, tags)
+  - Columna 2 (50%): Conversación y composer
+  - Columna 3 (30%): Panel LLM
+- **Componentes nuevos**:
+  - `CustomerCard.tsx`: muestra datos del cliente (nombre, email, empresa, plan)
+  - `TicketPropertiesCard.tsx`: muestra propiedades del ticket (prioridad, categoría, asignado, fechas)
+  - `TicketTagsCard.tsx`: muestra tags del ticket con funcionalidad de agregar/quitar
+  - `TicketClosedNotice.tsx`: aviso cuando el ticket está cerrado
+  - `alert.tsx`: componente UI Alert (shadcn/ui)
+- **Integración**:
+  - `TicketDetailView` ahora usa `useCustomer` para obtener datos del cliente
+  - Composer se bloquea automáticamente cuando el ticket está cerrado
+  - Tags se pueden agregar/quitar en tiempo real
+- **Verificación**: `pnpm typecheck` y `pnpm lint` en verde (0 errores, 0 warnings)
+
 ## 2026-08-14 — Feature 012 · Rediseño del detalle de ticket (Fase 3: Tipos y BFF)
 
 - **Tipos nuevos**:

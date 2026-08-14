@@ -53,13 +53,13 @@
 
 ## Fase 4: Frontend — Layout y componentes
 
-- [ ] **T4.1** Modificar `TicketDetailView.tsx` para layout de 3 columnas (20% / 50% / 30%)
-- [ ] **T4.2** Crear componente `CustomerCard` (nombre, email, empresa, plan)
-- [ ] **T4.3** Crear componente `TicketPropertiesCard` (estado, prioridad, categoría, asignado, tenant, fechas)
-- [ ] **T4.4** Crear componente `TicketTagsCard` (lista de tags, botón "Agregar tag", opción de quitar)
-- [ ] **T4.5** Crear componente `TicketClosedNotice` (aviso "Ticket cerrado")
-- [ ] **T4.6** Modificar `MessageComposer` para bloquear en tickets cerrados
-- [ ] **T4.7** Integrar todas las cards en la columna 1
+- [x] **T4.1** Modificar `TicketDetailView.tsx` para layout de 3 columnas (20% / 50% / 30%)
+- [x] **T4.2** Crear componente `CustomerCard` (nombre, email, empresa, plan)
+- [x] **T4.3** Crear componente `TicketPropertiesCard` (estado, prioridad, categoría, asignado, tenant, fechas)
+- [x] **T4.4** Crear componente `TicketTagsCard` (lista de tags, botón "Agregar tag", opción de quitar)
+- [x] **T4.5** Crear componente `TicketClosedNotice` (aviso "Ticket cerrado")
+- [x] **T4.6** Modificar `MessageComposer` para bloquear en tickets cerrados
+- [x] **T4.7** Integrar todas las cards en la columna 1
 
 ## Fase 5: Frontend — Panel LLM unificado
 
