@@ -19,9 +19,11 @@ type MessageValues = z.infer<typeof messageSchema>;
 export function MessageComposer({
   ticketId,
   initialValue,
+  disabled = false,
 }: {
   ticketId: number;
   initialValue?: string;
+  disabled?: boolean;
 }) {
   const sendMessage = useSendMessage(ticketId);
 
@@ -53,11 +55,11 @@ export function MessageComposer({
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-2" noValidate>
       <Textarea
         rows={3}
-        placeholder="Escribí tu respuesta…"
+        placeholder={disabled ? "El ticket está cerrado." : "Escribí tu respuesta…"}
         aria-label="Respuesta"
         aria-invalid={errors.body ? true : undefined}
         aria-describedby={errors.body ? "message-body-error" : undefined}
-        disabled={isSubmitting}
+        disabled={isSubmitting || disabled}
         {...register("body")}
       />
       {errors.body ? (
@@ -66,7 +68,7 @@ export function MessageComposer({
         </p>
       ) : null}
       <div className="flex justify-end">
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" disabled={isSubmitting || disabled}>
           {isSubmitting ? <Loader2Icon className="size-4 animate-spin" aria-hidden /> : null}
           <SendIcon aria-hidden />
           {isSubmitting ? "Enviando…" : "Responder"}

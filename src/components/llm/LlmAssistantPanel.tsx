@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
 import {
   AlertTriangleIcon,
@@ -11,11 +11,9 @@ import {
   RefreshCwIcon,
   ShieldAlertIcon,
   SparklesIcon,
-  SquareIcon,
   XIcon,
 } from "lucide-react";
 import { useLlm } from "@/hooks/llm/useLlm";
-import type { StreamHandlers } from "@/hooks/llm/useLlm";
 import { useSessionStore } from "@/stores/session.store";
 import { hasTicketPermission } from "@/lib/permissions";
 import { detectPromptInjection } from "@/lib/llm/injection";
@@ -37,19 +35,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
   LlmClassifyOutput,
   LlmChatOutput,
-  LlmStreamToken,
-  LlmSuggestReplyOutput,
   LlmFeedbackAction,
   LlmSummarizeOutput,
 } from "@/types/llm.types";
 
 const DISCLAIMER = "Salida generada por IA. Verificar antes de usar.";
-
-const SUGGEST_TONES = [
-  { tone: "formal", label: "Formal" },
-  { tone: "empático", label: "Empático" },
-  { tone: "conciso", label: "Conciso" },
-] as const;
 
 const FEEDBACK_LABELS: Record<LlmFeedbackAction, string> = {
   accepted: "Aceptada",
@@ -182,12 +172,14 @@ function ClassifyResult({
   feedbackSent,
   feedbackDisabled,
   onFeedback,
+  onRegenerate,
 }: {
   result: LlmClassifyOutput;
   evaluation: LlmRiskEvaluation | null;
   feedbackSent: LlmFeedbackAction | null;
   feedbackDisabled: boolean;
   onFeedback: (action: LlmFeedbackAction) => void;
+  onRegenerate?: () => void;
 }) {
   return (
     <div className="space-y-3 rounded-md border border-border bg-background/40 p-3">
@@ -220,6 +212,7 @@ function ClassifyResult({
         sent={feedbackSent}
         onFeedback={onFeedback}
         disabled={feedbackDisabled}
+        onRegenerate={onRegenerate}
       />
     </div>
   );
@@ -231,12 +224,14 @@ function SummarizeResult({
   feedbackSent,
   feedbackDisabled,
   onFeedback,
+  onRegenerate,
 }: {
   result: LlmSummarizeOutput;
   evaluation: LlmRiskEvaluation | null;
   feedbackSent: LlmFeedbackAction | null;
   feedbackDisabled: boolean;
   onFeedback: (action: LlmFeedbackAction) => void;
+  onRegenerate?: () => void;
 }) {
   return (
     <div className="space-y-3 rounded-md border border-border bg-background/40 p-3">
@@ -253,6 +248,7 @@ function SummarizeResult({
         sent={feedbackSent}
         onFeedback={onFeedback}
         disabled={feedbackDisabled}
+        onRegenerate={onRegenerate}
       />
     </div>
   );
@@ -275,13 +271,9 @@ export function LlmAssistantPanel({
   const {
     classify,
     summarize,
-    suggestReply,
     feedback,
     piiRedact,
     chat,
-    startStream,
-    isStreaming,
-    streamError,
   } = useLlm();
   const canUseLlm = hasTicketPermission(user?.role ?? null, "ai:suggest");
 
@@ -295,15 +287,7 @@ export function LlmAssistantPanel({
   const [summarizeOut, setSummarizeOut] = useState<LlmSummarizeOutput | null>(null);
   const [chatOut, setChatOut] = useState<LlmChatOutput | null>(null);
   const [chatDraft, setChatDraft] = useState("");
-  const [suggestions, setSuggestions] = useState<LlmSuggestReplyOutput[] | null>(null);
-  const [suggestDrafts, setSuggestDrafts] = useState<Record<number, string>>({});
-  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
-  const [suggestionsError, setSuggestionsError] = useState<string | null>(null);
-  const [streamTokens, setStreamTokens] = useState<LlmStreamToken[]>([]);
-  const [streamOutput, setStreamOutput] = useState("");
-  const [streamConfidence, setStreamConfidence] = useState<number | null>(null);
   const [feedbackSent, setFeedbackSent] = useState<Record<number, LlmFeedbackAction>>({});
-  const streamAbortRef = useRef<(() => void) | null>(null);
 
   const classifyRisks = useMemo<LlmRiskEvaluation | null>(() => {
     if (!classifyOut) return null;
@@ -334,18 +318,15 @@ export function LlmAssistantPanel({
     });
   }, [chatOut, chatDraft, injectionRisk]);
 
-  const streamRisks = useMemo<LlmRiskEvaluation | null>(() => {
-    if (!streamOutput) return null;
-    return evaluateLlmRisks({
-      confidence: streamConfidence ?? undefined,
-      piiDetections: detectPii(streamOutput),
-      injectionRisk,
-    });
-  }, [streamOutput, streamConfidence, injectionRisk]);
-
   const handleClassify = () => classify.mutate({ ticketId }, { onSuccess: setClassifyOut });
 
   const handleSummarize = () => summarize.mutate({ ticketId }, { onSuccess: setSummarizeOut });
+
+  const handleStartAll = () => {
+    handleClassify();
+    handleSummarize();
+    handleChat();
+  };
 
   const sendFeedback = async (suggestionId: number, action: LlmFeedbackAction) => {
     try {
@@ -388,69 +369,10 @@ export function LlmAssistantPanel({
     }
   };
 
-  const handleSuggest = async () => {
-    setSuggestionsLoading(true);
-    setSuggestionsError(null);
-    try {
-      const results = await Promise.all(
-        SUGGEST_TONES.map(({ tone }) => suggestReply.mutateAsync({ ticketId, tone }))
-      );
-      setSuggestions(results);
-      setSuggestDrafts(
-        results.reduce<Record<number, string>>((acc, result, index) => {
-          acc[index] = result.suggested_reply;
-          return acc;
-        }, {})
-      );
-    } catch (err) {
-      setSuggestionsError(
-        err instanceof Error ? err.message : "No se pudieron generar las sugerencias."
-      );
-    } finally {
-      setSuggestionsLoading(false);
-    }
-  };
-
-  const handleUseSuggestion = async (suggestion: LlmSuggestReplyOutput, draft: string) => {
-    onUseReply?.(draft);
-    if (!feedbackSent[suggestion.suggestion_id]) {
-      await sendFeedback(
-        suggestion.suggestion_id,
-        draft === suggestion.suggested_reply ? "accepted" : "edited"
-      );
-    }
-  };
-
   const insertReference = (article: KbArticleSummary) => {
     const origin = typeof window !== "undefined" ? window.location.origin : "";
     const link = `${origin}/app/knowledge/articles/${article.id}`;
     onInsertReference?.(`Referencia (base de conocimiento): ${article.title} — ${link}`);
-  };
-
-  const handleStream = () => {
-    if (isStreaming) {
-      streamAbortRef.current?.();
-      return;
-    }
-    setStreamTokens([]);
-    setStreamOutput("");
-    setStreamConfidence(null);
-
-    const handlers: StreamHandlers = {
-      onToken: (token) => {
-        setStreamTokens((prev) => [...prev, token]);
-        setStreamOutput((prev) => prev + token.token);
-        if (token.confidence > 0) setStreamConfidence(token.confidence);
-      },
-      onError: (err) => {
-        toast.error(err.message);
-      },
-      onDone: () => {
-        toast.success("Stream completado.");
-      },
-    };
-
-    streamAbortRef.current = startStream({ ticketId }, handlers);
   };
 
   if (!canUseLlm) {
@@ -479,13 +401,27 @@ export function LlmAssistantPanel({
             {DISCLAIMER}
           </p>
 
+          <Button
+            type="button"
+            onClick={handleStartAll}
+            disabled={classify.isPending || summarize.isPending || chat.isPending}
+            className="mb-3 w-full"
+          >
+            {(classify.isPending || summarize.isPending || chat.isPending) ? (
+              <Loader2Icon className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <SparklesIcon aria-hidden />
+            )}
+            {(classify.isPending || summarize.isPending || chat.isPending)
+              ? "Procesando…"
+              : "Iniciar asistente"}
+          </Button>
+
           <Tabs defaultValue="classify">
             <TabsList className="w-full">
               <TabsTrigger value="classify">Clasificar</TabsTrigger>
               <TabsTrigger value="summarize">Resumir</TabsTrigger>
               <TabsTrigger value="chat">Chat</TabsTrigger>
-              <TabsTrigger value="suggestions">Sugerencias</TabsTrigger>
-              <TabsTrigger value="streaming">Streaming</TabsTrigger>
             </TabsList>
 
             <TabsContent value="classify" className="mt-3 space-y-3">
@@ -517,6 +453,7 @@ export function LlmAssistantPanel({
                   feedbackSent={feedbackSent[classifyOut.suggestion_id] ?? null}
                   feedbackDisabled={feedback.isPending}
                   onFeedback={(action) => void sendFeedback(classifyOut.suggestion_id, action)}
+                  onRegenerate={handleClassify}
                 />
               ) : null}
             </TabsContent>
@@ -550,6 +487,7 @@ export function LlmAssistantPanel({
                   feedbackSent={feedbackSent[summarizeOut.suggestion_id] ?? null}
                   feedbackDisabled={feedback.isPending}
                   onFeedback={(action) => void sendFeedback(summarizeOut.suggestion_id, action)}
+                  onRegenerate={handleSummarize}
                 />
               ) : null}
             </TabsContent>
@@ -626,128 +564,8 @@ export function LlmAssistantPanel({
                     sent={feedbackSent[chatOut.suggestion_id] ?? null}
                     onFeedback={(action) => void sendFeedback(chatOut.suggestion_id, action)}
                     disabled={feedback.isPending}
+                    onRegenerate={handleChat}
                   />
-                </div>
-              ) : null}
-            </TabsContent>
-
-            <TabsContent value="suggestions" className="mt-3 space-y-3">
-              {insufficientContext ? <InsufficientContextNotice /> : null}
-              <p className="text-xs text-muted-foreground">
-                Genera 3 respuestas con distintos tonos para elegir.
-              </p>
-              <Button
-                type="button"
-                onClick={() => void handleSuggest()}
-                disabled={suggestionsLoading}
-              >
-                {suggestionsLoading ? (
-                  <Loader2Icon className="size-4 animate-spin" aria-hidden />
-                ) : (
-                  <SparklesIcon aria-hidden />
-                )}
-                {suggestionsLoading ? "Generando…" : "Generar sugerencias"}
-              </Button>
-              {suggestionsError ? (
-                <ErrorState message={suggestionsError} onRetry={() => void handleSuggest()} />
-              ) : null}
-              {suggestions
-                ? suggestions.map((suggestion, idx) => {
-                    const tone = SUGGEST_TONES[idx];
-                    const draftValue = suggestDrafts[idx] ?? suggestion.suggested_reply;
-                    const evaluation = evaluateLlmRisks({
-                      confidence: suggestion.confidence,
-                      warnings: suggestion.warnings,
-                      policyFlags: suggestion.policy_flags,
-                      piiDetections: detectPii(draftValue),
-                      injectionRisk,
-                    });
-                    return (
-                      <div
-                        key={idx}
-                        className="space-y-3 rounded-md border border-border bg-background/40 p-3"
-                      >
-                        <p className="text-xs font-medium text-muted-foreground">
-                          Tono {tone.label}
-                        </p>
-                        <Textarea
-                          rows={3}
-                          value={draftValue}
-                          onChange={(event) =>
-                            setSuggestDrafts((prev) => ({ ...prev, [idx]: event.target.value }))
-                          }
-                          aria-label={`Sugerencia ${idx + 1} (tono ${tone.label})`}
-                        />
-                        <ConfidenceBadge confidence={suggestion.confidence} />
-                        <RiskList evaluation={evaluation} />
-                        <div className="flex flex-wrap gap-1.5">
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => void handleUseSuggestion(suggestion, draftValue)}
-                            disabled={!draftValue.trim() || evaluation.blocked}
-                            title={evaluation.blocked ? APPLY_BLOCKED_TITLE : undefined}
-                          >
-                            <PenLineIcon aria-hidden />
-                            Usar sugerencia
-                          </Button>
-                        </div>
-                        <FeedbackRow
-                          sent={feedbackSent[suggestion.suggestion_id] ?? null}
-                          onFeedback={(action) => void sendFeedback(suggestion.suggestion_id, action)}
-                          disabled={feedback.isPending}
-                          onRegenerate={() => void handleSuggest()}
-                        />
-                      </div>
-                    );
-                  })
-                : null}
-            </TabsContent>
-
-            <TabsContent value="streaming" className="mt-3 space-y-3">
-              {insufficientContext ? <InsufficientContextNotice /> : null}
-              <p className="text-xs text-muted-foreground">
-                Genera la respuesta y la muestra en tiempo real vía Server-Sent Events.
-              </p>
-              {isStreaming ? (
-                <Button type="button" variant="outline" size="sm" onClick={handleStream}>
-                  <SquareIcon className="size-4" aria-hidden />
-                  Cancelar stream
-                </Button>
-              ) : (
-                <Button type="button" onClick={handleStream}>
-                  {streamError ? (
-                    <RefreshCwIcon className="size-4" aria-hidden />
-                  ) : (
-                    <SparklesIcon aria-hidden />
-                  )}
-                  {streamError ? "Reintentar" : "Iniciar stream"}
-                </Button>
-              )}
-              {streamError ? (
-                <ErrorState
-                  message={streamError.message}
-                  onRetry={handleStream}
-                />
-              ) : null}
-              {streamOutput ? (
-                <div className="space-y-2">
-                  <Textarea
-                    rows={8}
-                    value={streamOutput}
-                    aria-label="Salida del stream en tiempo real"
-                    readOnly
-                    className="font-mono text-sm"
-                  />
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    {streamConfidence !== null ? (
-                      <ConfidenceBadge confidence={streamConfidence} />
-                    ) : null}
-                    <span className="text-xs text-muted-foreground">
-                      {streamTokens.length} eventos recibidos
-                    </span>
-                  </div>
-                  <RiskList evaluation={streamRisks} />
                 </div>
               ) : null}
             </TabsContent>

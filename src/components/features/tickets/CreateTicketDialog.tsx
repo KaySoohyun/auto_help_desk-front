@@ -28,6 +28,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useCreateTicket } from "@/hooks/tickets/useCreateTicket";
+import { useCategories } from "@/hooks/tickets/useCategories";
 import type { TicketPriority } from "@/types/ticket.types";
 
 const createSchema = z.object({
@@ -49,6 +50,7 @@ const PRIORITY_OPTIONS: Array<{ value: TicketPriority; label: string }> = [
 export function CreateTicketDialog() {
   const router = useRouter();
   const createTicket = useCreateTicket();
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const [open, setOpen] = useState(false);
 
   const {
@@ -131,12 +133,24 @@ export function CreateTicketDialog() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="ticket-category">Categoría</Label>
-              <Input
-                id="ticket-category"
-                placeholder="Ej.: billing"
-                aria-invalid={errors.category ? true : undefined}
-                {...register("category")}
+              <Label id="ticket-category-label">Categoría</Label>
+              <Controller
+                name="category"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value ?? ""} onValueChange={field.onChange} disabled={categoriesLoading}>
+                    <SelectTrigger aria-labelledby="ticket-category-label" className="w-full">
+                      <SelectValue placeholder="Seleccioná" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map(({ value, label }) => (
+                        <SelectItem key={value} value={value}>
+                          {label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
               />
               {errors.category ? (
                 <p className="text-xs text-destructive">{errors.category.message}</p>

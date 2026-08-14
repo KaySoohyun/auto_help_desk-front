@@ -18,7 +18,6 @@ export function TicketMetadata({ ticket }: { ticket: Ticket }) {
       value: <TicketPriorityBadge priority={ticket.priority} />,
     },
     { label: "Categoría", value: ticket.category ?? "—" },
-    { label: "Idioma", value: ticket.language.toUpperCase() },
     { label: "Asignado", value: ticket.assignee_id ? `#${ticket.assignee_id}` : "Sin asignar" },
     { label: "Creado", value: formatDateTime(ticket.created_at) },
     { label: "Actualizado", value: formatDateTime(ticket.updated_at) },

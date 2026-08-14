@@ -138,7 +138,11 @@ export function TicketDetailView({ ticketId }: { ticketId: number }) {
           <TicketThread ticketId={ticket.id} selfId={user?.id ?? null} />
           {canEdit ? (
             <div className="rounded-lg border border-border bg-card p-3">
-              <MessageComposer ticketId={ticket.id} initialValue={composerDraft} />
+              <MessageComposer
+                ticketId={ticket.id}
+                initialValue={composerDraft}
+                disabled={ticket.status === "closed"}
+              />
             </div>
           ) : null}
         </section>

@@ -19,7 +19,6 @@ const createTicketSchema = z.object({
   description: z.string().trim().min(1).max(4000),
   category: z.string().trim().max(100).optional(),
   priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
-  language: z.string().trim().max(10).default("es"),
 });
 
 export async function GET(req: NextRequest) {

@@ -8,7 +8,6 @@ export interface TicketSummary {
   subject: string;
   category: string | null;
   priority: TicketPriority | null;
-  language: string;
   status: TicketStatus;
   assignee_id: number | null;
   created_at: string;
@@ -57,5 +56,4 @@ export interface CreateTicketPayload {
   description: string;
   category?: string;
   priority?: TicketPriority;
-  language?: string;
 }

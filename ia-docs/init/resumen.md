@@ -134,9 +134,14 @@ Base URL `http://localhost:8000`. Auth: `Authorization: Bearer <access>`.
 - **002 Bandeja y detalle de tickets** — hecho ✅
 - **003 Dashboard básico** — hecho ✅
 - **004 Panel LLM base** — hecho ✅
-- **005 Panel LLM avanzado** — implementado ⏳ (build/lint/typecheck OK; pendiente validación funcional contra FastAPI real + a11y)
-- **006 Confianza y seguridad LLM** — implementado ⏳ (confianza, riesgos, PII, prompt injection con bloqueo de apply, bajo contexto)
-- Backlog: 007 KB, 007 administración, 010 auditoría, 011 privacidad/retención, 012 hardening
+- **005 Panel LLM avanzado** — hecho ✅ (streaming, sugerencias, feedback)
+- **006 Confianza y seguridad LLM** — hecho ✅ (confianza, riesgos, PII, prompt injection, bajo contexto)
+- **007 Base de conocimiento** — hecho ✅ (artículos, categorías, versionado, permisos, integración LLM)
+- **008 Administración (usuarios)** — hecho ✅ (CRUD usuarios, permisos RBAC)
+- **009 Auditoría** — hecho ✅ (eventos, filtros, export CSV)
+- **010 Privacidad y límites LLM** — hecho ✅ (políticas tenant/global, config orquestador)
+- **011 Hardening** — hecho ✅ (headers seguridad, CSRF, observabilidad, error boundaries, a11y)
+- **012 Rediseño detalle ticket** — spec/planned ⏳ (3 columnas, multi-tenant real, customers, tags relacionales, endpoint LLM unificado)
 
 ## 11. Convenciones de trabajo
 
