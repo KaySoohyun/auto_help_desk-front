@@ -141,7 +141,7 @@ Base URL `http://localhost:8000`. Auth: `Authorization: Bearer <access>`.
 - **009 Auditoría** — hecho ✅ (eventos, filtros, export CSV)
 - **010 Privacidad y límites LLM** — hecho ✅ (políticas tenant/global, config orquestador)
 - **011 Hardening** — hecho ✅ (headers seguridad, CSRF, observabilidad, error boundaries, a11y)
-- **012 Rediseño detalle ticket** — spec/planned ⏳ (3 columnas, multi-tenant real, customers, tags relacionales, endpoint LLM unificado)
+- **012 Rediseño detalle ticket** — hecho ✅ (3 columnas, panel LLM unificado, auto-generación, tags, customers, tenants)
 
 ## 11. Convenciones de trabajo
 

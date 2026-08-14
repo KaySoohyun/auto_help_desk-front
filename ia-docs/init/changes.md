@@ -1,5 +1,16 @@
 # Cambios
 
+## 2026-08-14 — Feature 012 · Rediseño del detalle de ticket (Fase 6: Integración y tests)
+
+- **Verificación de build**: `pnpm build` exitoso, todos los endpoints BFF correctamente registrados
+- **Tests backend**: 276 tests pasan (260 anteriores + 16 nuevos de Feature 020)
+- **Tests frontend**: `pnpm typecheck` y `pnpm lint` en verde (0 errores, 0 warnings)
+- **Documentación actualizada**:
+  - `ia-docs/features/012-rediseo-detalle-ticket/tasks.md`: todas las tareas marcadas como completadas
+  - `ia-docs/init/changes.md`: registro de todas las fases (1-6)
+  - `ia-docs/backend/ia_docs/cambios.md`: registro de Feature 020 (backend)
+- **Feature completa**: Layout de 3 columnas, panel LLM unificado, auto-generación, tags, customers, tenants
+
 ## 2026-08-14 — Feature 012 · Rediseño del detalle de ticket (Fase 5: Panel LLM unificado)
 
 - **Panel LLM unificado** (`LlmAssistantPanel.tsx`):
