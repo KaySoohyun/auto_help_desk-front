@@ -110,25 +110,6 @@ export default function PersonasDashboard() {
           </Button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          {TICKET_STATUSES.map((s) => (
-            <button
-              key={s.key}
-              onClick={() => setFilter(s.key)}
-              className={cn(
-                "text-left rounded-2xl border bg-card p-4 transition-all hover:shadow-sm",
-                filter === s.key ? "border-foreground/20 shadow-sm" : "border-border"
-              )}
-            >
-              <div className="flex items-center justify-between">
-                <span className={cn("w-2 h-2 rounded-full", s.dot)} />
-                <span className="text-2xl font-bold tracking-tight text-foreground">{counts[s.key] || 0}</span>
-              </div>
-              <p className="text-xs text-muted-foreground mt-2">{s.label}</p>
-            </button>
-          ))}
-        </div>
 
         {/* Filters + search */}
         <div className="flex flex-col sm:flex-row gap-3 mb-5">

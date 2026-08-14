@@ -2,6 +2,8 @@
 
 El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
+- **013 · Portal de personas** — landing "Personas" → `/personas/login` (login + registro como cliente con selección de tenant), `/panel` (dashboard: mis tickets, buscador, filtros con conteos, crear ticket), `/panel/tickets/[id]` (conversación con envío manual, sin LLM). Rol `customer` en backend con aislamiento por customer/tenant. ✅ Hecho (2026-08-14).
+
 - **Portal empresas multi-tenant** — landing con dos portales, `/empresas/login` con login + registro (selección de uno o varios tenants), auto-login post-registro, selector de tenant post-login y switcher en el Topbar, tickets/dashboard con alcance al tenant activo o a todos los tenants. ✅ Hecho (2026-08-14; backend en `backend-python/ia_docs/cambios.md`).
 
 - **001 · Fundaciones técnicas** — Next.js + TS + Tailwind + shadcn/ui, BFF base, proxy de sesión, login, AppShell. _(Fase 1 · Etapa 1.1 del plan)_

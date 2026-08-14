@@ -12,6 +12,7 @@ interface LoginCredentials {
 interface RegisterCredentials {
   email: string;
   password: string;
+  role?: "agent" | "customer";
   tenant_ids?: string[];
 }
 
@@ -53,12 +54,12 @@ export const useSessionStore = create<SessionStore>((set) => ({
     }
   },
 
-  register: async ({ email, password, tenant_ids }) => {
+  register: async ({ email, password, role, tenant_ids }) => {
     set({ status: "authenticating", error: null });
     try {
       const data = await bffFetch<{ user: UserOut }>("/api/bff/auth/register", {
         method: "POST",
-        body: { email, password, tenant_ids },
+        body: { email, password, role: role ?? "agent", tenant_ids },
       });
       set({ status: "authenticated", user: toSessionUser(data.user), error: null });
     } catch (err) {

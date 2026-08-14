@@ -5,6 +5,7 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   tenant_admin: "Admin de tenant",
   supervisor: "Supervisor",
   agent: "Agente",
+  customer: "Cliente",
 };
 
-export const ROLE_ORDER: UserRole[] = ["tenant_admin", "supervisor", "agent", "platform_admin"];
+export const ROLE_ORDER: UserRole[] = ["tenant_admin", "supervisor", "agent", "platform_admin", "customer"];

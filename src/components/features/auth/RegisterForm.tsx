@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSessionStore } from "@/stores/session.store";
+import { homePathForRole } from "@/lib/auth/routing";
 import { usePublicTenants } from "@/hooks/auth/usePublicTenants";
 import type { TenantInfo } from "@/types/auth.types";
 import { TenantSelector } from "./TenantSelector";
@@ -22,7 +23,14 @@ const registerSchema = z.object({
 
 type RegisterValues = z.infer<typeof registerSchema>;
 
-export function RegisterForm() {
+export interface RegisterFormProps {
+  /** Rol a registrar: agent (empresas) o customer (personas). */
+  role?: "agent" | "customer";
+  /** Exige seleccionar al menos un tenant (necesario para customers). */
+  requireTenant?: boolean;
+}
+
+export function RegisterForm({ role = "agent", requireTenant = false }: RegisterFormProps) {
   const router = useRouter();
   const register = useSessionStore((s) => s.register);
   const switchTenant = useSessionStore((s) => s.switchTenant);
@@ -47,15 +55,19 @@ export function RegisterForm() {
 
   const onSubmit = async (values: RegisterValues) => {
     setServerError(null);
+    if (requireTenant && selectedTenants.length === 0) {
+      setServerError("Seleccioná al menos una empresa/tenant para continuar.");
+      return;
+    }
     try {
-      await register({ email: values.email, password: values.password, tenant_ids: selectedTenants });
+      await register({ email: values.email, password: values.password, role, tenant_ids: selectedTenants });
 
       const currentUser = useSessionStore.getState().user;
       if (currentUser && currentUser.tenants.length > 1) {
         setTenants(currentUser.tenants);
         setShowTenantSelector(true);
       } else {
-        router.replace("/app");
+        router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
       }
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Error al registrarte.");
@@ -66,14 +78,16 @@ export function RegisterForm() {
     setServerError(null);
     try {
       await switchTenant(tenantId);
-      router.replace("/app");
+      const currentUser = useSessionStore.getState().user;
+      router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Error al cambiar de tenant.");
     }
   };
 
   const handleSkipTenantSelection = () => {
-    router.replace("/app");
+    const currentUser = useSessionStore.getState().user;
+    router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
   };
 
   if (showTenantSelector) {

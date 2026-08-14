@@ -1,5 +1,22 @@
 # Cambios
 
+## 2026-08-14 — Portal de personas (rol customer) — Feature 013
+
+- **Backend** (detalle en `backend/ia_docs/cambios.md`, feature 021):
+  - Rol `customer` + permiso `persona:tickets`; registro público admite `customer` y crea su fila en `customers` (`customers.user_id` nuevo).
+  - Endpoints `/v1/me`: perfil (`GET /v1/me`), `GET|POST /v1/me/tickets`, `GET /v1/me/tickets/{id}`, `GET|POST /v1/me/tickets/{id}/messages`. Aislamiento por customer + tenant. Sin LLM.
+  - `Ticket`/`TicketSummary` exponen `customer_id`; `TicketRepository` soporta filtro `customer_id`.
+- **Frontend**:
+  - `/personas/login`: login + registro como cliente (rol `customer`, selección de tenant obligatoria).
+  - `/panel`: dashboard de personas (saludo con nombre del perfil, buscador, filtros por estado con conteos, crear ticket con modal RHF+Zod).
+  - `/panel/tickets/[id]`: detalle con conversación (emisor derivado por `author_id`), composer manual y panel lateral (categoría, empresa, agente "Equipo de soporte", fechas).
+  - `PersonaShell`/`PersonaHeader` (layout propio sin sidebar); proxy protege `/panel/*` y redirige login por rol (decodifica JWT).
+  - Ruteo post-login/registro por rol (`homePathForRole`: customer → `/panel`).
+  - BFF: `/api/bff/me/tickets*`, `/api/bff/me/profile`; registro BFF acepta `role`.
+  - Landing: tarjeta "Personas" apunta a `/personas/login`.
+- **Sin LLM para el cliente** (por decisión de producto): los mensajes son manuales.
+- **Verificación**: backend **293 tests**; frontend `typecheck`, `lint`, `build` en verde; **115 tests funcionales** (incluye `tests/persona-flow.test.ts`).
+
 ## 2026-08-14 — Scope efectivo de tenant en backend (LLM, workspace, admin, audit, KB, customers)
 
 - El backend ahora aplica el scope efectivo (tenant del JWT o todos los del usuario) también en:

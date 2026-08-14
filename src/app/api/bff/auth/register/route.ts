@@ -8,6 +8,7 @@ import type { TokenResponse, UserOut } from "@/types/auth.types";
 const registerSchema = z.object({
   email: z.string().trim().min(1, "Ingresá tu email.").email("Email inválido."),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres."),
+  role: z.enum(["agent", "customer"]).default("agent"),
   tenant_ids: z.array(z.string().trim().min(1)).max(20).optional(),
 });
 
@@ -27,13 +28,13 @@ export async function POST(req: Request) {
     );
   }
 
-  const { email, password, tenant_ids } = parsed.data;
+  const { email, password, role, tenant_ids } = parsed.data;
 
   try {
-    const registerPayload: { email: string; password: string; role: "agent"; tenant_ids: string[] } = {
+    const registerPayload: { email: string; password: string; role: "agent" | "customer"; tenant_ids: string[] } = {
       email,
       password,
-      role: "agent",
+      role,
       tenant_ids: tenant_ids ?? [],
     };
 

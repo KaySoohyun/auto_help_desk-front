@@ -5,6 +5,7 @@ export type TicketPriority = "low" | "medium" | "high" | "urgent";
 export interface TicketSummary {
   id: number;
   tenant_id: string;
+  customer_id: number | null;
   subject: string;
   category: string | null;
   priority: TicketPriority | null;

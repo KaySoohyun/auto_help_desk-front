@@ -11,6 +11,7 @@ const ROLE_PERMISSIONS: Record<UserRole, TicketPermission[]> = {
   tenant_admin: ["tickets:read", "responses:edit", "responses:send", "ai:suggest"],
   supervisor: ["tickets:read", "responses:edit", "responses:send", "ai:suggest"],
   agent: ["tickets:read", "responses:edit", "responses:send", "ai:suggest"],
+  customer: [],
 };
 
 export function hasTicketPermission(role: UserRole | null, permission: TicketPermission): boolean {
@@ -25,6 +26,7 @@ const KB_ROLE_PERMISSIONS: Record<UserRole, KbPermission[]> = {
   tenant_admin: ["kb:read", "kb:edit", "kb:publish"],
   supervisor: ["kb:read", "kb:edit", "kb:publish"],
   agent: ["kb:read"],
+  customer: [],
 };
 
 export function hasKbPermission(role: UserRole | null, permission: KbPermission): boolean {
@@ -39,6 +41,7 @@ const ADMIN_ROLE_PERMISSIONS: Record<UserRole, AdminPermission[]> = {
   tenant_admin: ["users:read", "users:edit", "ai:configure"],
   supervisor: [],
   agent: [],
+  customer: [],
 };
 
 export function hasAdminPermission(role: UserRole | null, permission: AdminPermission): boolean {
@@ -53,6 +56,7 @@ const AUDIT_ROLE_PERMISSIONS: Record<UserRole, AuditPermission[]> = {
   tenant_admin: ["audit:view", "audit:export"],
   supervisor: ["audit:view"],
   agent: [],
+  customer: [],
 };
 
 export function hasAuditPermission(role: UserRole | null, permission: AuditPermission): boolean {

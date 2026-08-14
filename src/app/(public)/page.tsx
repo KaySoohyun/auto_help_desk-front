@@ -81,7 +81,7 @@ export default function LandingPage() {
       <section className="mx-auto max-w-5xl px-5 sm:px-8 pb-16">
         <div className="grid sm:grid-cols-2 gap-5">
           <PortalCard
-            href="/login"
+            href="/personas/login"
             icon={User}
             eyebrow="Usuarios finales"
             title="Personas"

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useSessionStore } from "@/stores/session.store";
+import { homePathForRole } from "@/lib/auth/routing";
 import type { TenantInfo } from "@/types/auth.types";
 import { TenantSelector } from "./TenantSelector";
 
@@ -45,7 +46,7 @@ export function LoginForm() {
         setTenants(currentUser.tenants);
         setShowTenantSelector(true);
       } else {
-        router.replace("/app");
+        router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
       }
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Error al iniciar sesión.");
@@ -56,14 +57,16 @@ export function LoginForm() {
     setServerError(null);
     try {
       await switchTenant(tenantId);
-      router.replace("/app");
+      const currentUser = useSessionStore.getState().user;
+      router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Error al cambiar de tenant.");
     }
   };
 
   const handleSkipTenantSelection = () => {
-    router.replace("/app");
+    const currentUser = useSessionStore.getState().user;
+    router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
   };
 
   if (showTenantSelector) {

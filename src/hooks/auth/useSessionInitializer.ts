@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/stores/session.store";
 
-export function useSessionInitializer() {
+export function useSessionInitializer(loginPath = "/login") {
   const status = useSessionStore((s) => s.status);
   const loadMe = useSessionStore((s) => s.loadMe);
   const router = useRouter();
@@ -17,9 +17,9 @@ export function useSessionInitializer() {
 
   useEffect(() => {
     if (status === "expired") {
-      router.replace("/login?expired=1");
+      router.replace(`${loginPath}?expired=1`);
     }
-  }, [status, router]);
+  }, [status, router, loginPath]);
 
   return status;
 }

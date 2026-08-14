@@ -5,4 +5,5 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   tenant_admin: "Administrador de tenant",
   supervisor: "Supervisor",
   agent: "Agente",
+  customer: "Cliente",
 };
