@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -10,8 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCreateArticle } from "@/hooks/knowledge/useCreateArticle";
 import { useUpdateArticle } from "@/hooks/knowledge/useUpdateArticle";
+import { useCategories } from "@/hooks/tickets/useCategories";
 import type { KbArticle } from "@/types/knowledge.types";
 
 const articleSchema = z.object({
@@ -42,10 +50,19 @@ export function ArticleEditorForm({ article, onSaved }: ArticleEditorFormProps) 
   const createArticle = useCreateArticle();
   const updateArticle = useUpdateArticle(article?.id ?? 0);
   const isEdit = article !== undefined;
+  const { data: categories = [] } = useCategories();
+
+  // Incluye la categoría actual si no está en el catálogo (artículos viejos).
+  const categoryOptions = article?.category
+    ? categories.some((c) => c.value === article.category)
+      ? categories
+      : [...categories, { value: article.category, label: article.category }]
+    : categories;
 
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<ArticleValues>({
     resolver: zodResolver(articleSchema),
@@ -122,12 +139,24 @@ export function ArticleEditorForm({ article, onSaved }: ArticleEditorFormProps) 
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="article-category">Categoría</Label>
-          <Input
-            id="article-category"
-            placeholder="Ej.: billing"
-            aria-invalid={errors.category ? true : undefined}
-            {...register("category")}
+          <Label id="article-category-label">Categoría</Label>
+          <Controller
+            control={control}
+            name="category"
+            render={({ field }) => (
+              <Select value={field.value || undefined} onValueChange={field.onChange}>
+                <SelectTrigger id="article-category" aria-labelledby="article-category-label" className="w-full">
+                  <SelectValue placeholder="Elegí una categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           />
           {errors.category ? (
             <p className="text-xs text-destructive">{errors.category.message}</p>
