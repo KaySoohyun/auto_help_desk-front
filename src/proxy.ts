@@ -23,10 +23,34 @@ export function proxy(req: NextRequest) {
   const hasSession = Boolean(accessToken);
   const role = getRoleFromToken(accessToken);
 
-  if (pathname.startsWith("/app") || pathname.startsWith("/panel")) {
+  if (pathname.startsWith("/app")) {
     if (!hasSession) {
       const url = req.nextUrl.clone();
-      url.pathname = pathname.startsWith("/panel") ? "/personas/login" : "/login";
+      url.pathname = "/login";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+    // El portal de agentes es exclusivo de roles de soporte (no customer).
+    if (role === "customer") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/panel";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+    return NextResponse.next();
+  }
+
+  if (pathname.startsWith("/panel")) {
+    if (!hasSession) {
+      const url = req.nextUrl.clone();
+      url.pathname = "/personas/login";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
+    // El portal de personas es exclusivo del rol customer.
+    if (role !== "customer") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/app";
       url.search = "";
       return NextResponse.redirect(url);
     }

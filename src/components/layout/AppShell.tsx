@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,9 +23,18 @@ function ShellSkeleton() {
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const status = useSessionInitializer();
   const loadMe = useSessionStore((s) => s.loadMe);
   const error = useSessionStore((s) => s.error);
+  const user = useSessionStore((s) => s.user);
+
+  // El portal de agentes es exclusivo de roles de soporte: un customer va a /panel.
+  useEffect(() => {
+    if (status === "authenticated" && user?.role === "customer") {
+      router.replace("/panel");
+    }
+  }, [status, user, router]);
 
   if (status === "refreshing" || status === "unauthenticated") {
     return <ShellSkeleton />;

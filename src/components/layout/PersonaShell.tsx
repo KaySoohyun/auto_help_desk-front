@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { RefreshCwIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,9 +22,18 @@ function ShellSkeleton() {
 }
 
 export function PersonaShell({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const status = useSessionInitializer("/personas/login");
   const loadMe = useSessionStore((s) => s.loadMe);
   const error = useSessionStore((s) => s.error);
+  const user = useSessionStore((s) => s.user);
+
+  // El portal de personas es exclusivo de customer: un agente va a /app.
+  useEffect(() => {
+    if (status === "authenticated" && user?.role !== "customer") {
+      router.replace("/app");
+    }
+  }, [status, user, router]);
 
   if (status === "refreshing" || status === "unauthenticated") {
     return (
