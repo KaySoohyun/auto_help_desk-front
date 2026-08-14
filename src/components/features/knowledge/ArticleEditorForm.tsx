@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useCreateArticle } from "@/hooks/knowledge/useCreateArticle";
 import { useUpdateArticle } from "@/hooks/knowledge/useUpdateArticle";
-import { useCategories } from "@/hooks/tickets/useCategories";
+import { useKbCategories } from "@/hooks/knowledge/useKbCategories";
 import type { KbArticle } from "@/types/knowledge.types";
 
 const articleSchema = z.object({
@@ -50,13 +50,13 @@ export function ArticleEditorForm({ article, onSaved }: ArticleEditorFormProps) 
   const createArticle = useCreateArticle();
   const updateArticle = useUpdateArticle(article?.id ?? 0);
   const isEdit = article !== undefined;
-  const { data: categories = [] } = useCategories();
+  const { data: categories = [] } = useKbCategories();
 
   // Incluye la categoría actual si no está en el catálogo (artículos viejos).
   const categoryOptions = article?.category
-    ? categories.some((c) => c.value === article.category)
+    ? categories.some((c) => c.name === article.category)
       ? categories
-      : [...categories, { value: article.category, label: article.category }]
+      : [...categories, { id: 0, name: article.category, tenant_id: "", created_at: "" }]
     : categories;
 
   const {
@@ -150,8 +150,8 @@ export function ArticleEditorForm({ article, onSaved }: ArticleEditorFormProps) 
                 </SelectTrigger>
                 <SelectContent>
                   {categoryOptions.map((cat) => (
-                    <SelectItem key={cat.value} value={cat.value}>
-                      {cat.label}
+                    <SelectItem key={cat.id} value={cat.name}>
+                      {cat.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

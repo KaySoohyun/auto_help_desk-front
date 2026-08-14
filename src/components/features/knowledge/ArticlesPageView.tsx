@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useArticles } from "@/hooks/knowledge/useArticles";
 import { ArticlesFilters } from "@/components/features/knowledge/ArticlesFilters";
+import { CreateCategoryDialog } from "@/components/features/knowledge/CreateCategoryDialog";
 import { ArticlesTable } from "@/components/features/knowledge/ArticlesTable";
 import { ArticlesPagination } from "@/components/features/knowledge/ArticlesPagination";
 import { useSessionStore } from "@/stores/session.store";
@@ -73,12 +74,22 @@ export function ArticlesPageView({ searchParams }: { searchParams: Record<string
             </Button>
           </Link>
           {canEdit ? (
-            <Link href="/app/knowledge/articles/new">
-              <Button>
-                <PlusIcon aria-hidden />
-                Nuevo artículo
-              </Button>
-            </Link>
+            <>
+              <CreateCategoryDialog
+                trigger={
+                  <Button variant="outline">
+                    <PlusIcon aria-hidden />
+                    Nueva categoría
+                  </Button>
+                }
+              />
+              <Link href="/app/knowledge/articles/new">
+                <Button>
+                  <PlusIcon aria-hidden />
+                  Nuevo artículo
+                </Button>
+              </Link>
+            </>
           ) : null}
         </div>
       </div>

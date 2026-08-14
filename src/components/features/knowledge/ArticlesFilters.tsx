@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { RotateCcwIcon } from "lucide-react";
 import { ARTICLE_STATUS_LABELS } from "@/components/features/knowledge/ArticleStatusBadge";
+import { useKbCategories } from "@/hooks/knowledge/useKbCategories";
 import type { KbArticleStatus } from "@/types/knowledge.types";
 
 const STATUSES: Array<{ value: KbArticleStatus; label: string }> = (
@@ -20,6 +21,7 @@ const STATUSES: Array<{ value: KbArticleStatus; label: string }> = (
 export function ArticlesFilters({ hideStatus = false }: { hideStatus?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: categories = [] } = useKbCategories();
 
   const apply = (updates: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -30,7 +32,8 @@ export function ArticlesFilters({ hideStatus = false }: { hideStatus?: boolean }
     router.push(`/app/knowledge/articles?${params.toString()}`);
   };
 
-  const hasActive = !hideStatus && searchParams.has("status");
+  const hasActive =
+    (!hideStatus && searchParams.has("status")) || searchParams.has("category");
 
   return (
     <div
@@ -57,11 +60,28 @@ export function ArticlesFilters({ hideStatus = false }: { hideStatus?: boolean }
         </Select>
       ) : null}
 
+      <Select
+        value={searchParams.get("category") ?? ""}
+        onValueChange={(value) => apply({ category: value || undefined })}
+      >
+        <SelectTrigger aria-label="Filtrar por categoría" className="w-44">
+          <SelectValue placeholder="Categoría" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">Todas las categorías</SelectItem>
+          {categories.map((cat) => (
+            <SelectItem key={cat.id} value={cat.name}>
+              {cat.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
       {hasActive ? (
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => apply({ status: undefined })}
+          onClick={() => apply({ status: undefined, category: undefined })}
         >
           <RotateCcwIcon aria-hidden />
           Limpiar

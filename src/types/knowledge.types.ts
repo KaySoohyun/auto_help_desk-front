@@ -1,5 +1,12 @@
 export type KbArticleStatus = "draft" | "published" | "archived";
 
+export interface KbCategory {
+  id: number;
+  tenant_id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface KbArticleSummary {
   id: number;
   tenant_id: string;
