@@ -2,6 +2,8 @@
 
 El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
+- **Portal empresas multi-tenant** — landing con dos portales, `/empresas/login` con login + registro (selección de uno o varios tenants), auto-login post-registro, selector de tenant post-login y switcher en el Topbar, tickets/dashboard con alcance al tenant activo o a todos los tenants. ✅ Hecho (2026-08-14; backend en `backend-python/ia_docs/cambios.md`).
+
 - **001 · Fundaciones técnicas** — Next.js + TS + Tailwind + shadcn/ui, BFF base, proxy de sesión, login, AppShell. _(Fase 1 · Etapa 1.1 del plan)_
 - **002 · Bandeja y detalle de tickets** — listado, filtros por URL, búsqueda client-side, paginación, selección múltiple (sin bulk), conversation thread, respuestas y acciones de estado/prioridad/asignación/cierre. _(Fase 1 · Etapa 1.2)_ ✅
 - **003 · Dashboard básico** — KPIs, asignados a mí, abiertos, sin asignar, SLA en riesgo. _(Fase 1 · Etapa 1.3)_ ✅

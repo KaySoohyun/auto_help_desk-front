@@ -10,14 +10,13 @@ export function useDashboard(filters: DashboardFilters = {}) {
 
   return useQuery({
     queryKey: ["tenant", tenantId ?? "global", "dashboard", filters],
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       const params = new URLSearchParams();
       if (filters.status) params.set("status", filters.status);
       if (filters.priority) params.set("priority", filters.priority);
-      params.set("limit", "100");
-      params.set("offset", "0");
 
-      return bffFetch<DashboardKpis>(`/api/bff/tickets?${params.toString()}`);
+      const qs = params.toString();
+      return bffFetch<DashboardKpis>(`/api/bff/dashboard${qs ? `?${qs}` : ""}`, { signal });
     },
   });
 }

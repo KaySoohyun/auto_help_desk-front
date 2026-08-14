@@ -9,12 +9,20 @@ interface LoginCredentials {
   tenant_id?: string;
 }
 
+interface RegisterCredentials {
+  email: string;
+  password: string;
+  tenant_ids?: string[];
+}
+
 interface SessionStore {
   status: SessionStatus;
   user: SessionUser | null;
   error: string | null;
   login: (credentials: LoginCredentials) => Promise<void>;
+  register: (credentials: RegisterCredentials) => Promise<void>;
   switchTenant: (tenantId: string) => Promise<void>;
+  clearTenant: () => Promise<void>;
   loadMe: () => Promise<void>;
   logout: () => Promise<void>;
   reset: () => void;
@@ -45,6 +53,21 @@ export const useSessionStore = create<SessionStore>((set) => ({
     }
   },
 
+  register: async ({ email, password, tenant_ids }) => {
+    set({ status: "authenticating", error: null });
+    try {
+      const data = await bffFetch<{ user: UserOut }>("/api/bff/auth/register", {
+        method: "POST",
+        body: { email, password, tenant_ids },
+      });
+      set({ status: "authenticated", user: toSessionUser(data.user), error: null });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al registrarse.";
+      set({ status: "error", error: message });
+      throw err;
+    }
+  },
+
   switchTenant: async (tenantId: string) => {
     set({ status: "refreshing", error: null });
     try {
@@ -55,6 +78,20 @@ export const useSessionStore = create<SessionStore>((set) => ({
       set({ status: "authenticated", user: toSessionUser(data.user), error: null });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Error al cambiar de tenant.";
+      set({ status: "error", error: message });
+      throw err;
+    }
+  },
+
+  clearTenant: async () => {
+    set({ status: "refreshing", error: null });
+    try {
+      const data = await bffFetch<{ user: UserOut }>("/api/bff/auth/clear-tenant", {
+        method: "POST",
+      });
+      set({ status: "authenticated", user: toSessionUser(data.user), error: null });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Error al quitar el tenant.";
       set({ status: "error", error: message });
       throw err;
     }

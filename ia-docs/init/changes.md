@@ -1,5 +1,29 @@
 # Cambios
 
+## 2026-08-14 — Scope efectivo de tenant en backend (LLM, workspace, admin, audit, KB, customers)
+
+- El backend ahora aplica el scope efectivo (tenant del JWT o todos los del usuario) también en:
+  - **LLM**: `classify`, `summary`, `suggested-reply`, `analyze` — resuelven el tenant real del ticket, por lo que el panel LLM del detalle ya **no falla** para un usuario multi-tenant que entró sin seleccionar tenant.
+  - **Workspace**: `my-tickets`, `suggestions`, `feedback`.
+  - **KB**, **customers**, **auditoría** y **administración** (listados por `IN (tenant_ids)`; operaciones de escritura requieren un único tenant; `platform_admin` sigue operando a nivel plataforma).
+- Sin cambios en el frontend; detalle completo en `backend/ia_docs/cambios.md`.
+
+## 2026-08-14 — Flujo portal empresas completo (login + registro multi-tenant) y fix dashboard/tickets
+
+- **Página `/empresas/login`** (`src/app/(public)/empresas/login/page.tsx`): reemplaza el placeholder por login real + registro con tabs (Tabs shadcn). Login reutiliza `LoginForm`; registro usa el nuevo `RegisterForm`.
+- **`RegisterForm`** (`src/components/features/auth/RegisterForm.tsx`): RHF+Zod (email, password), lista de tenants desde `/api/bff/tenants/public` con checkboxes multi-selección, estados loading/error/reintentar. Al registrarse hace **auto-login** y decide el ruteo igual que el login: >1 tenants → `TenantSelector`, 1 tenant → `/app` directo.
+- **`usePublicTenants`** (`src/hooks/auth/usePublicTenants.ts`): query TanStack de tenants públicos para el registro.
+- **BFF nuevos**:
+  - `POST /api/bff/auth/register`: registra + auto-login (emite tokens y setea cookies), traduce 409/404/422.
+  - `POST /api/bff/auth/clear-tenant`: emite tokens sin tenant activo (vuelve a "todos los tenants").
+  - `GET /api/bff/tenants/public`: lista de tenants para el registro.
+  - `GET /api/bff/dashboard`: proxy a `GET /v1/dashboard`.
+- **Session store** (`src/stores/session.store.ts`): métodos `register` (auto-login) y `clearTenant`.
+- **Dashboard real** (`src/hooks/dashboard/useDashboard.ts`): ahora consume `/api/bff/dashboard` (antes interpretaba el listado de tickets como KPIs, por eso mostraba `undefined`).
+- **Tenant switcher** (`src/components/layout/Topbar.tsx`): dropdown de usuario con "Todos los tenants" + lista de tenants del usuario (check en el activo), usando `switchTenant`/`clearTenant`.
+- **Fix backend (causa raíz de los 500)**: migraciones de esquema (tickets.customer_id, tickets.language default, kb_article_tags.tag_id) y alcance de tenant desde el JWT (detalle en `backend/ia_docs/cambios.md`).
+- **Verificación**: `pnpm typecheck`, `pnpm lint`, `pnpm build` en verde; **111 tests funcionales** en verde (incluye `tests/empresa-flow.test.ts` con registro multi-tenant, dashboard, switch/clear tenant y tenants públicos); backend **285 tests** en verde.
+
 ## 2026-08-14 — Multi-tenant en frontend
 
 - **Landing page** (`src/app/(public)/page.tsx`):

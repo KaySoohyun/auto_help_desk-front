@@ -1,6 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LoginForm } from "@/components/features/auth/LoginForm";
+import { RegisterForm } from "@/components/features/auth/RegisterForm";
 
 export default function EmpresasLoginPage() {
   return (
@@ -14,27 +18,30 @@ export default function EmpresasLoginPage() {
           </div>
           <h1 className="text-2xl font-bold tracking-tight">Portal Empresas</h1>
           <p className="text-sm text-muted-foreground">
-            Accedé para gestionar los tickets de tus empresas cliente
+            Gestioná los tickets de una o varias de tus empresas cliente
           </p>
         </div>
 
-        <div className="rounded-lg border border-border bg-card p-6 space-y-4">
-          <div className="space-y-2">
-            <h2 className="text-lg font-semibold">Próximamente</h2>
-            <p className="text-sm text-muted-foreground">
-              El portal de empresas está en desarrollo. Por ahora, podés acceder con tu cuenta de agente.
-            </p>
-          </div>
-
-          <div className="space-y-3 pt-4">
-            <Button asChild className="w-full">
-              <Link href="/login">Ir al login de agentes</Link>
-            </Button>
-            <Button asChild variant="outline" className="w-full">
-              <Link href="/">Volver al inicio</Link>
-            </Button>
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle className="sr-only">Acceso empresas</CardTitle>
+            <CardDescription className="sr-only">Ingresá o creá tu cuenta</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="login" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="login">Ingresar</TabsTrigger>
+                <TabsTrigger value="register">Registrarse</TabsTrigger>
+              </TabsList>
+              <TabsContent value="login" className="mt-4">
+                <LoginForm />
+              </TabsContent>
+              <TabsContent value="register" className="mt-4">
+                <RegisterForm />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
 
         <div className="text-center">
           <Button asChild variant="ghost" size="sm">

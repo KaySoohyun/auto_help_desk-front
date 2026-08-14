@@ -15,7 +15,7 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
-  if (pathname === "/login") {
+  if (pathname === "/login" || pathname === "/empresas/login") {
     if (hasSession) {
       const url = req.nextUrl.clone();
       url.pathname = "/app";
@@ -25,15 +25,14 @@ export function proxy(req: NextRequest) {
     return NextResponse.next();
   }
 
+  // Landing page - siempre accesible
   if (pathname === "/") {
-    const url = req.nextUrl.clone();
-    url.pathname = hasSession ? "/app" : "/login";
-    return NextResponse.redirect(url);
+    return NextResponse.next();
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/", "/app/:path*", "/login"],
+  matcher: ["/", "/app/:path*", "/login", "/empresas/login"],
 };

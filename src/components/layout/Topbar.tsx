@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { LogOutIcon, PanelLeftIcon } from "lucide-react";
+import { Building2Icon, CheckIcon, LogOutIcon, PanelLeftIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,8 @@ export function Topbar() {
   const router = useRouter();
   const user = useSessionStore((s) => s.user);
   const logout = useSessionStore((s) => s.logout);
+  const switchTenant = useSessionStore((s) => s.switchTenant);
+  const clearTenant = useSessionStore((s) => s.clearTenant);
   const toggleSidebar = useUiStore((s) => s.toggleSidebar);
 
   const handleLogout = async () => {
@@ -38,6 +40,25 @@ export function Topbar() {
   };
 
   const roleLabel = user ? ROLE_LABELS[user.role] : undefined;
+  const activeTenantId = user?.tenantId ?? null;
+  const activeTenantName =
+    user?.tenants.find((t) => t.id === activeTenantId)?.name ?? (activeTenantId ? "Tenant" : undefined);
+
+  const handleSwitchTenant = async (tenantId: string) => {
+    try {
+      await switchTenant(tenantId);
+    } catch {
+      /* el error queda en el store */
+    }
+  };
+
+  const handleClearTenant = async () => {
+    try {
+      await clearTenant();
+    } catch {
+      /* el error queda en el store */
+    }
+  };
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-border bg-background/80 px-3 backdrop-blur md:px-4">
@@ -61,16 +82,51 @@ export function Topbar() {
                 </AvatarFallback>
               </Avatar>
               <span className="hidden md:block">
-                <span className="block text-xs font-medium text-foreground">{user.email}</span>
-                <span className="block text-[11px] text-muted-foreground">{roleLabel}</span>
+                <span className="block max-w-48 truncate text-xs font-medium text-foreground">{user.email}</span>
+                <span className="block text-[11px] text-muted-foreground">
+                  {roleLabel}
+                  {activeTenantName ? ` · ${activeTenantName}` : ""}
+                </span>
               </span>
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-60">
             <DropdownMenuLabel>
               <span className="block truncate text-sm font-medium">{user.email}</span>
               <span className="block text-xs font-normal text-muted-foreground">{roleLabel}</span>
             </DropdownMenuLabel>
+
+            {user.tenants.length > 0 ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    Tenant activo
+                  </span>
+                </DropdownMenuLabel>
+
+                <DropdownMenuItem
+                  onSelect={() => void (activeTenantId === null ? undefined : handleClearTenant())}
+                  disabled={activeTenantId === null}
+                >
+                  <span className="flex-1">Todos los tenants</span>
+                  {activeTenantId === null ? <CheckIcon className="size-4" aria-hidden /> : null}
+                </DropdownMenuItem>
+
+                {user.tenants.map((tenant) => (
+                  <DropdownMenuItem
+                    key={tenant.id}
+                    onSelect={() => void (tenant.id === activeTenantId ? undefined : handleSwitchTenant(tenant.id))}
+                    disabled={tenant.id === activeTenantId}
+                  >
+                    <Building2Icon className="size-4 text-muted-foreground" aria-hidden />
+                    <span className="flex-1 truncate">{tenant.name}</span>
+                    {tenant.id === activeTenantId ? <CheckIcon className="size-4" aria-hidden /> : null}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            ) : null}
+
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onSelect={handleLogout}>
               <LogOutIcon className="size-4" aria-hidden />
