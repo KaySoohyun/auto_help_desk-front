@@ -1,13 +1,12 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { RotateCcwIcon } from "lucide-react";
 import type { TicketPriority, TicketStatus } from "@/types/ticket.types";
 import { PRIORITY_LABELS, STATUS_LABELS } from "@/components/features/tickets/TicketBadges";
+import { useCategories } from "@/hooks/tickets/useCategories";
 
 const STATUSES: Array<{ value: TicketStatus; label: string }> = (
   Object.entries(STATUS_LABELS) as Array<[TicketStatus, string]>
@@ -20,6 +19,7 @@ const PRIORITIES: Array<{ value: TicketPriority; label: string }> = (
 export function TicketsFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: categories = [] } = useCategories();
 
   const apply = (updates: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -33,29 +33,24 @@ export function TicketsFilters() {
   const hasActive =
     searchParams.has("status") || searchParams.has("priority") || searchParams.has("category");
 
-  const [category, setCategory] = useState(searchParams.get("category") ?? "");
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      apply({ category: category.trim() || undefined });
-    }, 300);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category]);
-
   return (
     <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filtros de tickets">
-      <Input
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        placeholder="Categoría"
-        aria-label="Filtrar por categoría"
-        className="w-40"
-      />
+      <Select
+        value={searchParams.get("category") ?? ""}
+        onValueChange={(value) => apply({ category: value || undefined })}
+      >
+        <SelectTrigger aria-label="Filtrar por categoría" className="w-44">
+          <SelectValue placeholder="Categoría" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="">Todas las categorías</SelectItem>
+          {categories.map((cat) => (
+            <SelectItem key={cat.value} value={cat.value}>
+              {cat.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <Select
         value={searchParams.get("status") ?? ""}
@@ -95,10 +90,7 @@ export function TicketsFilters() {
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => {
-            setCategory("");
-            apply({ status: undefined, priority: undefined, category: undefined });
-          }}
+          onClick={() => apply({ status: undefined, priority: undefined, category: undefined })}
         >
           <RotateCcwIcon aria-hidden />
           Limpiar
