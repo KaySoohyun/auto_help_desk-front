@@ -18,7 +18,7 @@ export default async function TicketDetailPage({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <BackLink href="/app/tickets" label="Volver a tickets" />
       <TicketDetailView ticketId={numericId} />
     </div>

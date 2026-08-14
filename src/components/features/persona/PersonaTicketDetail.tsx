@@ -116,7 +116,7 @@ export function PersonaTicketDetail() {
       <Button
         variant="ghost"
         size="sm"
-        className="mb-4 gap-2"
+        className="mb-6 gap-2"
         onClick={() => router.push("/panel")}
       >
         <ArrowLeft className="h-4 w-4" aria-hidden />
