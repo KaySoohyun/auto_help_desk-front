@@ -1,7 +1,5 @@
-"use client";
-
-import DashboardPage from "@/components/dashboard/DashboardPage";
+import { redirect } from "next/navigation";
 
 export default function AppHome() {
-  return <DashboardPage />;
+  redirect("/app/tickets");
 }

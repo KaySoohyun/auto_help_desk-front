@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BookOpenIcon,
-  LayoutDashboardIcon,
   SettingsIcon,
   ShieldCheckIcon,
   TicketIcon,
@@ -32,7 +31,6 @@ const NAV_SECTIONS: NavSection[] = [
   {
     title: "Operación",
     items: [
-      { href: "/app", label: "Dashboard", icon: LayoutDashboardIcon, enabled: true },
       { href: "/app/tickets", label: "Tickets", icon: TicketIcon, enabled: true },
       {
         href: "/app/knowledge",

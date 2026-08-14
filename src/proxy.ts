@@ -37,6 +37,13 @@ export function proxy(req: NextRequest) {
       url.search = "";
       return NextResponse.redirect(url);
     }
+    // El dashboard se eliminó: la home de la app va directo a los tickets.
+    if (pathname === "/app") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/app/tickets";
+      url.search = "";
+      return NextResponse.redirect(url);
+    }
     return NextResponse.next();
   }
 

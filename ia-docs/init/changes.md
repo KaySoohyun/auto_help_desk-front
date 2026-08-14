@@ -1,5 +1,11 @@
 # Cambios
 
+## 2026-08-14 — Eliminado el dashboard de la sección `/app`
+
+- `/app` ahora redirige a `/app/tickets` (proxy 307 + redirect en la página); se eliminan `/app/dashboard`, el item "Dashboard" del Sidebar y el componente/hook/BFF/tipos de dashboard.
+- Backend: eliminado `GET /v1/dashboard` (detalle en `backend/ia_docs/cambios.md`).
+- Tests: eliminados `tests/dashboard.test.ts` y el test de dashboard de `empresa-flow.test.ts`. Suite funcional: **108 tests** en verde.
+
 ## 2026-08-14 — Portal de personas (rol customer) — Feature 013
 
 - **Backend** (detalle en `backend/ia_docs/cambios.md`, feature 021):

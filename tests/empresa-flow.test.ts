@@ -14,13 +14,6 @@ interface UserOut {
   tenants: Array<{ id: string; name: string; role: string }>;
 }
 
-interface DashboardKpis {
-  ticketsAsignadosAMi: number;
-  ticketsAbiertos: number;
-  ticketsSinAsignar: number;
-  ticketsSLAEnRiesgo: number;
-}
-
 /** Registra un usuario único vía el BFF y devuelve el cliente con la sesión activa. */
 async function registerViaBff(tenantIds: string[]): Promise<{ client: TestClient; email: string; user: UserOut }> {
   const email = `empresa-${Date.now()}-${Math.floor(Math.random() * 10000)}@example.com`;
@@ -57,22 +50,6 @@ describe("portal empresas (multi-tenant)", () => {
 
     const me = await session.request("/api/bff/me");
     expect(me.status).toBe(200);
-  });
-
-  it("dashboard funcional después del registro (todos los tenants)", async () => {
-    const client = new TestClient();
-    const tenantsRes = await client.request("/api/bff/tenants/public", { withCsrf: false });
-    const tenants = (await tenantsRes.json()) as TenantOut[];
-    const { client: session, user } = await registerViaBff(tenants.slice(0, 2).map((t) => t.id));
-    expect(user.tenants.length).toBe(2);
-
-    const res = await session.request("/api/bff/dashboard");
-    expect(res.status).toBe(200);
-    const kpis = (await res.json()) as DashboardKpis;
-    expect(typeof kpis.ticketsAsignadosAMi).toBe("number");
-    expect(typeof kpis.ticketsAbiertos).toBe("number");
-    expect(typeof kpis.ticketsSinAsignar).toBe("number");
-    expect(typeof kpis.ticketsSLAEnRiesgo).toBe("number");
   });
 
   it("switch-tenant → me refleja el tenant activo; clear-tenant → vuelve a todos", async () => {
