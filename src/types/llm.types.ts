@@ -117,3 +117,25 @@ export interface LlmRiskEvaluation {
   risks: LlmRisk[];
   blocked: boolean;
 }
+
+// Tipos para el endpoint /analyze (Feature 012)
+export interface KbRecommendation {
+  article_id: number;
+  title: string;
+  score: number;
+}
+
+export interface PiiDetection {
+  type: string;
+  value: string;
+  position: number;
+}
+
+export interface LlmAnalyzeOutput {
+  classification: LlmClassifyOutput | { error: string };
+  summary: LlmSummarizeOutput | { error: string };
+  suggested_reply: LlmSuggestReplyOutput | { error: string };
+  kb_recommendations: KbRecommendation[];
+  pii_detected: PiiDetection[];
+  risks: string[];
+}

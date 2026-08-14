@@ -16,6 +16,8 @@ export interface TicketSummary {
 
 export interface Ticket extends TicketSummary {
   description: string;
+  customer_id: number | null;
+  tags: Array<{ id: number; name: string }>;
 }
 
 export interface TicketList {

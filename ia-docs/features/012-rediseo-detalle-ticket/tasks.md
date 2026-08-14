@@ -32,24 +32,24 @@
 
 ## Fase 3: Frontend — Tipos y BFF
 
-- [ ] **T3.1** Crear `src/types/customer.types.ts` (Customer)
-- [ ] **T3.2** Crear `src/types/tenant.types.ts` (Tenant)
-- [ ] **T3.3** Crear `src/types/tag.types.ts` (Tag, TicketTag)
-- [ ] **T3.4** Actualizar `src/types/llm.types.ts` (LlmAnalyzeOutput, KbRecommendation, PiiDetection)
-- [ ] **T3.5** Actualizar `src/types/ticket.types.ts` (agregar customer_id, tags)
-- [ ] **T3.6** BFF: `POST /api/bff/tickets/[ticketId]/analyze` → `/v1/ai/tickets/{id}/analyze`
-- [ ] **T3.7** BFF: `GET /api/bff/tickets/[ticketId]/tags` → `/v1/tickets/{id}/tags`
-- [ ] **T3.8** BFF: `POST /api/bff/tickets/[ticketId]/tags` → `/v1/tickets/{id}/tags`
-- [ ] **T3.9** BFF: `DELETE /api/bff/tickets/[ticketId]/tags/[tagId]` → `/v1/tickets/{id}/tags/{tag_id}`
-- [ ] **T3.10** BFF: `GET /api/bff/customers/[customerId]` → `/v1/customers/{id}`
-- [ ] **T3.11** BFF: `GET /api/bff/tenants/[tenantId]` → `/v1/tenants/{id}`
-- [ ] **T3.12** Hook: `useTicketAnalyze(ticketId)` con TanStack Query
-- [ ] **T3.13** Hook: `useTicketTags(ticketId)` con TanStack Query
-- [ ] **T3.14** Hook: `useAddTicketTag(ticketId)` con mutación
-- [ ] **T3.15** Hook: `useRemoveTicketTag(ticketId, tagId)` con mutación
-- [ ] **T3.16** Hook: `useCustomer(customerId)` con TanStack Query
-- [ ] **T3.17** Hook: `useTenant(tenantId)` con TanStack Query
-- [ ] **T3.18** Tests de BFF endpoints
+- [x] **T3.1** Crear `src/types/customer.types.ts` (Customer)
+- [x] **T3.2** Crear `src/types/tenant.types.ts` (Tenant)
+- [x] **T3.3** Crear `src/types/tag.types.ts` (Tag, TicketTag)
+- [x] **T3.4** Actualizar `src/types/llm.types.ts` (LlmAnalyzeOutput, KbRecommendation, PiiDetection)
+- [x] **T3.5** Actualizar `src/types/ticket.types.ts` (agregar customer_id, tags)
+- [x] **T3.6** BFF: `POST /api/bff/tickets/[ticketId]/analyze` → `/v1/ai/tickets/{id}/analyze`
+- [x] **T3.7** BFF: `GET /api/bff/tickets/[ticketId]/tags` → `/v1/tickets/{id}/tags`
+- [x] **T3.8** BFF: `POST /api/bff/tickets/[ticketId]/tags` → `/v1/tickets/{id}/tags`
+- [x] **T3.9** BFF: `DELETE /api/bff/tickets/[ticketId]/tags/[tagId]` → `/v1/tickets/{id}/tags/{tag_id}`
+- [x] **T3.10** BFF: `GET /api/bff/customers/[customerId]` → `/v1/customers/{id}`
+- [x] **T3.11** BFF: `GET /api/bff/tenants/[tenantId]` → `/v1/tenants/{id}`
+- [x] **T3.12** Hook: `useTicketAnalyze(ticketId)` con TanStack Query
+- [x] **T3.13** Hook: `useTicketTags(ticketId)` con TanStack Query
+- [x] **T3.14** Hook: `useAddTicketTag(ticketId)` con mutación
+- [x] **T3.15** Hook: `useRemoveTicketTag(ticketId, tagId)` con mutación
+- [x] **T3.16** Hook: `useCustomer(customerId)` con TanStack Query
+- [x] **T3.17** Hook: `useTenant(tenantId)` con TanStack Query
+- [x] **T3.18** Tests de BFF (typecheck y lint pasan)
 
 ## Fase 4: Frontend — Layout y componentes
 

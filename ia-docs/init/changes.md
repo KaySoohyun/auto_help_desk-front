@@ -1,5 +1,31 @@
 # Cambios
 
+## 2026-08-14 — Feature 012 · Rediseño del detalle de ticket (Fase 3: Tipos y BFF)
+
+- **Tipos nuevos**:
+  - `src/types/customer.types.ts`: `Customer` (id, tenant_id, name, email, company, plan, created_at)
+  - `src/types/tenant.types.ts`: `Tenant` (id, name, slug, created_at)
+  - `src/types/tag.types.ts`: `Tag`, `TicketTag`
+- **Tipos actualizados**:
+  - `src/types/ticket.types.ts`: `Ticket` ahora incluye `customer_id` y `tags`
+  - `src/types/llm.types.ts`: agregados `KbRecommendation`, `PiiDetection`, `LlmAnalyzeOutput`
+- **BFF endpoints nuevos**:
+  - `POST /api/bff/tickets/[ticketId]/analyze` → `/v1/ai/tickets/{id}/analyze`
+  - `GET /api/bff/tickets/[ticketId]/tags` → `/v1/tickets/{id}/tags`
+  - `POST /api/bff/tickets/[ticketId]/tags/add` → `/v1/tickets/{id}/tags`
+  - `DELETE /api/bff/tickets/[ticketId]/tags/[tagId]` → `/v1/tickets/{id}/tags/{tag_id}`
+  - `GET /api/bff/customers/[customerId]` → `/v1/customers/{id}`
+  - `GET /api/bff/tenants/[tenantId]` → `/v1/tenants/{id}`
+- **Hooks nuevos** (`src/hooks/tickets/`):
+  - `useTicketAnalyze(ticketId)`: mutación para analizar ticket
+  - `useTicketTags(ticketId)`: query de tags del ticket
+  - `useAddTicketTag()`: mutación para agregar tag
+  - `useRemoveTicketTag()`: mutación para quitar tag
+  - `useCustomer(customerId)`: query de customer
+  - `useTenant(tenantId)`: query de tenant
+- **Query keys actualizados** (`src/hooks/tickets/queryKeys.ts`): agregados `ticketTagsKey`, `ticketAnalyzeKey`, `customerKey`, `tenantKey`
+- **Verificación**: `pnpm typecheck` y `pnpm lint` en verde (0 errores, 0 warnings)
+
 ## 2026-08-13 — Suite de tests funcionales contra el backend real
 
 - **Runner**: Vitest (devDependency, `pnpm add -D vitest`). Scripts `test:functional` (levanta `next dev` en :3199 con `URL_BACKEND_DEV`, espera readiness, corre Vitest y mata el árbol de procesos con `process.kill(-pid)`) y `test:functional:watch`. Config en `vitest.config.ts` (environment node, `tests/**/*.test.ts`, setup que carga `.env` manualmente — no existe `@next/env` standalone).
