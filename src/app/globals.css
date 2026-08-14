@@ -125,10 +125,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+
   html {
     @apply font-sans;
+    /* Letra un poco más grande en toda la app */
+    font-size: 17px;
   }
 }
