@@ -21,24 +21,24 @@ function ShellSkeleton() {
   );
 }
 
-export function PersonaShell({ children }: { children: React.ReactNode }) {
+export function PersonaShell({ slug, children }: { slug: string; children: React.ReactNode }) {
   const router = useRouter();
-  const status = useSessionInitializer("/personas/login");
+  const status = useSessionInitializer(`/${slug}/personas/login`);
   const loadMe = useSessionStore((s) => s.loadMe);
   const error = useSessionStore((s) => s.error);
   const user = useSessionStore((s) => s.user);
 
-  // El portal de personas es exclusivo de customer: un agente va a /app.
+  // El portal de personas es exclusivo de customer: un agente va a la app de su slug.
   useEffect(() => {
     if (status === "authenticated" && user?.role !== "customer") {
-      router.replace("/app");
+      router.replace(`/${slug}/app`);
     }
-  }, [status, user, router]);
+  }, [status, user, slug, router]);
 
   if (status === "refreshing" || status === "unauthenticated") {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <PersonaHeader />
+        <PersonaHeader slug={slug} />
         <ShellSkeleton />
       </div>
     );
@@ -47,7 +47,7 @@ export function PersonaShell({ children }: { children: React.ReactNode }) {
   if (status === "error") {
     return (
       <div className="flex min-h-screen flex-col bg-background">
-        <PersonaHeader />
+        <PersonaHeader slug={slug} />
         <div className="flex flex-1 items-center justify-center p-8">
           <div className="max-w-sm space-y-4 text-center">
             <h1 className="text-lg font-semibold text-foreground">No pudimos cargar la sesión</h1>
@@ -72,7 +72,7 @@ export function PersonaShell({ children }: { children: React.ReactNode }) {
       >
         Saltar al contenido
       </a>
-      <PersonaHeader />
+      <PersonaHeader slug={slug} />
       <main id="main-content" tabIndex={-1} className="flex-1 outline-none">
         {children}
       </main>

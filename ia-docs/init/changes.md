@@ -1,5 +1,22 @@
 # Cambios
 
+## 2026-08-18 — Portal demo multi-tenant con slug y acceso rápido — Feature 014
+
+- **Rutas con slug de empresa**: la empresa (tenant) pasa a ser el primer segmento de la URL.
+  - `/` → landing con las empresas reales (`/v1/tenants/public` vía BFF) y acceso a los dos portales.
+  - `/[slug]/personas/login` y `/[slug]/empresas/login` → login/registro scoped al tenant del slug (el `tenant_id` se resuelve del slug y se manda por defecto; el registro presecciona ese tenant).
+  - `/[slug]/app/*` → consola de agentes; `/[slug]/panel/*` → portal de personas.
+  - `src/app/app/*` se movió a `src/app/[slug]/app/*`; `(personas)/panel/*` → `[slug]/panel/*`; `login/` raíz eliminado.
+  - `proxy.ts`: matcher con `/:slug/...`; rutas legacy (`/app`, `/panel`, `/login`, `/personas/login`, `/empresas/login`) redirigen a `/`; redirecciones por rol mantienen el slug; `/[slug]/app` → `/[slug]/app/tickets`.
+- **Resolución slug → tenant**: `src/lib/tenant/server.ts` (`getPublicTenants`, `getTenantBySlug`) usado en los layouts y logins; `notFound()` si el slug no existe.
+- **Acceso rápido de prueba** (demo): `src/lib/auth/demo-users.ts` (catálogo de demo users + cliente por slug) y `src/components/features/auth/DemoLoginButtons.tsx`.
+  - Portal personas → botón "Entrar como cliente demo" (una cuenta por slug).
+  - Portal empresas → botones agente/supervisor/admin de empresa/admin de plataforma.
+  - Cada botón hace login real con el usuario demo (seed `scripts/seed_demo_users.py` del backend, password `demo-pass-123`) y redirige al app/panel del slug.
+- **Navegación**: `homePathForRole(role, slug)`; `Sidebar`/`AdminNav`/`Topbar`/`PersonaShell`/`PersonaHeader` y los components con links a `/app` y `/panel` usan el slug actual (`useTenantSlug`).
+- **Sesión expirada**: se redirige a `/[slug]/personas/login` (panel) o `/[slug]/empresas/login` (app) manteniendo el slug.
+- **Verificación**: `typecheck`, `lint` y `build` en verde. Pendiente: correr la suite funcional completa contra backend local y el flujo de login demo de punta a punta (el puerto 8000 local tiene otra app; ver task 014).
+
 ## 2026-08-14 — Eliminado el dashboard de la sección `/app`
 
 - `/app` ahora redirige a `/app/tickets` (proxy 307 + redirect en la página); se eliminan `/app/dashboard`, el item "Dashboard" del Sidebar y el componente/hook/BFF/tipos de dashboard.

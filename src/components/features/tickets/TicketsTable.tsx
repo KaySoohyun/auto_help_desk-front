@@ -6,14 +6,16 @@ import {
   TicketStatusBadge,
 } from "@/components/features/tickets/TicketBadges";
 import { timeAgo } from "@/lib/format";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import type { TicketSummary } from "@/types/ticket.types";
 
 function TicketRow({ ticket }: { ticket: TicketSummary }) {
+  const slug = useTenantSlug();
   return (
     <tr className="border-b border-border last:border-0 hover:bg-muted/50">
       <td className="px-3 py-2.5 align-middle">
         <Link
-          href={`/app/tickets/${ticket.id}`}
+          href={`/${slug}/app/tickets/${ticket.id}`}
           className="line-clamp-2 text-[15px] font-medium text-foreground hover:underline"
         >
           {ticket.subject}

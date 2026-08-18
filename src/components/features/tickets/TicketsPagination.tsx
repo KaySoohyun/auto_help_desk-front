@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 
 interface TicketsPaginationProps {
   total: number;
@@ -13,6 +14,7 @@ interface TicketsPaginationProps {
 export function TicketsPagination({ total, limit, offset }: TicketsPaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const slug = useTenantSlug();
 
   const currentPage = Math.floor(offset / limit) + 1;
   const totalPages = Math.max(1, Math.ceil(total / limit));
@@ -21,7 +23,7 @@ export function TicketsPagination({ total, limit, offset }: TicketsPaginationPro
     const params = new URLSearchParams(searchParams.toString());
     if (page <= 1) params.delete("page");
     else params.set("page", String(page));
-    router.push(`/app/tickets?${params.toString()}`);
+    router.push(`/${slug}/app/tickets?${params.toString()}`);
   };
 
   return (

@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { RotateCcwIcon } from "lucide-react";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import type { TicketPriority, TicketStatus } from "@/types/ticket.types";
 import { PRIORITY_LABELS, STATUS_LABELS } from "@/components/features/tickets/TicketBadges";
 import { useCategories } from "@/hooks/tickets/useCategories";
@@ -19,6 +20,7 @@ const PRIORITIES: Array<{ value: TicketPriority; label: string }> = (
 export function TicketsFilters() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const slug = useTenantSlug();
   const { data: categories = [] } = useCategories();
 
   const apply = (updates: Record<string, string | undefined>) => {
@@ -27,7 +29,7 @@ export function TicketsFilters() {
       if (value === undefined || value === "") params.delete(key);
       else params.set(key, value);
     }
-    router.push(`/app/tickets?${params.toString()}`);
+    router.push(`/${slug}/app/tickets?${params.toString()}`);
   };
 
   const hasActive =

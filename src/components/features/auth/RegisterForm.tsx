@@ -14,6 +14,7 @@ import { useSessionStore } from "@/stores/session.store";
 import { homePathForRole } from "@/lib/auth/routing";
 import { usePublicTenants } from "@/hooks/auth/usePublicTenants";
 import type { TenantInfo } from "@/types/auth.types";
+import type { Tenant } from "@/types/tenant.types";
 import { TenantSelector } from "./TenantSelector";
 
 const registerSchema = z.object({
@@ -28,16 +29,19 @@ export interface RegisterFormProps {
   role?: "agent" | "customer";
   /** Exige seleccionar al menos un tenant (necesario para customers). */
   requireTenant?: boolean;
+  /** Tenant resuelto desde el slug: se preselecciona en el selector. */
+  tenant?: Pick<Tenant, "id" | "slug">;
 }
 
-export function RegisterForm({ role = "agent", requireTenant = false }: RegisterFormProps) {
+export function RegisterForm({ role = "agent", requireTenant = false, tenant }: RegisterFormProps) {
   const router = useRouter();
   const register = useSessionStore((s) => s.register);
   const switchTenant = useSessionStore((s) => s.switchTenant);
   const [serverError, setServerError] = useState<string | null>(null);
-  const [selectedTenants, setSelectedTenants] = useState<string[]>([]);
+  const [selectedTenants, setSelectedTenants] = useState<string[]>(tenant ? [tenant.id] : []);
   const [showTenantSelector, setShowTenantSelector] = useState(false);
   const [tenants, setTenants] = useState<TenantInfo[]>([]);
+  const slug = tenant?.slug ?? "";
 
   const { data: publicTenants, isLoading, isError, refetch } = usePublicTenants();
 
@@ -67,7 +71,7 @@ export function RegisterForm({ role = "agent", requireTenant = false }: Register
         setTenants(currentUser.tenants);
         setShowTenantSelector(true);
       } else {
-        router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
+        router.replace(currentUser ? homePathForRole(currentUser.role, slug) : "/");
       }
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Error al registrarte.");
@@ -79,7 +83,7 @@ export function RegisterForm({ role = "agent", requireTenant = false }: Register
     try {
       await switchTenant(tenantId);
       const currentUser = useSessionStore.getState().user;
-      router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
+      router.replace(currentUser ? homePathForRole(currentUser.role, slug) : "/");
     } catch (err) {
       setServerError(err instanceof Error ? err.message : "Error al cambiar de tenant.");
     }
@@ -87,7 +91,7 @@ export function RegisterForm({ role = "agent", requireTenant = false }: Register
 
   const handleSkipTenantSelection = () => {
     const currentUser = useSessionStore.getState().user;
-    router.replace(currentUser ? homePathForRole(currentUser.role) : "/app");
+    router.replace(currentUser ? homePathForRole(currentUser.role, slug) : "/");
   };
 
   if (showTenantSelector) {

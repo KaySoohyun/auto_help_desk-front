@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSessionStore } from "@/stores/session.store";
 
-export function useSessionInitializer(loginPath = "/login") {
+export function useSessionInitializer(loginPath = "/") {
   const status = useSessionStore((s) => s.status);
   const loadMe = useSessionStore((s) => s.loadMe);
   const router = useRouter();

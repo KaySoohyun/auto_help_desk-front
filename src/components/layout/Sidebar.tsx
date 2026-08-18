@@ -15,6 +15,7 @@ import { useSessionStore } from "@/stores/session.store";
 import { hasAdminPermission, hasAuditPermission } from "@/lib/permissions";
 
 interface NavItem {
+  key: string;
   href: string;
   label: string;
   icon: LucideIcon;
@@ -22,46 +23,55 @@ interface NavItem {
   matchPrefix?: boolean;
 }
 
-interface NavSection {
-  title: string;
-  items: NavItem[];
+interface SidebarProps {
+  slug: string;
 }
 
-const NAV_SECTIONS: NavSection[] = [
-  {
-    title: "Operación",
-    items: [
-      { href: "/app/tickets", label: "Tickets", icon: TicketIcon, enabled: true },
-      {
-        href: "/app/knowledge",
-        label: "Conocimiento",
-        icon: BookOpenIcon,
-        enabled: true,
-        matchPrefix: true,
-      },
-    ],
-  },
-  {
-    title: "Gestión",
-    items: [
-      { href: "/app/audit", label: "Auditoría", icon: ShieldCheckIcon, enabled: "audit", matchPrefix: true },
-      {
-        href: "/app/admin",
-        label: "Administración",
-        icon: SettingsIcon,
-        enabled: "admin",
-        matchPrefix: true,
-      },
-    ],
-  },
-];
-
-export function Sidebar() {
+export function Sidebar({ slug }: SidebarProps) {
   const pathname = usePathname();
   const collapsed = useUiStore((s) => s.sidebarCollapsed);
   const user = useSessionStore((s) => s.user);
   const canAdmin = hasAdminPermission(user?.role ?? null, "users:read");
   const canAudit = hasAuditPermission(user?.role ?? null, "audit:view");
+  const base = `/${slug}/app`;
+
+  const navSections: { title: string; items: NavItem[] }[] = [
+    {
+      title: "Operación",
+      items: [
+        { key: "tickets", href: `${base}/tickets`, label: "Tickets", icon: TicketIcon, enabled: true },
+        {
+          key: "knowledge",
+          href: `${base}/knowledge`,
+          label: "Conocimiento",
+          icon: BookOpenIcon,
+          enabled: true,
+          matchPrefix: true,
+        },
+      ],
+    },
+    {
+      title: "Gestión",
+      items: [
+        {
+          key: "audit",
+          href: `${base}/audit`,
+          label: "Auditoría",
+          icon: ShieldCheckIcon,
+          enabled: "audit",
+          matchPrefix: true,
+        },
+        {
+          key: "admin",
+          href: `${base}/admin`,
+          label: "Administración",
+          icon: SettingsIcon,
+          enabled: "admin",
+          matchPrefix: true,
+        },
+      ],
+    },
+  ];
 
   return (
     <aside
@@ -81,7 +91,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto p-3">
-        {NAV_SECTIONS.map((section) => (
+        {navSections.map((section) => (
           <div key={section.title} className="space-y-1">
             {!collapsed ? (
               <p className="px-2 text-xs font-medium text-muted-foreground">{section.title}</p>
@@ -96,7 +106,7 @@ export function Sidebar() {
               if (!enabled) {
                 return (
                   <div
-                    key={item.href}
+                    key={item.key}
                     title={collapsed ? item.label : undefined}
                     className={cn(
                       "flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-muted-foreground/60 opacity-60",
@@ -119,7 +129,7 @@ export function Sidebar() {
 
               return (
                 <Link
-                  key={item.href}
+                  key={item.key}
                   href={item.href}
                   title={collapsed ? item.label : undefined}
                   className={cn(

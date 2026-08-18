@@ -13,6 +13,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ROLE_LABELS } from "@/lib/constants/roles";
+import { homePathForRole } from "@/lib/auth/routing";
+import type { UserRole } from "@/types/auth.types";
 import { useSessionStore } from "@/stores/session.store";
 import { useUiStore } from "@/stores/ui.store";
 
@@ -36,17 +38,13 @@ export function Topbar() {
 
   const handleLogout = async () => {
     await logout();
-    router.replace("/login");
+    router.replace("/");
   };
 
-  const roleLabel = user ? ROLE_LABELS[user.role] : undefined;
-  const activeTenantId = user?.tenantId ?? null;
-  const activeTenantName =
-    user?.tenants.find((t) => t.id === activeTenantId)?.name ?? (activeTenantId ? "Tenant" : undefined);
-
-  const handleSwitchTenant = async (tenantId: string) => {
+  const handleSwitchTenant = async (tenantId: string, tenantSlug: string, tenantRole: UserRole) => {
     try {
       await switchTenant(tenantId);
+      router.replace(homePathForRole(tenantRole, tenantSlug));
     } catch {
       /* el error queda en el store */
     }
@@ -55,10 +53,16 @@ export function Topbar() {
   const handleClearTenant = async () => {
     try {
       await clearTenant();
+      router.replace("/");
     } catch {
       /* el error queda en el store */
     }
   };
+
+  const roleLabel = user ? ROLE_LABELS[user.role] : undefined;
+  const activeTenantId = user?.tenantId ?? null;
+  const activeTenantName =
+    user?.tenants.find((t) => t.id === activeTenantId)?.name ?? (activeTenantId ? "Tenant" : undefined);
 
   return (
     <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b border-border bg-background/80 px-3 backdrop-blur md:px-4">
@@ -101,12 +105,12 @@ export function Topbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>
                   <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    Tenant activo
+                    Empresa activa
                   </span>
                 </DropdownMenuLabel>
 
                 <DropdownMenuItem
-                  onSelect={() => void (activeTenantId === null ? undefined : handleClearTenant())}
+                  onSelect={() => void handleClearTenant()}
                   disabled={activeTenantId === null}
                 >
                   <span className="flex-1">Todos los tenants</span>
@@ -116,7 +120,11 @@ export function Topbar() {
                 {user.tenants.map((tenant) => (
                   <DropdownMenuItem
                     key={tenant.id}
-                    onSelect={() => void (tenant.id === activeTenantId ? undefined : handleSwitchTenant(tenant.id))}
+                    onSelect={() =>
+                      void (tenant.id === activeTenantId
+                        ? undefined
+                        : handleSwitchTenant(tenant.id, tenant.slug, tenant.role))
+                    }
                     disabled={tenant.id === activeTenantId}
                   >
                     <Building2Icon className="size-4 text-muted-foreground" aria-hidden />

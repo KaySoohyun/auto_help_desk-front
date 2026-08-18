@@ -4,12 +4,14 @@ import Link from "next/link";
 import { CalendarIcon } from "lucide-react";
 import { TicketPriorityBadge, TicketStatusBadge } from "@/components/features/tickets/TicketBadges";
 import { timeAgo } from "@/lib/format";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import type { TicketSummary } from "@/types/ticket.types";
 
 export function PersonaTicketCard({ ticket }: { ticket: TicketSummary }) {
+  const slug = useTenantSlug();
   return (
     <Link
-      href={`/panel/tickets/${ticket.id}`}
+      href={`/${slug}/panel/tickets/${ticket.id}`}
       className="group flex items-start gap-4 rounded-2xl border border-border bg-card p-5 transition-all hover:border-primary/50 hover:shadow-sm"
     >
       <div className="min-w-0 flex-1">

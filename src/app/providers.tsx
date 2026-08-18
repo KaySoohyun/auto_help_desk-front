@@ -31,10 +31,19 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     return onSessionExpired(() => {
-      if (typeof window !== "undefined" && window.location.pathname !== "/login") {
+      if (typeof window === "undefined") return;
+      const pathname = window.location.pathname;
+      const segments = pathname.split("/").filter(Boolean);
+      const slug = segments[0] ?? "";
+      // Sesión expirada en portal de personas → volver a su login; si no, al de empresas (o landing si no hay slug).
+      const target = pathname.startsWith("/panel") && slug
+        ? `/${slug}/personas/login?expired=1`
+        : slug
+          ? `/${slug}/empresas/login?expired=1`
+          : "/";
+      if (window.location.pathname !== target) {
         // Recarga total intencional: resetea caché y estado tras expirar la sesión.
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.href = "/login";
+        window.location.href = target;
       }
     });
   }, []);

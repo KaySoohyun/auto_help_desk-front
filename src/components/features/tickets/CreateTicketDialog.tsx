@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateTicket } from "@/hooks/tickets/useCreateTicket";
 import { useCategories } from "@/hooks/tickets/useCategories";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import type { TicketPriority } from "@/types/ticket.types";
 
 const createSchema = z.object({
@@ -49,6 +50,7 @@ const PRIORITY_OPTIONS: Array<{ value: TicketPriority; label: string }> = [
 
 export function CreateTicketDialog() {
   const router = useRouter();
+  const slug = useTenantSlug();
   const createTicket = useCreateTicket();
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const [open, setOpen] = useState(false);
@@ -75,7 +77,7 @@ export function CreateTicketDialog() {
       toast.success("Ticket creado");
       reset();
       setOpen(false);
-      router.push(`/app/tickets/${created.id}`);
+      router.push(`/${slug}/app/tickets/${created.id}`);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo crear el ticket.");
     }

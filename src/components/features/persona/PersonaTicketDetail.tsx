@@ -57,8 +57,9 @@ function InfoRow({
 }
 
 export function PersonaTicketDetail() {
-  const params = useParams<{ ticketId: string }>();
+  const params = useParams<{ ticketId: string; slug: string }>();
   const router = useRouter();
+  const slug = params.slug;
   const ticketId = Number(params.ticketId);
   const myUserId = useSessionStore((s) => s.user?.id ?? null);
   const { data: profile } = useMyProfile();
@@ -101,7 +102,7 @@ export function PersonaTicketDetail() {
       <div className="mx-auto max-w-6xl px-4 py-20 text-center">
         <h2 className="text-xl font-semibold">Ticket no encontrado</h2>
         <p className="mt-1 text-muted-foreground">Es posible que no exista o que no tengas acceso.</p>
-        <Button className="mt-5" onClick={() => router.push("/panel")}>
+        <Button className="mt-5" onClick={() => router.push(`/${slug}/panel`)}>
           Volver al panel
         </Button>
       </div>
@@ -117,7 +118,7 @@ export function PersonaTicketDetail() {
         variant="ghost"
         size="sm"
         className="mb-6 gap-2"
-        onClick={() => router.push("/panel")}
+        onClick={() => router.push(`/${slug}/panel`)}
       >
         <ArrowLeft className="h-4 w-4" aria-hidden />
         Volver al panel

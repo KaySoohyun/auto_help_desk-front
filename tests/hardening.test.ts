@@ -18,9 +18,9 @@ describe("hardening", () => {
   });
 
   describe("headers de seguridad", () => {
-    it("/login incluye headers siempre activos", async () => {
+    it("la landing incluye headers siempre activos", async () => {
       const anon = new TestClient();
-      const res = await anon.request("/login");
+      const res = await anon.request("/");
       expect(res.status).toBe(200);
       expect(res.headers.get("x-content-type-options")).toBe("nosniff");
       expect(res.headers.get("x-frame-options")).toBe("DENY");

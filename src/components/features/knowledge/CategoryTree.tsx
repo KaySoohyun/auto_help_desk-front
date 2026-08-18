@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useMemo } from "react";
 import { useArticles } from "@/hooks/knowledge/useArticles";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FolderOpenIcon, InboxIcon, AlertTriangleIcon } from "lucide-react";
 
 export function CategoryTree() {
   const { data, isLoading, isError } = useArticles({ status: "published", limit: 200, offset: 0 });
+  const slug = useTenantSlug();
 
   const categories = useMemo(() => {
     const counts = new Map<string, number>();
@@ -56,7 +58,7 @@ export function CategoryTree() {
       {categories.map(([category, count]) => (
         <Link
           key={category}
-          href={`/app/knowledge/articles?category=${encodeURIComponent(category)}`}
+          href={`/${slug}/app/knowledge/articles?category=${encodeURIComponent(category)}`}
           role="listitem"
           className="flex items-center justify-between gap-2 rounded-lg border border-border px-4 py-3 text-sm transition-colors hover:bg-muted/50 hover:text-foreground"
         >

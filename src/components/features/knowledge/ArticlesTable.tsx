@@ -3,15 +3,17 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { ArticleStatusBadge } from "@/components/features/knowledge/ArticleStatusBadge";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import { timeAgo } from "@/lib/format";
 import type { KbArticleSummary } from "@/types/knowledge.types";
 
 function ArticleRow({ article }: { article: KbArticleSummary }) {
+  const slug = useTenantSlug();
   return (
     <tr className="border-b border-border last:border-0 hover:bg-muted/50">
       <td className="px-3 py-2 align-middle">
         <Link
-          href={`/app/knowledge/articles/${article.id}`}
+          href={`/${slug}/app/knowledge/articles/${article.id}`}
           className="line-clamp-2 text-sm font-medium text-foreground hover:underline"
         >
           {article.title}

@@ -10,6 +10,12 @@ import { useSessionStore } from "@/stores/session.store";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 
+interface AppShellProps {
+  slug: string;
+  tenantName?: string;
+  children: React.ReactNode;
+}
+
 function ShellSkeleton() {
   return (
     <div className="flex flex-1 items-center justify-center p-8">
@@ -22,19 +28,19 @@ function ShellSkeleton() {
   );
 }
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ slug, children }: AppShellProps) {
   const router = useRouter();
-  const status = useSessionInitializer();
+  const status = useSessionInitializer(`/${slug}/empresas/login`);
   const loadMe = useSessionStore((s) => s.loadMe);
   const error = useSessionStore((s) => s.error);
   const user = useSessionStore((s) => s.user);
 
-  // El portal de agentes es exclusivo de roles de soporte: un customer va a /panel.
+  // El portal de agentes es exclusivo de roles de soporte: un customer va al panel de su slug.
   useEffect(() => {
     if (status === "authenticated" && user?.role === "customer") {
-      router.replace("/panel");
+      router.replace(`/${slug}/panel`);
     }
-  }, [status, user, router]);
+  }, [status, user, slug, router]);
 
   if (status === "refreshing" || status === "unauthenticated") {
     return <ShellSkeleton />;
@@ -65,7 +71,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       >
         Saltar al contenido
       </a>
-      <Sidebar />
+      <Sidebar slug={slug} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar />
         <main id="main-content" tabIndex={-1} className="flex-1 p-4 outline-none md:p-6">

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuditEvents } from "@/hooks/audit/useAuditEvents";
 import { useSessionStore } from "@/stores/session.store";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import { hasAuditPermission } from "@/lib/permissions";
 import { eventsToCsv, toAuditQueryString } from "@/lib/audit";
 import { bffFetch } from "@/lib/api/bffClient";
@@ -53,6 +54,7 @@ function formatConfidence(value: number): string {
 
 export function AuditEventsView({ searchParams }: { searchParams: Record<string, string> }) {
   const router = useRouter();
+  const slug = useTenantSlug();
   const user = useSessionStore((s) => s.user);
   const canView = hasAuditPermission(user?.role ?? null, "audit:view");
   const canExport = hasAuditPermission(user?.role ?? null, "audit:export");
@@ -108,7 +110,7 @@ export function AuditEventsView({ searchParams }: { searchParams: Record<string,
   };
 
   const clearFilters = () => {
-    router.push("/app/audit");
+    router.push(`/${slug}/app/audit`);
   };
 
   const handleExport = async () => {

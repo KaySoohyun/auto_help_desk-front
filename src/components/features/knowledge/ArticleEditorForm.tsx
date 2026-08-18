@@ -20,6 +20,7 @@ import {
 import { useCreateArticle } from "@/hooks/knowledge/useCreateArticle";
 import { useUpdateArticle } from "@/hooks/knowledge/useUpdateArticle";
 import { useKbCategories } from "@/hooks/knowledge/useKbCategories";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import type { KbArticle } from "@/types/knowledge.types";
 
 const articleSchema = z.object({
@@ -47,6 +48,7 @@ interface ArticleEditorFormProps {
 
 export function ArticleEditorForm({ article, onSaved }: ArticleEditorFormProps) {
   const router = useRouter();
+  const slug = useTenantSlug();
   const createArticle = useCreateArticle();
   const updateArticle = useUpdateArticle(article?.id ?? 0);
   const isEdit = article !== undefined;
@@ -95,7 +97,7 @@ export function ArticleEditorForm({ article, onSaved }: ArticleEditorFormProps) 
           tags: parseTags(values.tags),
         });
         toast.success("Borrador creado");
-        router.push(`/app/knowledge/articles/${created.id}`);
+        router.push(`/${slug}/app/knowledge/articles/${created.id}`);
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo guardar el artículo.");

@@ -8,6 +8,7 @@ import { CreateCategoryDialog } from "@/components/features/knowledge/CreateCate
 import { ArticlesTable } from "@/components/features/knowledge/ArticlesTable";
 import { ArticlesPagination } from "@/components/features/knowledge/ArticlesPagination";
 import { useSessionStore } from "@/stores/session.store";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import { hasKbPermission } from "@/lib/permissions";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,7 @@ const VALID_STATUSES: KbArticleStatus[] = ["draft", "published", "archived"];
 export function ArticlesPageView({ searchParams }: { searchParams: Record<string, string> }) {
   const user = useSessionStore((s) => s.user);
   const canEdit = hasKbPermission(user?.role ?? null, "kb:edit");
+  const slug = useTenantSlug();
 
   const rawStatus = searchParams.status;
   const status = !canEdit
@@ -67,7 +69,7 @@ export function ArticlesPageView({ searchParams }: { searchParams: Record<string
           <p className="text-sm text-muted-foreground">Artículos de tu soporte</p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/app/knowledge/categories">
+          <Link href={`/${slug}/app/knowledge/categories`}>
             <Button variant="outline">
               <FolderOpenIcon aria-hidden />
               Categorías
@@ -83,7 +85,7 @@ export function ArticlesPageView({ searchParams }: { searchParams: Record<string
                   </Button>
                 }
               />
-              <Link href="/app/knowledge/articles/new">
+              <Link href={`/${slug}/app/knowledge/articles/new`}>
                 <Button>
                   <PlusIcon aria-hidden />
                   Nuevo artículo

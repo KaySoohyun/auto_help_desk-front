@@ -24,14 +24,14 @@ function initials(email: string): string {
     .toUpperCase();
 }
 
-export function PersonaHeader() {
+export function PersonaHeader({ slug }: { slug: string }) {
   const router = useRouter();
   const user = useSessionStore((s) => s.user);
   const logout = useSessionStore((s) => s.logout);
 
   const handleLogout = async () => {
     await logout();
-    router.replace("/personas/login");
+    router.replace("/");
   };
 
   return (
@@ -80,7 +80,7 @@ export function PersonaHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button size="sm" onClick={() => router.replace("/personas/login")}>
+        <Button size="sm" onClick={() => router.replace(`/${slug}/personas/login`)}>
           Ingresar
         </Button>
       )}

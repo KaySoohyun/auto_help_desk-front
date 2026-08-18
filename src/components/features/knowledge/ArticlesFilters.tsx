@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { RotateCcwIcon } from "lucide-react";
 import { ARTICLE_STATUS_LABELS } from "@/components/features/knowledge/ArticleStatusBadge";
 import { useKbCategories } from "@/hooks/knowledge/useKbCategories";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import type { KbArticleStatus } from "@/types/knowledge.types";
 
 const STATUSES: Array<{ value: KbArticleStatus; label: string }> = (
@@ -21,6 +22,7 @@ const STATUSES: Array<{ value: KbArticleStatus; label: string }> = (
 export function ArticlesFilters({ hideStatus = false }: { hideStatus?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const slug = useTenantSlug();
   const { data: categories = [] } = useKbCategories();
 
   const apply = (updates: Record<string, string | undefined>) => {
@@ -29,7 +31,7 @@ export function ArticlesFilters({ hideStatus = false }: { hideStatus?: boolean }
       if (value === undefined || value === "") params.delete(key);
       else params.set(key, value);
     }
-    router.push(`/app/knowledge/articles?${params.toString()}`);
+    router.push(`/${slug}/app/knowledge/articles?${params.toString()}`);
   };
 
   const hasActive =

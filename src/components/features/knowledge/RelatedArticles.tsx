@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { AlertTriangleIcon, FileTextIcon, Link2Icon } from "lucide-react";
 import { useArticles } from "@/hooks/knowledge/useArticles";
+import { useTenantSlug } from "@/hooks/useTenantSlug";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { KbArticleSummary } from "@/types/knowledge.types";
@@ -16,6 +17,7 @@ export function RelatedArticles({
   category?: string | null;
   onInsertReference: (article: KbArticleSummary) => void;
 }) {
+  const slug = useTenantSlug();
   const { data, isLoading, isError, error } = useArticles({
     status: "published",
     category: category ?? undefined,
@@ -60,7 +62,7 @@ export function RelatedArticles({
           className="flex items-center gap-2 rounded-md border border-border bg-background/40 px-2 py-1.5"
         >
           <Link
-            href={`/app/knowledge/articles/${article.id}`}
+            href={`/${slug}/app/knowledge/articles/${article.id}`}
             target="_blank"
             rel="noopener noreferrer"
             className="min-w-0 flex-1 truncate text-xs font-medium text-foreground hover:underline"
