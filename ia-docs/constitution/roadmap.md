@@ -2,9 +2,11 @@
 
 El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
-- **013 · Portal de personas** — landing "Personas" → `/personas/login` (login + registro como cliente con selección de tenant), `/panel` (dashboard: mis tickets, buscador, filtros con conteos, crear ticket), `/panel/tickets/[id]` (conversación con envío manual, sin LLM). Rol `customer` en backend con aislamiento por customer/tenant. ✅ Hecho (2026-08-14).
+- **014 · Portal demo multi-tenant con acceso rápido** — empresa (tenant) como primer segmento de la URL: `/` con landing de empresas reales, `/[slug]/personas/login`, `/[slug]/empresas/login`, `/[slug]/app/*` y `/[slug]/panel/*`; rutas legacy redirigen a `/`; botones de acceso rápido con usuarios demo (`demo-pass-123`) en los dos logins (cliente por slug; agente/supervisor/admin tenant/admin plataforma en empresas); navegación con slug. Backend: seed `scripts/seed_demo_users.py` (feature 022). ✅ Hecho (2026-08-18; verificada end-to-end contra backend local, suite funcional 108 passed).
 
-- **Portal empresas multi-tenant** — landing con dos portales, `/empresas/login` con login + registro (selección de uno o varios tenants), auto-login post-registro, selector de tenant post-login y switcher en el Topbar, tickets con alcance al tenant activo o a todos los tenants. ✅ Hecho (2026-08-14; backend en `backend-python/ia_docs/cambios.md`). _(El dashboard se eliminó: `/app` redirige a `/app/tickets`.)_
+- **013 · Portal de personas** — landing "Personas" → `/personas/login` (login + registro como cliente con selección de tenant), `/panel` (dashboard: mis tickets, buscador, filtros con conteos, crear ticket), `/panel/tickets/[id]` (conversación con envío manual, sin LLM). Rol `customer` en backend con aislamiento por customer/tenant. ✅ Hecho (2026-08-14). _(Nota: con 014, las rutas quedaron bajo `/[slug]/`.)_
+
+- **Portal empresas multi-tenant** — landing con dos portales, `/empresas/login` con login + registro (selección de uno o varios tenants), auto-login post-registro, selector de tenant post-login y switcher en el Topbar, tickets con alcance al tenant activo o a todos los tenants. ✅ Hecho (2026-08-14; backend en `backend-python/ia_docs/cambios.md`). _(El dashboard se eliminó: `/app` redirige a `/app/tickets`; con 014 las rutas quedaron bajo `/[slug]/`.)_
 
 - **001 · Fundaciones técnicas** — Next.js + TS + Tailwind + shadcn/ui, BFF base, proxy de sesión, login, AppShell. _(Fase 1 · Etapa 1.1 del plan)_
 - **002 · Bandeja y detalle de tickets** — listado, filtros por URL, búsqueda client-side, paginación, selección múltiple (sin bulk), conversation thread, respuestas y acciones de estado/prioridad/asignación/cierre. _(Fase 1 · Etapa 1.2)_ ✅

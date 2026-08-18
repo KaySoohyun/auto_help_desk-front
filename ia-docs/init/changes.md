@@ -15,7 +15,7 @@
   - Cada botón hace login real con el usuario demo (seed `scripts/seed_demo_users.py` del backend, password `demo-pass-123`) y redirige al app/panel del slug.
 - **Navegación**: `homePathForRole(role, slug)`; `Sidebar`/`AdminNav`/`Topbar`/`PersonaShell`/`PersonaHeader` y los components con links a `/app` y `/panel` usan el slug actual (`useTenantSlug`).
 - **Sesión expirada**: se redirige a `/[slug]/personas/login` (panel) o `/[slug]/empresas/login` (app) manteniendo el slug.
-- **Verificación**: `typecheck`, `lint` y `build` en verde. Pendiente: correr la suite funcional completa contra backend local y el flujo de login demo de punta a punta (el puerto 8000 local tiene otra app; ver task 014).
+- **Verificación**: `typecheck`, `lint` y `build` en verde; flujo end-to-end contra backend local verificado (login demo vía BFF, rutas con slug, redirects legacy, sesión, `/me`, tickets, logout); suite funcional **108 passed** (10 archivos). — `feat/init-landing`
 
 ## 2026-08-14 — Eliminado el dashboard de la sección `/app`
 

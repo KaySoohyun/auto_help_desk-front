@@ -40,5 +40,5 @@ Estado: ☐ pendiente · ☐ en curso · ☑ hecho
 
 - [x] ☐ Grep de links hardcodeados `/app`, `/panel`, `/personas`, `/empresas` sin resolver y actualizarlos.
 - [x] ☐ `pnpm lint`, `pnpm typecheck`, `pnpm build` en verde.
-- [ ] ☐ Probar el flujo completo contra backend local (seed de demo users aplicado).
-- [ ] ☐ Actualizar `ia-docs/init/changes.md` y mover la feature a "Hecho" en `constitution/roadmap.md`.
+- [x] ☐ Probar el flujo completo contra backend local (seed de demo users aplicado). — Login demo vía BFF, rutas con slug, redirects legacy, sesión, me, tickets, logout → OK; suite funcional 108 passed.
+- [x] ☐ Actualizar `ia-docs/init/changes.md` y mover la feature a "Hecho" en `constitution/roadmap.md`.
