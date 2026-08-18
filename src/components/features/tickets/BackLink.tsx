@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 
 export function BackLink({ href, label }: { href: string; label: string }) {
   return (
-    <Link href={href}>
-      <Button variant="ghost" size="sm">
+    <Link href={href} >
+      <Button variant="ghost" size="sm" className="my-6">
         <ArrowLeftIcon aria-hidden />
         {label}
       </Button>
