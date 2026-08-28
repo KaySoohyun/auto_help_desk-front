@@ -25,6 +25,7 @@ import { TicketPriorityBadge, TicketStatusBadge } from "@/components/features/ti
 import { useMyTicket, useMyMessages, useSendMyMessage } from "@/hooks/persona/useMyTickets";
 import { useMyProfile } from "@/hooks/persona/useMyProfile";
 import { useSessionStore } from "@/stores/session.store";
+import { categoryLabel } from "@/lib/constants/categories";
 import { formatDateTime } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -139,14 +140,6 @@ export function PersonaTicketDetail() {
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
           {ticket.subject}
         </h1>
-        <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <Calendar className="h-3.5 w-3.5" aria-hidden /> Abierto {formatDateTime(ticket.created_at)}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5" aria-hidden /> Actualizado {formatDateTime(ticket.updated_at)}
-          </span>
-        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
@@ -259,7 +252,7 @@ export function PersonaTicketDetail() {
         <aside className="h-fit rounded-2xl border border-border bg-card p-5 lg:sticky lg:top-20">
           <h3 className="mb-2 text-sm font-semibold text-foreground">Información</h3>
           <div className="divide-y divide-border">
-            <InfoRow icon={Tag} label="Categoría" value={ticket.category || "—"} />
+            <InfoRow icon={Tag} label="Categoría" value={categoryLabel(ticket.category)} />
             <InfoRow icon={Building2} label="Empresa" value={company} />
           </div>
 

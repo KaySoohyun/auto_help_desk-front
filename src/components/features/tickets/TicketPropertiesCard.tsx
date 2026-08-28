@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, User, Folder, Flag } from "lucide-react";
 import type { Ticket } from "@/types/ticket.types";
 import { formatDateTime } from "@/lib/format";
+import { categoryLabel } from "@/lib/constants/categories";
 
 interface TicketPropertiesCardProps {
   ticket: Ticket;
@@ -22,7 +23,7 @@ export function TicketPropertiesCard({ ticket }: TicketPropertiesCardProps) {
         </div>
         <div className="flex items-center gap-2">
           <Folder className="size-4 text-muted-foreground" />
-          <span className="text-sm">{ticket.category ?? "Sin categoría"}</span>
+          <span className="text-sm">{categoryLabel(ticket.category)}</span>
         </div>
         <div className="flex items-center gap-2">
           <User className="size-4 text-muted-foreground" />

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { CalendarIcon } from "lucide-react";
 import { TicketPriorityBadge, TicketStatusBadge } from "@/components/features/tickets/TicketBadges";
+import { categoryLabel } from "@/lib/constants/categories";
 import { timeAgo } from "@/lib/format";
 import { useTenantSlug } from "@/hooks/useTenantSlug";
 import type { TicketSummary } from "@/types/ticket.types";
@@ -27,7 +28,7 @@ export function PersonaTicketCard({ ticket }: { ticket: TicketSummary }) {
           {ticket.subject}
         </h3>
         {ticket.category ? (
-          <p className="mt-0.5 text-xs capitalize text-muted-foreground">{ticket.category}</p>
+          <p className="mt-0.5 text-xs capitalize text-muted-foreground">{categoryLabel(ticket.category)}</p>
         ) : null}
       </div>
       <span className="mt-0.5 inline-flex shrink-0 items-center gap-1.5 text-xs text-muted-foreground">

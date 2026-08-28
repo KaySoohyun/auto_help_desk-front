@@ -5,6 +5,7 @@ import {
   TicketStatusBadge,
 } from "@/components/features/tickets/TicketBadges";
 import { formatDateTime } from "@/lib/format";
+import { categoryLabel } from "@/lib/constants/categories";
 import type { Ticket } from "@/types/ticket.types";
 
 export function TicketMetadata({ ticket }: { ticket: Ticket }) {
@@ -17,7 +18,7 @@ export function TicketMetadata({ ticket }: { ticket: Ticket }) {
       label: "Prioridad",
       value: <TicketPriorityBadge priority={ticket.priority} />,
     },
-    { label: "Categoría", value: ticket.category ?? "—" },
+    { label: "Categoría", value: categoryLabel(ticket.category) },
     { label: "Asignado", value: ticket.assignee_id ? `#${ticket.assignee_id}` : "Sin asignar" },
     { label: "Creado", value: formatDateTime(ticket.created_at) },
     { label: "Actualizado", value: formatDateTime(ticket.updated_at) },

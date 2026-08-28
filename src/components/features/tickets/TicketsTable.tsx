@@ -6,6 +6,7 @@ import {
   TicketStatusBadge,
 } from "@/components/features/tickets/TicketBadges";
 import { timeAgo } from "@/lib/format";
+import { categoryLabel } from "@/lib/constants/categories";
 import { useTenantSlug } from "@/hooks/useTenantSlug";
 import type { TicketSummary } from "@/types/ticket.types";
 
@@ -28,7 +29,7 @@ function TicketRow({ ticket }: { ticket: TicketSummary }) {
         <TicketPriorityBadge priority={ticket.priority} />
       </td>
       <td className="px-3 py-2.5 align-middle text-[15px] text-muted-foreground">
-        {ticket.category ?? "—"}
+        {categoryLabel(ticket.category)}
       </td>
       <td className="px-3 py-2.5 align-middle text-[15px] text-muted-foreground">
         {ticket.assignee_id ? `#${ticket.assignee_id}` : "Sin asignar"}
