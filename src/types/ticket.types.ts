@@ -43,6 +43,7 @@ export interface TicketListQuery {
   assignee_id?: number;
   date_from?: string;
   date_to?: string;
+  q?: string;
   limit?: number;
   offset?: number;
 }

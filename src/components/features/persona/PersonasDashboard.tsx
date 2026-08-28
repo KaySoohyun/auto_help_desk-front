@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, Inbox, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -27,23 +27,23 @@ export function PersonasDashboard() {
   const { data: profile } = useMyProfile();
   const [filter, setFilter] = useState<TicketStatus | "all">("all");
   const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setSearch(query.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [query]);
 
   const status = filter === "all" ? undefined : filter;
   const { data, isLoading, isError, refetch } = useMyTickets({
     status,
+    q: search || undefined,
     limit: PAGE_SIZE,
     offset: (page - 1) * PAGE_SIZE,
   });
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return data?.items ?? [];
-    return (data?.items ?? []).filter((t) => {
-      return t.subject.toLowerCase().includes(q) || (t.category?.toLowerCase().includes(q) ?? false);
-    });
-  }, [data, query]);
-
+  const items = data?.items ?? [];
   const total = data?.total ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -55,7 +55,7 @@ export function PersonasDashboard() {
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Hola, {name} 👋
+            Hola, {name}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Gestioná tus incidencias y conversá con el equipo de soporte.
@@ -84,7 +84,7 @@ export function PersonasDashboard() {
               setQuery(e.target.value);
               setPage(1);
             }}
-            placeholder="Buscar tickets por título o categoría…"
+            placeholder="Buscar por categoría o etiquetas…"
             aria-label="Buscar tickets"
             className="h-11 w-full rounded-xl border border-input bg-card pl-10 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
           />
@@ -128,18 +128,18 @@ export function PersonasDashboard() {
             Reintentar
           </Button>
         </div>
-      ) : filtered.length === 0 ? (
+      ) : items.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card p-12 text-center">
           <Inbox className="mx-auto mb-4 h-12 w-12 text-muted-foreground" aria-hidden />
           <h2 className="text-lg font-semibold">
-            {data?.items.length === 0 ? "Aún no tenés tickets" : "Sin resultados"}
+            {!search ? "Aún no tenés tickets" : "Sin resultados"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {data?.items.length === 0
+            {!search
               ? "Creá tu primer ticket de soporte y nuestro equipo te va a ayudar."
-              : "Probá con otro filtro o término de búsqueda."}
+              : "Probá con otro término de búsqueda."}
           </p>
-          {data?.items.length === 0 ? (
+          {!search ? (
             <div className="mt-5 flex justify-center">
               <CreateTicketDialog
                 trigger={
@@ -154,7 +154,7 @@ export function PersonasDashboard() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filtered.map((ticket) => (
+          {items.map((ticket) => (
             <PersonaTicketCard key={ticket.id} ticket={ticket} />
           ))}
         </div>

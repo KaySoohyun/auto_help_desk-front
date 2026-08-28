@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTickets } from "@/hooks/tickets/useTickets";
 import { TicketsFilters } from "@/components/features/tickets/TicketsFilters";
 import { TicketsTable } from "@/components/features/tickets/TicketsTable";
@@ -27,14 +27,6 @@ export function TicketsPageView({ searchParams }: { searchParams: Record<string,
   const page = Math.max(1, Number.parseInt(searchParams.page ?? "1", 10) || 1);
   const offset = (page - 1) * PAGE_SIZE;
 
-  const { data, isLoading, isError, error } = useTickets({
-    status,
-    priority,
-    category,
-    limit: PAGE_SIZE,
-    offset,
-  });
-
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -47,12 +39,16 @@ export function TicketsPageView({ searchParams }: { searchParams: Record<string,
     };
   }, [search]);
 
-  const items = useMemo(() => {
-    const base = data?.items ?? [];
-    const q = debouncedSearch.trim().toLowerCase();
-    if (!q) return base;
-    return base.filter((t) => t.subject.toLowerCase().includes(q));
-  }, [data, debouncedSearch]);
+  const { data, isLoading, isError, error } = useTickets({
+    status,
+    priority,
+    category,
+    q: debouncedSearch.trim() || undefined,
+    limit: PAGE_SIZE,
+    offset,
+  });
+
+  const items = data?.items ?? [];
 
   return (
     <div className="space-y-4">
@@ -73,8 +69,8 @@ export function TicketsPageView({ searchParams }: { searchParams: Record<string,
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por asunto"
-            aria-label="Buscar por asunto"
+            placeholder="Buscar por categoría o etiquetas"
+            aria-label="Buscar por categoría o etiquetas"
             className="w-56 pl-9"
           />
         </div>

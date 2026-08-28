@@ -13,6 +13,7 @@ export function useMyTickets(query: TicketListQuery = {}) {
       if (query.status) params.set("status", query.status);
       if (query.category) params.set("category", query.category);
       if (query.priority) params.set("priority", query.priority);
+      if (query.q) params.set("q", query.q);
       params.set("limit", String(query.limit ?? 100));
       params.set("offset", String(query.offset ?? 0));
       return bffFetch<TicketList>(`/api/bff/me/tickets?${params.toString()}`, { signal });

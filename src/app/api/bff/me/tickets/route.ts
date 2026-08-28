@@ -7,6 +7,7 @@ const listQuerySchema = z.object({
   status: z.enum(["open", "in_progress", "on_hold", "closed"]).optional(),
   category: z.string().max(100).optional(),
   priority: z.enum(["low", "medium", "high", "urgent"]).optional(),
+  q: z.string().max(100).optional(),
   limit: z.coerce.number().int().min(1).max(200).default(50),
   offset: z.coerce.number().int().min(0).default(0),
 });

@@ -1,5 +1,12 @@
 # Cambios
 
+## 2026-08-28 — Búsqueda por categorías y tags desde el backend (feature 023)
+
+- **Portal del cliente** (`src/components/features/persona/PersonasDashboard.tsx`): el input de búsqueda ahora envía `q` al backend (debounce 300 ms) via `useMyTickets` y deja de filtrar en cliente. El placeholder pasa a "Buscar por categoría o etiquetas…".
+- **Bandeja del agente** (`src/components/features/tickets/TicketsPageView.tsx`): el buscador envía `q` a `useTickets` (debounce) en vez de filtrar por asunto en cliente.
+- **Hooks/BFF**: `useMyTickets` y `useTickets` agregan `q` al query; `TicketListQuery` incluye `q`; las rutas BFF `/api/bff/me/tickets` y `/api/bff/tickets` validan y reenvían `q`.
+- **Alcance**: la búsqueda matchea **categoría** y **tags** del ticket (columnas en claro en backend). Asunto/descripción quedan fuera por estar cifrados (política PII).
+
 ## 2026-08-18 — Portal demo multi-tenant con slug y acceso rápido — Feature 014
 
 - **Rutas con slug de empresa**: la empresa (tenant) pasa a ser el primer segmento de la URL.

@@ -19,6 +19,7 @@ export function useTickets(query: TicketListQuery) {
       if (query.assignee_id !== undefined) params.set("assignee_id", String(query.assignee_id));
       if (query.date_from) params.set("date_from", query.date_from);
       if (query.date_to) params.set("date_to", query.date_to);
+      if (query.q) params.set("q", query.q);
       params.set("limit", String(query.limit ?? 50));
       params.set("offset", String(query.offset ?? 0));
 
