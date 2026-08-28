@@ -24,8 +24,7 @@ export default function LandingPage() {
           Elegí una empresa para <br className="hidden sm:block" /> empezar
         </h1>
         <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-          Somos un sistema de soporte multi-tenant. Cada empresa tiene su propio portal de
-          personas y de equipos. Seleccioná una para probar la demo.
+          Sistema de soporte multi-tenant. Cada empresa tiene su propio portal de clientes y de soporte para gestionar tickets. Seleccioná una para probar la demo.
         </p>
       </section>
 
@@ -36,7 +35,7 @@ export default function LandingPage() {
 
       <footer className="mx-auto max-w-6xl px-5 sm:px-8 py-8 border-t border-border text-center">
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} Soporte · Centro de incidencias
+          © {new Date().getFullYear()} Help Desk · Centro de incidencias
         </p>
       </footer>
     </div>

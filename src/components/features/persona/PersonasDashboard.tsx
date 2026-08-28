@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Inbox, Plus, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Inbox, Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { STATUS_LABELS } from "@/components/features/tickets/TicketBadges";
@@ -11,34 +11,41 @@ import { PersonaTicketCard } from "./PersonaTicketCard";
 import { CreateTicketDialog } from "./CreateTicketDialog";
 import type { TicketStatus } from "@/types/ticket.types";
 
+const FILTER_LABELS: Record<TicketStatus, string> = {
+  ...STATUS_LABELS,
+  closed: "Resuelto",
+};
+
 const FILTERS: Array<{ key: TicketStatus | "all"; label: string }> = [
   { key: "all", label: "Todos" },
-  ...(Object.entries(STATUS_LABELS) as Array<[TicketStatus, string]>).map(([key, label]) => ({ key, label })),
+  ...(Object.entries(FILTER_LABELS) as Array<[TicketStatus, string]>).map(([key, label]) => ({ key, label })),
 ];
+
+const PAGE_SIZE = 10;
 
 export function PersonasDashboard() {
   const { data: profile } = useMyProfile();
-  const { data, isLoading, isError, refetch } = useMyTickets({ limit: 100 });
   const [filter, setFilter] = useState<TicketStatus | "all">("all");
   const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
 
-  const counts = useMemo(() => {
-    const acc: Partial<Record<TicketStatus, number>> = {};
-    for (const ticket of data?.items ?? []) {
-      acc[ticket.status] = (acc[ticket.status] ?? 0) + 1;
-    }
-    return acc;
-  }, [data]);
+  const status = filter === "all" ? undefined : filter;
+  const { data, isLoading, isError, refetch } = useMyTickets({
+    status,
+    limit: PAGE_SIZE,
+    offset: (page - 1) * PAGE_SIZE,
+  });
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
+    if (!q) return data?.items ?? [];
     return (data?.items ?? []).filter((t) => {
-      const matchesFilter = filter === "all" || t.status === filter;
-      const matchesQuery =
-        !q || t.subject.toLowerCase().includes(q) || (t.category?.toLowerCase().includes(q) ?? false);
-      return matchesFilter && matchesQuery;
+      return t.subject.toLowerCase().includes(q) || (t.category?.toLowerCase().includes(q) ?? false);
     });
-  }, [data, filter, query]);
+  }, [data, query]);
+
+  const total = data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const name = profile?.name ?? "Cliente";
 
@@ -73,7 +80,10 @@ export function PersonasDashboard() {
           />
           <input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setPage(1);
+            }}
             placeholder="Buscar tickets por título o categoría…"
             aria-label="Buscar tickets"
             className="h-11 w-full rounded-xl border border-input bg-card pl-10 pr-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
@@ -84,25 +94,18 @@ export function PersonasDashboard() {
             <button
               key={f.key}
               type="button"
-              onClick={() => setFilter(f.key)}
+              onClick={() => {
+                setFilter(f.key);
+                setPage(1);
+              }}
               className={cn(
-                "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
+                "inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
                 filter === f.key
                   ? "bg-primary text-primary-foreground"
                   : "border border-border bg-card text-muted-foreground hover:text-foreground"
               )}
             >
               {f.label}
-              {f.key !== "all" && (
-                <span
-                  className={cn(
-                    "text-xs",
-                    filter === f.key ? "text-primary-foreground/70" : "text-muted-foreground"
-                  )}
-                >
-                  {counts[f.key] ?? 0}
-                </span>
-              )}
             </button>
           ))}
         </div>
@@ -154,6 +157,35 @@ export function PersonasDashboard() {
           {filtered.map((ticket) => (
             <PersonaTicketCard key={ticket.id} ticket={ticket} />
           ))}
+        </div>
+      )}
+
+      {!isLoading && !isError && total > 0 && (
+        <div className="mt-6 flex items-center justify-between">
+          {page > 1 ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+            >
+              <ChevronLeft className="mr-1 h-4 w-4" aria-hidden />
+              Anterior
+            </Button>
+          ) : (
+            <span />
+          )}
+          <span className="text-sm text-muted-foreground">
+            Página {page} de {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={page >= totalPages}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          >
+            Siguiente
+            <ChevronRight className="ml-1 h-4 w-4" aria-hidden />
+          </Button>
         </div>
       )}
     </main>

@@ -17,7 +17,10 @@ export function PersonaTicketCard({ ticket }: { ticket: TicketSummary }) {
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-mono text-muted-foreground">#{String(ticket.id).slice(-6).toUpperCase()}</span>
-          <TicketStatusBadge status={ticket.status} />
+          <TicketStatusBadge
+            status={ticket.status}
+            label={ticket.status === "closed" ? "Resuelto" : undefined}
+          />
           <TicketPriorityBadge priority={ticket.priority} />
         </div>
         <h3 className="mt-2 text-sm font-semibold text-foreground group-hover:text-primary">

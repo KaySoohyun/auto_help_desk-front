@@ -61,13 +61,13 @@ export function DemoLoginButtons({ mode, tenant }: DemoLoginButtonsProps) {
   const options: DemoUser[] =
     mode === "customer"
       ? [
-          {
-            role: "customer",
-            email: demoCustomerEmail(tenant.slug),
-            password: "demo-pass-123",
-            tenantScoped: true,
-          },
-        ]
+        {
+          role: "customer",
+          email: demoCustomerEmail(tenant.slug),
+          password: "demo-pass-123",
+          tenantScoped: true,
+        },
+      ]
       : DEMO_SUPPORT_USERS;
 
   return (

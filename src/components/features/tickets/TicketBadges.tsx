@@ -29,8 +29,8 @@ const PRIORITY_VARIANTS: Record<TicketPriority, "default" | "secondary" | "destr
   urgent: "destructive",
 };
 
-export function TicketStatusBadge({ status }: { status: TicketStatus }) {
-  return <Badge variant={STATUS_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>;
+export function TicketStatusBadge({ status, label }: { status: TicketStatus; label?: string }) {
+  return <Badge variant={STATUS_VARIANTS[status]}>{label ?? STATUS_LABELS[status]}</Badge>;
 }
 
 export function TicketPriorityBadge({ priority }: { priority: TicketPriority | null }) {

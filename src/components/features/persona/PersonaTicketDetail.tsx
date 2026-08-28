@@ -130,7 +130,10 @@ export function PersonaTicketDetail() {
           <span className="text-xs font-mono text-muted-foreground">
             #{String(ticket.id).slice(-6).toUpperCase()}
           </span>
-          <TicketStatusBadge status={ticket.status} />
+          <TicketStatusBadge
+            status={ticket.status}
+            label={ticket.status === "closed" ? "Resuelto" : undefined}
+          />
           <TicketPriorityBadge priority={ticket.priority} />
         </div>
         <h1 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
@@ -222,7 +225,7 @@ export function PersonaTicketDetail() {
             <div className="flex items-end gap-2">
               <Textarea
                 rows={2}
-                placeholder={isClosed ? "Ticket cerrado" : "Escribí tu mensaje…"}
+                placeholder={isClosed ? "Ticket resuelto" : "Escribí tu mensaje…"}
                 disabled={isClosed}
                 aria-label="Mensaje"
                 className="flex-1 resize-none"
@@ -246,7 +249,7 @@ export function PersonaTicketDetail() {
             ) : null}
             {isClosed ? (
               <p className="mt-2 text-xs text-muted-foreground">
-                Este ticket está cerrado. No se pueden enviar más mensajes.
+                Este ticket está resuelto. No se pueden enviar más mensajes.
               </p>
             ) : null}
           </form>

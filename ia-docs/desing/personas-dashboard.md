@@ -99,10 +99,10 @@ export default function PersonasDashboard() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              Hola, {user?.data?.name || user?.full_name || ""} 👋
+              Hola, {user?.data?.name || user?.full_name || ""}
             </h1>
             <p className="text-muted-foreground mt-1 text-sm">
-              Gestiona tus incidencias y conversa con el equipo de soporte.
+              Gestioná tus incidencias y conversá con el equipo de soporte.
             </p>
           </div>
           <Button size="lg" className="h-12 rounded-xl shadow-sm" onClick={() => setModalOpen(true)}>
