@@ -21,10 +21,10 @@ export default function LandingPage() {
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Demo · Multi-tenant
         </span>
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground leading-[1.05]">
-          Elegí una empresa para <br className="hidden sm:block" /> empezar
+          Elegí una empresa para empezar
         </h1>
-        <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-          Sistema de soporte multi-tenant. Cada empresa tiene su propio portal de clientes y de soporte para gestionar tickets. Seleccioná una para probar la demo.
+        <p className="mt-5 text-base sm:text-lg text-muted-foreground mx-auto">
+          Sistema SaaS multi-tenant de soporte con base de conocimiento y asistencia LLM responsable.<br className="hidden sm:block" /> Cada empresa tiene su propio portal de clientes y agentes para gestionar tickets.<br className="hidden sm:block" /> Seleccioná una para probar la demo.
         </p>
       </section>
 

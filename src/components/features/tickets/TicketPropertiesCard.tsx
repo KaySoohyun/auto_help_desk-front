@@ -23,7 +23,7 @@ interface TicketPropertiesCardProps {
 
 function PropertyRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex min-h-9 items-center justify-between gap-3">
+    <div className="flex min-h-8 items-center justify-between gap-3">
       <span className="text-sm font-medium text-muted-foreground">{label}</span>
       {children}
     </div>
@@ -73,7 +73,7 @@ export function TicketPropertiesCard({ ticket }: TicketPropertiesCardProps) {
       <CardHeader>
         <CardTitle className="text-sm">Propiedades</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3.5">
+      <CardContent className="space-y-2.5">
         <PropertyRow label="Estado">
           <Select
             value={ticket.status}
@@ -122,12 +122,20 @@ export function TicketPropertiesCard({ ticket }: TicketPropertiesCardProps) {
             onValueChange={changeAssignee}
             disabled={busy}
           >
-            <SelectTrigger aria-label="Cambiar agente" className="w-40">
-              <SelectValue />
+            <SelectTrigger aria-label="Cambiar agente" className="w-40 shrink-0 overflow-hidden">
+              <SelectValue placeholder="Sin asignar">
+                {isAssignedToMe ? (
+                  <span className="block max-w-full truncate text-right">
+                    {user?.email ?? "Asignarme"}
+                  </span>
+                ) : null}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="unassigned">Sin asignar</SelectItem>
-              <SelectItem value="me">{user?.email ?? "Asignarme"}</SelectItem>
+              <SelectItem value="me" className="max-w-[14rem]">
+                <span className="block truncate">{user?.email ?? "Asignarme"}</span>
+              </SelectItem>
             </SelectContent>
           </Select>
         </PropertyRow>

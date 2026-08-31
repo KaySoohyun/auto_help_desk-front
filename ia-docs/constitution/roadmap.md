@@ -8,6 +8,9 @@ El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
 - **015 · Correcciones del detalle de ticket (lado agente)** — navegación con slug, header superior con "Cerrar ticket", Propiedades del ticket reordenado con selects editables (Estado/Prioridad/Agente/Categoría), panel "Asistente IA" renombrado y sin `ConfidenceBadge`. ✅ Hecho (2026-08-31; `lint`/`typecheck` OK). _Pendiente: verificación manual del detalle como agente (feature 015 T17)._
 
+- **017 · Correcciones del detalle de ticket (agente) — errores 7 a 11** — ocultar "Nueva categoría" al agente (8), Propiedades sin desbordes ni spacing excesivo (9), burbujas de chat con tope 3/4 y alineación (10), nombres en negrita (11), y tags con autosuggest + crear (7, backend nuevo). ✅ Hecho (2026-08-31; `lint`/`typecheck` OK; backend `pytest` 302 passed; verificación manual como agente OK).
+
+
 
 - **013 · Portal de personas** — landing "Personas" → `/personas/login` (login + registro como cliente con selección de tenant), `/panel` (dashboard: mis tickets, buscador, filtros con conteos, crear ticket), `/panel/tickets/[id]` (conversación con envío manual, sin LLM). Rol `customer` en backend con aislamiento por customer/tenant. ✅ Hecho (2026-08-14). _(Nota: con 014, las rutas quedaron bajo `/[slug]/`.)_
 
@@ -20,8 +23,6 @@ El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 ## En progreso 🟡
 
 _005 a 011 validadas funcionalmente contra FastAPI real (localhost:8000, suite `pnpm test:functional`, 82 tests en verde) salvo donde se indica lo contrario._
-
-- **017 · Correcciones del detalle de ticket (agente) — errores 7 a 11** — ocultar "Nueva categoría" al agente (8), Propiedades sin desbordes ni spacing excesivo (9), burbujas de chat con tope 3/4 y alineación (10), nombres en negrita (11), y tags con autosuggest + crear (7, backend nuevo, **al último**). ⏳ En progreso (spec/plan/tasks en `ia-docs/features/017-correcciones-agente-detalle/`).
 
 - **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. ✅ _(Fase 2 · Etapa 2.1)_
 - **005 · Panel LLM avanzado** — streaming SSE, sugerencias en composer, accept/edit/regenerate/reject, PII filtering. Implementado. ⏳ _(Fase 2 · Etapa 2.2)_ Validado: PII-redact real. Pendiente: orquestador ticket-scoped devuelve 422 "Campos de ... inválidos" en el mock (classify/summary/suggested-reply) — investigar en FastAPI; E2E del redirect 401.

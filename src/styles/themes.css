@@ -9,7 +9,7 @@
   /* Superficie Hover */
   --color-bark-300: #8fa89b;
   /* Texto secundario / Menta desaturado */
-  --color-cream: #efeae1;
+  --color-cream: #38bdf8;
   /* Texto principal / Blanco hueso */
 
   /* Acento Principal (Cobre) */
@@ -55,13 +55,21 @@
   --color-risk-injection: #d05c8c;
   --color-risk-low-confidence: #e0b46c;
   --color-risk-high-confidence: #52b788;
-  --color-llm: #9d8df1;
+  --color-llm: #38bdf8;
 
   /* Contenido de conversación */
   --color-content-customer-bg: #1c2421;
   --color-content-agent-bg: #27352d;
   --color-content-note-bg: #2b2516;
-  --color-content-llm-bg: #241f33;
-  --color-content-llm-border: #9d8df1;
+  --color-content-llm-bg: #182a38;
+  --color-content-llm-border: #38bdf8;
+  --color-content-llm-text: #38bdf8;
   --color-content-approved: #52b788;
+
+  /* Banner Informativo Destacado */
+  --color-banner-info-bg: #182a38;
+  --color-banner-info-border: #38bdf8;
+  --color-banner-info-text: #38bdf8;
+  --color-banner-info-accent: #38bdf8;
+  --color-banner-info-hover: #7dd3fc;
 }

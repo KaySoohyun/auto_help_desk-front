@@ -19,6 +19,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useCreateKbCategory } from "@/hooks/knowledge/useKbCategories";
+import { useSessionStore } from "@/stores/session.store";
+import { hasKbPermission } from "@/lib/permissions";
 
 const categorySchema = z.object({
   name: z.string().trim().min(1, "Ingresá un nombre.").max(100, "Máximo 100 caracteres."),
@@ -27,6 +29,8 @@ const categorySchema = z.object({
 type CategoryValues = z.infer<typeof categorySchema>;
 
 export function CreateCategoryDialog({ trigger }: { trigger?: React.ReactNode }) {
+  const user = useSessionStore((s) => s.user);
+  const canEdit = hasKbPermission(user?.role ?? null, "kb:edit");
   const createCategory = useCreateKbCategory();
   const [open, setOpen] = useState(false);
 
@@ -36,6 +40,8 @@ export function CreateCategoryDialog({ trigger }: { trigger?: React.ReactNode })
     reset,
     formState: { errors, isSubmitting },
   } = useForm<CategoryValues>({ resolver: zodResolver(categorySchema) });
+
+  if (!canEdit) return null;
 
   const onSubmit = async (values: CategoryValues) => {
     try {

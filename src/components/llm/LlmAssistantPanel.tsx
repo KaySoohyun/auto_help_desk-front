@@ -50,8 +50,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { TicketPriority } from "@/types/ticket.types";
 
-const DISCLAIMER = "Las sugerencias del LLM son orientativas y deben ser revisadas por un agente antes de aplicarse.";
-
 const FEEDBACK_LABELS: Record<LlmFeedbackAction, string> = {
   accepted: "Aceptada",
   edited: "Editada",
@@ -488,10 +486,6 @@ export function LlmAssistantPanel({
             </div>
           ) : (
             <>
-              <p className="rounded-md bg-content-llm-bg px-3 py-2 text-xs text-muted-foreground">
-                {DISCLAIMER}
-              </p>
-
               {/* Error de carga */}
               {ticketSuggestions.isError && (
                 <ErrorState

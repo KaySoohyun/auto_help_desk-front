@@ -1,5 +1,19 @@
 # Cambios
 
+## 2026-08-31 — Correcciones del detalle de ticket (agente) — errores 7 a 11 (feature 017)
+
+- **Error 8 · "Nueva categoría" oculto al agente** — `CreateCategoryDialog.tsx` retorna `null` si el rol no tiene `kb:edit` (cubre la página de Categorías de KB y Artículos): se inicializa `useForm` y se hace early return según `hasKbPermission`.
+- **Error 9 · Propiedades sin desbordes ni spacing excesivo** — `TicketPropertiesCard.tsx`: trigger del select Agente con `w-40 shrink-0 overflow-hidden` y span `max-w-full truncate` para el email; item del dropdown con `max-w-[14rem]` + `truncate`; rows `min-h-9`→`min-h-8`; `CardContent` `space-y-3.5`→`space-y-2.5`.
+- **Error 10 · Burbujas de chat con tope y alineación** — `TicketThread.tsx` reescrito: burbujas `max-w-[75%]`; mensajes propios (`author_id === selfId`) a la derecha (`justify-end`, fondo `primary`), el resto (cliente/sistema) a la izquierda (`justify-start`, borde + `bg-muted/40`). Sin cambios de backend.
+- **Error 11 · Nombres en negrita** — `TicketThread.tsx`: el autor del mensaje usa `font-bold`.
+- **Error 7 · Tags con autosuggest + crear (frontend + backend)**:
+  - Backend `routes_tags.py` (nuevo): `GET /v1/tags?search=` (listar/buscar por subcadena, `tickets:read`) y `POST /v1/tags` (`TagCreate`, `responses:edit`, duplicados 409, auditoría).
+  - BFF `src/app/api/bff/tags/route.ts`: GET con `search` query param y POST de creación, validados con Zod.
+  - Hooks `useTags.ts` (búsqueda >=3 letras, key por tenant) y `useCreateTag.ts` (creación con invalidación).
+  - `TicketTagsCard.tsx`: botón "Agregar tag" a la altura del título vía `CardAction`; autosuggest que a >=3 letras trae tags coincidentes; botón **Aceptar** explícito (elegir existente si hay coincidencia exacta, crear si no) + Enter; cierre del dropdown al hacer clic fuera.
+- **Validación**: `pnpm lint` (sin warnings) + `pnpm typecheck` OK; backend `pytest` 302 passed; verificación manual como agente en `/acme-corp/app/tickets/11` y módulo KB OK.
+
+
 ## 2026-08-31 — Panel IA: aplicar cambios y rediseño de sugerencias (feature 016) + cierre 015
 
 - **Panel Asistente IA** (`src/components/llm/LlmAssistantPanel.tsx`): rediseño de la sección de sugerencias con **Clasificación** (Categoría + Prioridad) y **Resumen** unificados y editables, sin `subcategory/intent/rationale`.

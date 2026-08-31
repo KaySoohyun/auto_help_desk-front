@@ -25,6 +25,9 @@ export default async function PersonasLoginPage({ params }: Props) {
     <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md space-y-8">
         <div className="space-y-2 text-center">
+          <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-1.5 text-xs font-medium text-muted-foreground">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> Demo · Multi-tenant
+          </span>
           <div className="flex justify-center">
             <div className="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center">
               <User className="w-6 h-6 text-white" />

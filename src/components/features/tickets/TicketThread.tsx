@@ -4,20 +4,36 @@ import { useMessages } from "@/hooks/tickets/useMessages";
 import { formatDateTime } from "@/lib/format";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MessageSquareIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { TicketMessage } from "@/types/ticket.types";
 
 function MessageItem({ message, selfId }: { message: TicketMessage; selfId: number | null }) {
   const isOwn = message.author_id !== null && message.author_id === selfId;
+  const authorName = isOwn ? "Vos" : message.author_id ? `Agente #${message.author_id}` : "Sistema";
 
   return (
-    <div className="flex flex-col gap-1">
-      <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">
-          {isOwn ? "Vos" : message.author_id ? `Agente #${message.author_id}` : "Sistema"}
-        </span>
-        <time dateTime={message.created_at}>{formatDateTime(message.created_at)}</time>
+    <div className={cn("flex", isOwn ? "justify-end" : "justify-start")}>
+      <div
+        className={cn(
+          "max-w-[75%] rounded-2xl px-4 py-2.5",
+          isOwn
+            ? "rounded-br-sm bg-foreground/80 text-primary-foreground"
+            : "rounded-bl-sm border border-border bg-muted/40"
+        )}
+      >
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <span className={cn("font-bold", isOwn ? "text-primary-foreground" : "text-foreground")}>
+            {authorName}
+          </span>
+        </div>
+        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">{message.body}</p>
+        <time
+          dateTime={message.created_at}
+          className={cn("mt-1 block text-[11px]", isOwn ? "text-primary-foreground/70" : "text-muted-foreground")}
+        >
+          {formatDateTime(message.created_at)}
+        </time>
       </div>
-      <p className="text-sm text-foreground whitespace-pre-wrap break-words">{message.body}</p>
     </div>
   );
 }
@@ -64,9 +80,9 @@ export function TicketThread({
   }
 
   return (
-    <ol className="space-y-4">
+    <ol className="space-y-3">
       {data.map((message) => (
-        <li key={message.id} className="rounded-lg border border-border bg-card p-3">
+        <li key={message.id}>
           <MessageItem message={message} selfId={selfId} />
         </li>
       ))}

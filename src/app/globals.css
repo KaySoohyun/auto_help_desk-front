@@ -3,14 +3,17 @@
 @import "shadcn/tailwind.css";
 @import "../styles/themes.css";
 
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-atkinson);
+  --font-serif: var(--font-lusitana);
+  --font-heading: var(--font-lusitana);
+  /* Atkinson Hyperlegible para textos, Lusitana para encabezados */
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,6 +42,14 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+
+  /* Banner Informativo */
+  --color-banner-info-bg: var(--banner-info-bg);
+  --color-banner-info-border: var(--banner-info-border);
+  --color-banner-info-text: var(--banner-info-text);
+  --color-banner-info-accent: var(--banner-info-accent);
+  --color-banner-info-hover: var(--banner-info-hover);
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -76,6 +87,13 @@
   --border: #2e3d34;
   --input: #2e3d34;
   --ring: #d19a66;
+
+  /* Banner Informativo Destacado */
+  --banner-info-bg: #182a38;
+  --banner-info-border: #38bdf8;
+  --banner-info-text: #efeae1;
+  --banner-info-accent: #38bdf8;
+  --banner-info-hover: #7dd3fc;
 
   /* Gráficos */
   --chart-1: #d19a66;
@@ -118,6 +136,14 @@
   --border: #2e3d34;
   --input: #2e3d34;
   --ring: #d19a66;
+
+  /* Banner Informativo Destacado */
+  --banner-info-bg: #182a38;
+  --banner-info-border: #38bdf8;
+  --banner-info-text: #efeae1;
+  --banner-info-accent: #38bdf8;
+  --banner-info-hover: #7dd3fc;
+
   --chart-1: #d19a66;
   --chart-2: #52b788;
   --chart-3: #6ea8d8;
@@ -145,5 +171,15 @@
   html {
     @apply font-sans;
     font-size: 17px;
+  }
+
+  /* Aplica Lusitana a todos los encabezados por defecto */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-serif);
   }
 }
