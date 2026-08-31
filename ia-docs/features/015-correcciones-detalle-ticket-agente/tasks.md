@@ -10,14 +10,14 @@ Feature **015** — implementar de a una, actualizando el estado aquí.
 - [x] T5 · `AuditEventsView.tsx` usa slug en `router.push` (líneas 102/109)
 
 ## Header superior (punto 3)
-- [ ] T6 · Header `w-full` debajo de "Volver a tickets": `flex justify-between` con `flex col { #id, nombre, detalle }` + botón "Cerrar ticket" (confirmación con `useCloseTicket`)
+- [x] T6 · Header `w-full` debajo de "Volver a tickets": `flex justify-between` con `flex col { #id, nombre, detalle }` + botón "Cerrar ticket" (confirmación con `useCloseTicket`)
 
 ## Propiedades del ticket (punto 2)
-- [ ] T7 · `TicketPropertiesCard` reorganizado como `ticket-props.html` (rows label + valor/select)
-- [ ] T8 · Selects editables: Estado, Prioridad (reusan `STATUS_LABELS`/`PRIORITY_LABELS` + `useUpdateTicket`)
-- [ ] T9 · Select "Agente" (Sin asignar / asignarme, lógica `toggleAssignment`)
-- [ ] T10 · Textos: Categoría (`categoryLabel`), Tenant (nombre empresa); Canal si el modelo lo tiene, si no se omite
-- [ ] T11 · Quitar del chat (header central) los selects de Estado/Prioridad de `TicketActions`
+- [x] T7 · `TicketPropertiesCard` reorganizado como `ticket-props.html` (rows label + valor/select)
+- [x] T8 · Selects editables: Estado, Prioridad (reusan `STATUS_LABELS`/`PRIORITY_LABELS` + `useUpdateTicket`)
+- [x] T9 · Select "Agente" (Sin asignar / asignarme, lógica `toggleAssignment`)
+- [x] T10 · Textos: Categoría (`categoryLabel`), Tenant (nombre empresa); Canal si el modelo lo tiene, si no se omite
+- [x] T11 · Quitar del chat (header central) los selects de Estado/Prioridad de `TicketActions`
 
 ## Panel "Asistente IA" (punto 4)
 - [ ] T12 · Renombrar "Asistente LLM" → "Asistente IA"
