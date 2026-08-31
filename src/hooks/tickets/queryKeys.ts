@@ -24,6 +24,10 @@ export function ticketAnalyzeKey(tenantId: string | null, ticketId: number) {
   return ["tenant", tenantId ?? "global", "tickets", ticketId, "analyze"] as const;
 }
 
+export function ticketSuggestionsKey(tenantId: string | null, ticketId: number) {
+  return ["tenant", tenantId ?? "global", "tickets", ticketId, "suggestions"] as const;
+}
+
 export function customerKey(tenantId: string | null, customerId: number) {
   return ["tenant", tenantId ?? "global", "customers", customerId] as const;
 }

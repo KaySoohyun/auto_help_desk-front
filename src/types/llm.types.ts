@@ -4,11 +4,8 @@ export interface LlmClassifyInput {
 
 export interface LlmClassifyOutput {
   category: string;
-  subcategory: string | null;
-  intent: string;
   suggested_priority: "low" | "medium" | "high" | "urgent" | null;
   confidence: number;
-  rationale: string;
   warnings: string[];
   suggestion_id: number;
   trace_id: string;
@@ -138,4 +135,23 @@ export interface LlmAnalyzeOutput {
   kb_recommendations: KbRecommendation[];
   pii_detected: PiiDetection[];
   risks: string[];
+}
+
+export type SuggestionType = "classification" | "summary" | "reply";
+
+export type SuggestionState = "draft" | "accepted" | "edited" | "rejected" | "flagged";
+
+export interface SuggestionRecord {
+  id: number;
+  type: SuggestionType;
+  state: SuggestionState;
+  confidence: number | null;
+  model: string | null;
+  prompt_version: string | null;
+  output: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface LlmFeedbackEditInput extends LlmFeedbackInput {
+  edited_output?: Record<string, unknown>;
 }

@@ -11,9 +11,9 @@ import {
 } from "@/components/ui/select";
 import type { Ticket, TicketPriority, TicketStatus } from "@/types/ticket.types";
 import { formatDateTime } from "@/lib/format";
-import { categoryLabel } from "@/lib/constants/categories";
 import { STATUS_LABELS, PRIORITY_LABELS } from "@/components/features/tickets/TicketBadges";
 import { useUpdateTicket } from "@/hooks/tickets/useUpdateTicket";
+import { useCategories } from "@/hooks/tickets/useCategories";
 import { useSessionStore } from "@/stores/session.store";
 import { useTenantSlug } from "@/hooks/useTenantSlug";
 
@@ -38,6 +38,7 @@ function PropertyText({ value }: { value: string }) {
 
 export function TicketPropertiesCard({ ticket }: TicketPropertiesCardProps) {
   const updateTicket = useUpdateTicket(ticket.id);
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const user = useSessionStore((s) => s.user);
   const slug = useTenantSlug();
 
@@ -132,7 +133,22 @@ export function TicketPropertiesCard({ ticket }: TicketPropertiesCardProps) {
         </PropertyRow>
 
         <PropertyRow label="Categoría">
-          <PropertyText value={categoryLabel(ticket.category)} />
+          <Select
+            value={ticket.category ?? ""}
+            onValueChange={(value) => update({ category: value }, "Categoría")}
+            disabled={busy || categoriesLoading}
+          >
+            <SelectTrigger aria-label="Cambiar categoría" className="w-40">
+              <SelectValue placeholder="Categoría" />
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map(({ value, label }) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </PropertyRow>
 
         <PropertyRow label="Tenant">

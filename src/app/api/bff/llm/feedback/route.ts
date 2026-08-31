@@ -8,6 +8,7 @@ const feedbackSchema = z.object({
   suggestion_id: z.coerce.number().int().positive(),
   action: z.enum(["accepted", "edited", "rejected", "flagged"]),
   reason: z.string().trim().max(500).optional(),
+  edited_output: z.record(z.string(), z.unknown()).optional(),
 });
 
 export async function POST(req: NextRequest) {

@@ -20,10 +20,10 @@ Feature **015** — implementar de a una, actualizando el estado aquí.
 - [x] T11 · Quitar del chat (header central) los selects de Estado/Prioridad de `TicketActions`
 
 ## Panel "Asistente IA" (punto 4)
-- [ ] T12 · Renombrar "Asistente LLM" → "Asistente IA"
-- [ ] T13 · Quitar `ConfidenceBadge` (confianza) de las secciones
-- [ ] T14 · Clasificación/Resumen pre-completados (desde `GET /v1/ai/tickets/{id}/suggestions`) con botones Editar y Regenerar
-- [ ] T15 · Respuesta sugerida: solo "Regenerar" y "Usar como respuesta" (sin lista de botones final)
+- [x] T12 · Renombrar "Asistente LLM" → "Asistente IA"
+- [x] T13 · Quitar `ConfidenceBadge` (confianza) de las secciones
+- [x] T14 · Clasificación/Resumen pre-completados (desde `GET /v1/ai/tickets/{id}/suggestions`) con botones Editar y Regenerar
+- [x] T15 · Respuesta sugerida: solo "Regenerar" y "Usar como respuesta" (sin lista de botones final)
 
 ## Cierre
 - [ ] T16 · `pnpm lint` sin warnings y `pnpm typecheck` OK

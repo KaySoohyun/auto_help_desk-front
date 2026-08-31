@@ -11,7 +11,7 @@ import type {
   LlmSummarizeOutput,
   LlmSuggestReplyInput,
   LlmSuggestReplyOutput,
-  LlmFeedbackInput,
+  LlmFeedbackEditInput,
   LlmFeedbackOutput,
   LlmPiiRedactInput,
   LlmPiiRedactOutput,
@@ -59,7 +59,7 @@ export function useLlm() {
 
   const feedback = useMutation({
     mutationKey: ["tenant", tenantId ?? "global", "llm", "feedback"],
-    mutationFn: (vars: LlmFeedbackInput) =>
+    mutationFn: (vars: LlmFeedbackEditInput) =>
       bffFetch<LlmFeedbackOutput>("/api/bff/llm/feedback", {
         method: "POST",
         body: vars,
