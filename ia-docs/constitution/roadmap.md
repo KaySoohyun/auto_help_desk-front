@@ -21,6 +21,8 @@ El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
 _005 a 011 validadas funcionalmente contra FastAPI real (localhost:8000, suite `pnpm test:functional`, 82 tests en verde) salvo donde se indica lo contrario._
 
+- **017 · Correcciones del detalle de ticket (agente) — errores 7 a 11** — ocultar "Nueva categoría" al agente (8), Propiedades sin desbordes ni spacing excesivo (9), burbujas de chat con tope 3/4 y alineación (10), nombres en negrita (11), y tags con autosuggest + crear (7, backend nuevo, **al último**). ⏳ En progreso (spec/plan/tasks en `ia-docs/features/017-correcciones-agente-detalle/`).
+
 - **004 · Panel LLM base** — clasificar/resumir con estados, disclaimer humano. ✅ _(Fase 2 · Etapa 2.1)_
 - **005 · Panel LLM avanzado** — streaming SSE, sugerencias en composer, accept/edit/regenerate/reject, PII filtering. Implementado. ⏳ _(Fase 2 · Etapa 2.2)_ Validado: PII-redact real. Pendiente: orquestador ticket-scoped devuelve 422 "Campos de ... inválidos" en el mock (classify/summary/suggested-reply) — investigar en FastAPI; E2E del redirect 401.
 - **006 · Confianza y seguridad LLM** — ConfidenceBadge, riesgos, PII, prompt injection, bloqueo de apply, bajo contexto. Implementado. ⏳ _(Fase 2 · Etapa 2.3)_ Validado: `pii-redact` (enmascara email + report). Pendiente: flujo completo con orquestador real (mock bloqueado) + a11y.
