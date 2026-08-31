@@ -26,6 +26,6 @@ Feature **015** — implementar de a una, actualizando el estado aquí.
 - [x] T15 · Respuesta sugerida: solo "Regenerar" y "Usar como respuesta" (sin lista de botones final)
 
 ## Cierre
-- [ ] T16 · `pnpm lint` sin warnings y `pnpm typecheck` OK
+- [x] T16 · `pnpm lint` sin warnings y `pnpm typecheck` OK
 - [ ] T17 · Verificación manual como agente en `/acme-corp/app/tickets/11` (navegación sin login, header, props, panel IA)
-- [ ] T18 · Documentar en `ia-docs/init/changes.md` y mover a "Hecho" en `constitution/roadmap.md`
+- [x] T18 · Documentar en `ia-docs/init/changes.md` y mover a "Hecho" en `constitution/roadmap.md`

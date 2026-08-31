@@ -433,6 +433,17 @@ export function LlmAssistantPanel({
     (canApplyClassification ? 1 : 0) +
     (summaryPending && !applied.has("summary") ? 1 : 0);
 
+  // Bloqueo de salida suave (FR-06): aviso al recargar/cerrar con cambios pendientes
+  useEffect(() => {
+    if (pendingCount === 0) return;
+    const handler = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [pendingCount]);
+
   if (!canUseLlm) {
     return (
       <aside aria-label="Asistente IA" className="space-y-4">

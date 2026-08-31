@@ -1,5 +1,20 @@
 # Cambios
 
+## 2026-08-31 — Panel IA: aplicar cambios y rediseño de sugerencias (feature 016) + cierre 015
+
+- **Panel Asistente IA** (`src/components/llm/LlmAssistantPanel.tsx`): rediseño de la sección de sugerencias con **Clasificación** (Categoría + Prioridad) y **Resumen** unificados y editables, sin `subcategory/intent/rationale`.
+  - Categoría como **select de categorías existentes** (`useCategories`); Prioridad como select sobre `PRIORITY_LABELS`; Resumen como textarea.
+  - Control por sección: menú kebab con **Aplicar cambios · Editar · Regenerar**, más un **icon button "Aplicar cambios"** al lado del kebab que solo aparece mientras hay cambios sin guardar.
+  - **"Aplicar cambios"** (clasificación) escribe `category`+`priority` reales del ticket vía `useUpdateTicket` y registra feedback `accepted`/`edited`. El resumen aplicado/editado se persiste en el `output` de la sugerencia y queda en lectura al re-entrar.
+  - **Regla de visibilidad**: la clasificación se oculta una vez resuelta/aplicada (los cambios futuros se hacen desde los selects de Propiedades); el resumen se muestra siempre (lectura si está resuelto).
+  - **Banner de pendientes** + **confirmación de salida** (`beforeunload`) mientras haya cambios sin guardar.
+  - Sección de **artículos recomendados** por la categoría efectiva del ticket, enlazando a la base de conocimiento (`useArticles`).
+- **Propiedades del ticket** (`src/components/features/tickets/TicketPropertiesCard.tsx`): la **Categoría** ahora es un `Select` editable (al igual que Estado/Prioridad/Agente), alimentado por `useCategories`.
+- **Carga al re-entrar**: nuevo hook `useTicketSuggestions` + BFF `src/app/api/bff/tickets/[ticketId]/suggestions/route.ts` que consumen `GET /v1/ai/tickets/{id}/suggestions`; ya no se auto-analiza (no regenerate automático al entrar).
+- **Tipos**: `src/types/llm.types.ts` — `LlmClassifyOutput` sin `subcategory/intent/rationale`; nuevos `SuggestionType`, `SuggestionState`, `SuggestionRecord`; `LlmFeedbackEditInput` con `edited_output`.
+- **Feedback BFF** (`src/app/api/bff/llm/feedback/route.ts`): acepta `edited_output`; se corrige `z.record` para la versión de zod actual. `src/hooks/llm/useLlm.ts` tipa `feedback` con `LlmFeedbackEditInput`.
+- **Cierre 015**: se marcan como hechos los tasks del panel IA y el cierre `lint`/`typecheck`; la verificación manual del detalle queda pendiente en la feature 015.
+
 ## 2026-08-28 — Búsqueda por categorías y tags desde el backend (feature 023)
 
 - **Portal del cliente** (`src/components/features/persona/PersonasDashboard.tsx`): el input de búsqueda ahora envía `q` al backend (debounce 300 ms) via `useMyTickets` y deja de filtrar en cliente. El placeholder pasa a "Buscar por categoría o etiquetas…".
