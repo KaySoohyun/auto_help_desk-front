@@ -1,34 +1,52 @@
 @theme {
-  /* Base (ver ia-docs/desing/colors.md) */
+  /* Base */
   --color-bark-950: #101613;
   --color-bark-900: #161f1a;
+  /* Fondo principal */
   --color-bark-800: #1e2923;
-  --color-bark-700: #29342d;
-  --color-bark-300: #97a29b;
+  /* Superficie / Cards */
+  --color-bark-700: #27352d;
+  /* Superficie Hover */
+  --color-bark-300: #8fa89b;
+  /* Texto secundario / Menta desaturado */
   --color-cream: #efeae1;
-  --color-caramel-300: #e5bc90;
-  --color-caramel-400: #daa97a;
+  /* Texto principal / Blanco hueso */
+
+  /* Acento Principal (Cobre) */
+  --color-caramel-300: #ebb07a;
+  /* Primary Hover */
+  --color-caramel-400: #e0a977;
   --color-caramel-500: #d19a66;
-  --color-caramel-600: #bc8450;
+  /* Primary Base */
+  --color-caramel-600: #bd8755;
+  /* Primary Active */
+
+  /* Acento Secundario (Menta) */
+  --color-mint-300: #6bc99c;
+  /* Secondary Hover */
+  --color-mint-400: #52b788;
+  /* Secondary Base */
+  --color-mint-500: #4ead87;
+  /* Secondary Active */
 
   /* Bordes */
-  --color-border: #2c3831;
+  --color-border: #2e3d34;
 
   /* Estados de ticket */
   --color-status-open: #6ea8d8;
   --color-status-pending: #e0b46c;
-  --color-status-waiting: #8b98a5;
-  --color-status-solved: #7fbf8a;
+  --color-status-waiting: #8fa89b;
+  --color-status-solved: #52b788;
   --color-status-closed: #6e7a76;
 
   /* Prioridad */
   --color-priority-urgent: #e05c5c;
   --color-priority-high: #d97736;
   --color-priority-medium: #e0b46c;
-  --color-priority-low: #8b98a5;
+  --color-priority-low: #8fa89b;
 
   /* SLA */
-  --color-sla-ok: #7fbf8a;
+  --color-sla-ok: #52b788;
   --color-sla-at-risk: #e0b46c;
   --color-sla-breached: #e05c5c;
 
@@ -36,14 +54,14 @@
   --color-risk-pii: #d97736;
   --color-risk-injection: #d05c8c;
   --color-risk-low-confidence: #e0b46c;
-  --color-risk-high-confidence: #7fbf8a;
+  --color-risk-high-confidence: #52b788;
   --color-llm: #9d8df1;
 
   /* Contenido de conversación */
   --color-content-customer-bg: #1c2421;
-  --color-content-agent-bg: #243039;
+  --color-content-agent-bg: #27352d;
   --color-content-note-bg: #2b2516;
   --color-content-llm-bg: #241f33;
   --color-content-llm-border: #9d8df1;
-  --color-content-approved: #7fbf8a;
+  --color-content-approved: #52b788;
 }

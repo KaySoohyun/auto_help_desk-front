@@ -48,7 +48,7 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-/* Tema oscuro por defecto (dark-only). Paleta en ia-docs/desing/colors.md */
+/* Tema oscuro por defecto (dark-only). */
 :root {
   --background: #161f1a;
   --foreground: #efeae1;
@@ -56,36 +56,48 @@
   --card-foreground: #efeae1;
   --popover: #1e2923;
   --popover-foreground: #efeae1;
+
+  /* Acento Primario (Cobre) */
   --primary: #d19a66;
-  --primary-foreground: #101613;
-  --secondary: #29342d;
-  --secondary-foreground: #efeae1;
-  --muted: #29342d;
-  --muted-foreground: #97a29b;
-  --accent: #29342d;
+  --primary-foreground: #161f1a;
+
+  /* Acento Secundario (Menta) */
+  --secondary: #52b788;
+  --secondary-foreground: #161f1a;
+
+  /* Superficies Muted / Hover Accent */
+  --muted: #27352d;
+  --muted-foreground: #8fa89b;
+  --accent: #27352d;
   --accent-foreground: #efeae1;
+
   --destructive: #e05c5c;
   --destructive-foreground: #efeae1;
-  --border: #2c3831;
-  --input: #2c3831;
+  --border: #2e3d34;
+  --input: #2e3d34;
   --ring: #d19a66;
+
+  /* Gráficos */
   --chart-1: #d19a66;
-  --chart-2: #6ea8d8;
-  --chart-3: #7fbf8a;
+  --chart-2: #52b788;
+  --chart-3: #6ea8d8;
   --chart-4: #d97736;
   --chart-5: #9d8df1;
+
   --radius: 0.625rem;
+
+  /* Barra Lateral */
   --sidebar: #101613;
-  --sidebar-foreground: #97a29b;
+  --sidebar-foreground: #8fa89b;
   --sidebar-primary: #d19a66;
-  --sidebar-primary-foreground: #101613;
-  --sidebar-accent: #29342d;
+  --sidebar-primary-foreground: #161f1a;
+  --sidebar-accent: #27352d;
   --sidebar-accent-foreground: #efeae1;
-  --sidebar-border: #2c3831;
+  --sidebar-border: #2e3d34;
   --sidebar-ring: #d19a66;
 }
 
-/* Mantiene el dark-mode activo para variantes `dark:*` de shadcn */
+/* Mantiene la compatibilidad con la variante `dark:*` de shadcn */
 .dark {
   --background: #161f1a;
   --foreground: #efeae1;
@@ -94,30 +106,30 @@
   --popover: #1e2923;
   --popover-foreground: #efeae1;
   --primary: #d19a66;
-  --primary-foreground: #101613;
-  --secondary: #29342d;
-  --secondary-foreground: #efeae1;
-  --muted: #29342d;
-  --muted-foreground: #97a29b;
-  --accent: #29342d;
+  --primary-foreground: #161f1a;
+  --secondary: #52b788;
+  --secondary-foreground: #161f1a;
+  --muted: #27352d;
+  --muted-foreground: #8fa89b;
+  --accent: #27352d;
   --accent-foreground: #efeae1;
   --destructive: #e05c5c;
   --destructive-foreground: #efeae1;
-  --border: #2c3831;
-  --input: #2c3831;
+  --border: #2e3d34;
+  --input: #2e3d34;
   --ring: #d19a66;
   --chart-1: #d19a66;
-  --chart-2: #6ea8d8;
-  --chart-3: #7fbf8a;
+  --chart-2: #52b788;
+  --chart-3: #6ea8d8;
   --chart-4: #d97736;
   --chart-5: #9d8df1;
   --sidebar: #101613;
-  --sidebar-foreground: #97a29b;
+  --sidebar-foreground: #8fa89b;
   --sidebar-primary: #d19a66;
-  --sidebar-primary-foreground: #101613;
-  --sidebar-accent: #29342d;
+  --sidebar-primary-foreground: #161f1a;
+  --sidebar-accent: #27352d;
   --sidebar-accent-foreground: #efeae1;
-  --sidebar-border: #2c3831;
+  --sidebar-border: #2e3d34;
   --sidebar-ring: #d19a66;
 }
 
@@ -132,7 +144,6 @@
 
   html {
     @apply font-sans;
-    /* Letra un poco más grande en toda la app */
     font-size: 17px;
   }
 }
