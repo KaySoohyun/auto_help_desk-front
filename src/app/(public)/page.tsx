@@ -10,7 +10,7 @@ export default function LandingPage() {
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
             <LifeBuoy className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="text-base font-semibold tracking-tight text-foreground">Soporte</span>
+          <span className="text-base font-semibold tracking-tight text-foreground">Help Desk</span>
         </div>
         <span className="text-xs text-muted-foreground hidden sm:block">Centro de incidencias</span>
       </header>

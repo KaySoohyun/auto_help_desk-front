@@ -41,7 +41,7 @@ export function PersonaHeader({ slug }: { slug: string }) {
           <LifeBuoy className="h-5 w-5 text-primary-foreground" aria-hidden />
         </div>
         <div className="leading-tight">
-          <span className="block text-base font-semibold tracking-tight text-foreground">Soporte</span>
+          <span className="block text-base font-semibold tracking-tight text-foreground">Help Desk</span>
           <span className="block text-[11px] text-muted-foreground">Portal de personas</span>
         </div>
       </div>

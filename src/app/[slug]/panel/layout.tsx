@@ -4,7 +4,7 @@ import { PersonaShell } from "@/components/layout/PersonaShell";
 import { getTenantBySlug } from "@/lib/tenant/server";
 
 export const metadata: Metadata = {
-  title: "Soporte · Portal de personas",
+  title: "Help Desk · Portal de personas",
 };
 
 interface Props {

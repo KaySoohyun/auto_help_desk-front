@@ -72,11 +72,6 @@ export function DemoLoginButtons({ mode, tenant }: DemoLoginButtonsProps) {
 
   return (
     <div className="space-y-3">
-      <p className="text-xs text-muted-foreground">
-        <span className="font-medium text-foreground">Acceso rápido de prueba</span> — cuentas de
-        demostración, sin registro.
-      </p>
-
       {error ? (
         <div
           role="alert"
