@@ -91,63 +91,47 @@ export function Sidebar({ slug }: SidebarProps) {
       </div>
 
       <nav className="flex-1 space-y-6 overflow-y-auto p-3">
-        {navSections.map((section) => (
-          <div key={section.title} className="space-y-1">
-            {!collapsed ? (
-              <p className="px-2 text-xs font-medium text-muted-foreground">{section.title}</p>
-            ) : null}
-            {section.items.map((item) => {
-              const Icon = item.icon;
-              const enabled =
-                item.enabled === "admin" ? canAdmin : item.enabled === "audit" ? canAudit : item.enabled;
-              const active =
-                enabled && (item.matchPrefix ? pathname.startsWith(item.href) : pathname === item.href);
+        {navSections.map((section) => {
+          const items = section.items.filter((item) => {
+            if (item.enabled === "admin") return canAdmin;
+            if (item.enabled === "audit") return canAudit;
+            return item.enabled;
+          });
+          if (items.length === 0) return null;
 
-              if (!enabled) {
+          return (
+            <div key={section.title} className="space-y-1">
+              {!collapsed ? (
+                <p className="px-2 text-xs font-medium text-muted-foreground">{section.title}</p>
+              ) : null}
+              {items.map((item) => {
+                const Icon = item.icon;
+                const active = item.matchPrefix
+                  ? pathname.startsWith(item.href)
+                  : pathname === item.href;
+
                 return (
-                  <div
+                  <Link
                     key={item.key}
+                    href={item.href}
                     title={collapsed ? item.label : undefined}
                     className={cn(
-                      "flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-muted-foreground/60 opacity-60",
-                      collapsed && "justify-center px-0"
+                      "flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                      collapsed && "justify-center px-0",
+                      active
+                        ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground"
                     )}
-                    aria-disabled="true"
+                    aria-current={active ? "page" : undefined}
                   >
                     <Icon className="size-4 shrink-0" aria-hidden />
-                    {!collapsed ? (
-                      <span className="flex-1 truncate">
-                        {item.label}
-                        <span className="ml-2 text-[10px] uppercase tracking-wide text-muted-foreground/50">
-                          Próximamente
-                        </span>
-                      </span>
-                    ) : null}
-                  </div>
+                    {!collapsed ? <span className="truncate">{item.label}</span> : null}
+                  </Link>
                 );
-              }
-
-              return (
-                <Link
-                  key={item.key}
-                  href={item.href}
-                  title={collapsed ? item.label : undefined}
-                  className={cn(
-                    "flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    collapsed && "justify-center px-0",
-                    active
-                      ? "bg-sidebar-accent font-medium text-sidebar-accent-foreground"
-                      : "text-sidebar-foreground"
-                  )}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <Icon className="size-4 shrink-0" aria-hidden />
-                  {!collapsed ? <span className="truncate">{item.label}</span> : null}
-                </Link>
-              );
-            })}
-          </div>
-        ))}
+              })}
+            </div>
+          );
+        })}
       </nav>
     </aside>
   );
