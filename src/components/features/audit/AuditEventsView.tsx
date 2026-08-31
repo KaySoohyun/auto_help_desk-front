@@ -99,14 +99,14 @@ export function AuditEventsView({ searchParams }: { searchParams: Record<string,
     if (value === undefined || value === "") params.delete(key);
     else params.set(key, value);
     params.delete("page");
-    router.push(`/app/audit?${params.toString()}`);
+    router.push(`/${slug}/app/audit?${params.toString()}`);
   };
 
   const goToPage = (pageNum: number) => {
     const params = new URLSearchParams(searchParams.toString());
     if (pageNum <= 1) params.delete("page");
     else params.set("page", String(pageNum));
-    router.push(`/app/audit?${params.toString()}`);
+    router.push(`/${slug}/app/audit?${params.toString()}`);
   };
 
   const clearFilters = () => {

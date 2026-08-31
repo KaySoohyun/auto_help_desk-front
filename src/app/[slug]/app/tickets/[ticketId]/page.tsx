@@ -4,9 +4,9 @@ import { BackLink } from "@/components/features/tickets/BackLink";
 export default async function TicketDetailPage({
   params,
 }: {
-  params: Promise<{ ticketId: string }>;
+  params: Promise<{ slug: string; ticketId: string }>;
 }) {
-  const { ticketId } = await params;
+  const { slug, ticketId } = await params;
   const numericId = Number.parseInt(ticketId, 10);
 
   if (!Number.isInteger(numericId) || numericId <= 0) {
@@ -19,7 +19,8 @@ export default async function TicketDetailPage({
 
   return (
     <div className="space-y-6">
-      <BackLink href="/app/tickets" label="Volver a tickets" />
+      <BackLink href={`/${slug}/app/tickets`} label="Volver a tickets" />
+
       <TicketDetailView ticketId={numericId} />
     </div>
   );
