@@ -1,5 +1,39 @@
 # Cambios
 
+## 2026-09-01 — Paginación y filtros server-side en Administración (Usuarios + Clientes)
+
+- **Backend**: `GET /admin/users` y `GET /admin/customers` ahora devuelven `{items, total, limit, offset}` con filtros `q` (nombre/email o nombre/empresa) y filtros `role`/`tenant_id`.
+- **UI**: componente compartido `PaginationControls` (`components/ui/pagination.tsx`, misma UI que el paginador de tickets) usado por `Úsuarios` y `Clientes`. Filtros y buscadores ahora **server-side** (debounce 300ms), página en estado local (10 por página) y reseteo de página al cambiar filtros. `TicketsPagination` se refactorizó para delegar en `PaginationControls`.
+- **Validación**: backend `pytest` **322 passed**; `lint`/`typecheck` en verde; `vitest run` contra dev server **109 passed**.
+
+## 2026-09-01 — Pestaña "Clientes" en Administración (con PII enmascarada)
+
+- **Backend** (`GET /admin/customers`, permiso `tenant:configure`): lista clientes del tenant con **email enmascarado** (nunca raw) vía `mask_email`; el listado de usuarios admin ahora excluye `customer`. Parámetro opcional `tenant_id` validado contra las membresías del usuario (`user_tenants` o `users.tenant_id` legacy; 403 si no es miembro).
+- **Frontend**: tab "Clientes" en `AdminNav`, página `[slug]/app/admin/customers`, `AdminCustomersView` con **buscador por nombre** (client-side) y **filtro por tenant** (server-side, re-fetch por key), BFF `api/bff/admin/customers` + hook `useAdminCustomers`, tipo `AdminCustomer`.
+- **Tamaño**: el endpoint es paginado (`limit`/`offset`) y el cliente solicita `limit=200` sin UI de paginación (igual que usuarios).
+- **Validación**: backend `pytest` **322 passed**; `lint`/`typecheck` en verde.
+
+## 2026-09-01 — Verificación de feature 018: `pnpm test:functional` 109 passed
+
+- **Diagnóstico**: la suite funcional no se había corrido; fallaban 9 tests (8 en `admin.test.ts`, 1 en `llm.test.ts`).
+- **`admin.test.ts`**: el BFF exige `name` en `POST /api/bff/admin/users` (feature 018) y los bodies de los tests no lo incluían → el BFF respondía 422 antes que el RBAC/backend (fallos de PATCH en cascada por `createdUserId=0`). Se agregó `name` a los bodies de crear usuario (RBAC 403, platform_admin 201, tenant_admin 201/403, validation 422).
+- **`llm.test.ts`**: el test de `classify` esperaba `data.intent`, eliminado en la feature 016 (el backend devuelve `category`/`suggested_priority`/`confidence`). Se reemplazó la aserción por `suggested_priority`.
+- **Validación**: `pnpm test:functional` 109 passed; `pnpm lint` y `pnpm typecheck` en verde. Migración `scripts/migrate_users_name.py` + reseed demo ejecutados contra el backend local.
+
+## 2026-08-31 — Nombre de usuario y asignación de tickets por rol (feature 018)
+
+- **Backend** (detalle en `backend/ia-docs/cambios.md`): `users.name`, `RegisterRequest.name`/`UserOut.name`/admin con `name`, `GET /v1/agents`, reglas de asignación en `PATCH /v1/tickets/{id}` (agent → self/null; resto → agente activo del tenant del ticket) y enriquecimiento `assignee {id,name,email,role}` / `author_name` en tickets, mensajes y KB. Suite backend **319 passed**.
+- **Tipos** (`src/types/`): `auth.types` (`UserOut.name`, `SessionUser.name`, `toSessionUser`), `agent.types.ts` (nuevo, `Agent`), `ticket.types` (`assignee`, `author_name`), `knowledge.types` (`author_name`).
+- **Registro** (`RegisterForm.tsx` + store + BFF auth/register): input **Nombre** obligatorio para empresas y personas; el store y el BFF lo envían a `/auth/register`.
+- **Admin**: `UserCreateForm` con "Nombre", `UserEditDialog` edita nombre, BFF admin users valida `name`, `AdminUsersView` con columna Nombre (y búsqueda por nombre/o email).
+- **Agentes**: BFF `GET /api/bff/agents` + hook `useAgents` (key por tenant).
+- **Select "Agente"** (`TicketPropertiesCard.tsx`): lista agentes del tenant con **nombre + email chiquito debajo**; rol `agent` solo ve "Sin asignar" + él mismo; el trigger muestra el asignado con nombre y email debajo. El backend sigue validando (403/404).
+- **Listado** (`TicketsTable.tsx`): columna "Asignado" muestra nombre del agente (con email debajo). Se eliminan `#id`.
+- **Thread y KB**: `TicketThread` usa `author_name` (elimina "Agente #id"); `ArticleDetailView` muestra `article.author_name` (elimina "Autor #id").
+- **Topbar**: muestra el nombre (fallback email), iniciales desde el nombre y email en el dropdown.
+- **Tests funcionales**: `client.ts` (seedAgent/seedTenantAdmin) y `empresa-flow`/`persona-flow` envían `name`; `tickets.test.ts` valida autoasignación con `assignee.name` y 403 al asignar a otro agente.
+- **Validación**: backend `pytest` 319 passed; frontend `pnpm lint`, `pnpm typecheck` y `pnpm build` en verde.
+
 ## 2026-08-31 — Correcciones del detalle de ticket (agente) — errores 7 a 11 (feature 017)
 
 - **Error 8 · "Nueva categoría" oculto al agente** — `CreateCategoryDialog.tsx` retorna `null` si el rol no tiene `kb:edit` (cubre la página de Categorías de KB y Artículos): se inicializa `useForm` y se hace early return según `hasKbPermission`.

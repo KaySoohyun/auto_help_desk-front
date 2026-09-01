@@ -14,6 +14,7 @@ const updateUserSchema = z
   .object({
     role: z.enum(USER_ROLES).optional(),
     is_active: z.boolean().optional(),
+    name: z.string().trim().min(1).max(255).optional(),
   })
   .refine((value) => Object.keys(value).length > 0, {
     message: "Sin cambios",
@@ -39,7 +40,7 @@ export async function PATCH(req: NextRequest, ctx: { params: Promise<{ userId: s
 
   const result = await authenticatedFetch<AdminUser>(`/admin/users/${parsedParams.data.userId}`, {
     method: "PATCH",
-    body: parsed.data as { role?: UserRole; is_active?: boolean },
+    body: parsed.data as { role?: UserRole; is_active?: boolean; name?: string },
   }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);

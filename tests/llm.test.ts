@@ -49,9 +49,9 @@ describe("llm (asistente)", () => {
       body: { ticketId },
     });
     expect(res.status).toBe(200);
-    const data = (await res.json()) as { category: string; intent: string; confidence: number };
+    const data = (await res.json()) as { category: string; suggested_priority: string; confidence: number };
     expect(data.category).toBeTruthy();
-    expect(data.intent).toBeTruthy();
+    expect(data.suggested_priority).toBeTruthy();
     expect(data.confidence).toBeGreaterThan(0);
   });
 

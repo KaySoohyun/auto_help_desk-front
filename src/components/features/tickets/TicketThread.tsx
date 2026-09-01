@@ -9,7 +9,7 @@ import type { TicketMessage } from "@/types/ticket.types";
 
 function MessageItem({ message, selfId }: { message: TicketMessage; selfId: number | null }) {
   const isOwn = message.author_id !== null && message.author_id === selfId;
-  const authorName = isOwn ? "Vos" : message.author_id ? `Agente #${message.author_id}` : "Sistema";
+  const authorName = isOwn ? "Vos" : message.author_name || "Sistema";
 
   return (
     <div className={cn("flex", isOwn ? "justify-end" : "justify-start")}>

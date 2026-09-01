@@ -18,6 +18,7 @@ import type { Tenant } from "@/types/tenant.types";
 import { TenantSelector } from "./TenantSelector";
 
 const registerSchema = z.object({
+  name: z.string().trim().min(1, "Ingresá tu nombre.").max(255, "Máximo 255 caracteres."),
   email: z.string().trim().min(1, "Ingresá tu email.").email("Email inválido."),
   password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres."),
 });
@@ -64,7 +65,13 @@ export function RegisterForm({ role = "agent", requireTenant = false, tenant }: 
       return;
     }
     try {
-      await register({ email: values.email, password: values.password, role, tenant_ids: selectedTenants });
+      await register({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+        role,
+        tenant_ids: selectedTenants,
+      });
 
       const currentUser = useSessionStore.getState().user;
       if (currentUser && currentUser.tenants.length > 1) {
@@ -114,6 +121,24 @@ export function RegisterForm({ role = "agent", requireTenant = false, tenant }: 
           {serverError}
         </div>
       ) : null}
+
+      <div className="space-y-2">
+        <Label htmlFor="name">Nombre</Label>
+        <Input
+          id="name"
+          type="text"
+          autoComplete="name"
+          placeholder="Tu nombre"
+          aria-invalid={errors.name ? true : undefined}
+          aria-describedby={errors.name ? "name-error" : undefined}
+          {...registerField("name")}
+        />
+        {errors.name ? (
+          <p id="name-error" className="text-xs text-destructive">
+            {errors.name.message}
+          </p>
+        ) : null}
+      </div>
 
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>

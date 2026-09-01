@@ -15,6 +15,7 @@ export interface KbArticleSummary {
   tags: string[];
   status: KbArticleStatus;
   author_id: number;
+  author_name: string | null;
   current_version: number;
   created_at: string;
   updated_at: string;

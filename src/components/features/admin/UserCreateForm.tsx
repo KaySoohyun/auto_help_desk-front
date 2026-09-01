@@ -21,6 +21,7 @@ import { ROLE_LABELS } from "@/components/features/admin/roleLabels";
 import type { UserRole } from "@/types/auth.types";
 
 const createUserSchema = z.object({
+  name: z.string().trim().min(1, "Ingresá el nombre.").max(255, "Máximo 255 caracteres."),
   email: z.string().trim().email("Ingresá un email válido.").max(255, "Máximo 255 caracteres."),
   password: z
     .string()
@@ -48,6 +49,7 @@ export function UserCreateForm({
   } = useForm<CreateUserValues>({
     resolver: zodResolver(createUserSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       tenant_id: "",
@@ -61,6 +63,7 @@ export function UserCreateForm({
   const onSubmit = async (values: CreateUserValues) => {
     try {
       await createUser.mutateAsync({
+        name: values.name,
         email: values.email,
         password: values.password,
         role,
@@ -75,6 +78,24 @@ export function UserCreateForm({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      <div className="space-y-2">
+        <Label htmlFor="user-name">Nombre</Label>
+        <Input
+          id="user-name"
+          type="text"
+          placeholder="Nombre completo"
+          autoComplete="off"
+          aria-invalid={errors.name ? true : undefined}
+          aria-describedby={errors.name ? "user-name-error" : undefined}
+          {...register("name")}
+        />
+        {errors.name ? (
+          <p id="user-name-error" className="text-xs text-destructive">
+            {errors.name.message}
+          </p>
+        ) : null}
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="user-email">Email</Label>
         <Input

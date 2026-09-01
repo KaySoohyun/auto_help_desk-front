@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Loader2Icon, SaveIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -55,6 +56,7 @@ export function UserEditDialog({
   const isSelf = sessionUser?.id === user.id;
 
   const [role, setRole] = useState<UserRole>(user.role);
+  const [name, setName] = useState(user.name ?? "");
   const [isActive, setIsActive] = useState(user.is_active);
   const [confirmingDeactivate, setConfirmingDeactivate] = useState(false);
 
@@ -62,13 +64,14 @@ export function UserEditDialog({
     ? ["platform_admin", "tenant_admin", "supervisor", "agent"]
     : ["tenant_admin", "supervisor", "agent"];
 
-  const hasChanges = role !== user.role || isActive !== user.is_active;
+  const hasChanges = role !== user.role || isActive !== user.is_active || name.trim() !== (user.name ?? "");
 
   const commit = async () => {
     try {
       await updateUser.mutateAsync({
         role: role !== user.role ? role : undefined,
         is_active: isActive !== user.is_active ? isActive : undefined,
+        name: name.trim() !== (user.name ?? "") ? name.trim() : undefined,
       });
       toast.success("Usuario actualizado");
       setConfirmingDeactivate(false);
@@ -102,6 +105,18 @@ export function UserEditDialog({
           </DialogHeader>
 
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor={`edit-name-${user.id}`}>Nombre</Label>
+              <Input
+                id={`edit-name-${user.id}`}
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Nombre completo"
+                autoComplete="off"
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor={`edit-role-${user.id}`}>Rol</Label>
               <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>

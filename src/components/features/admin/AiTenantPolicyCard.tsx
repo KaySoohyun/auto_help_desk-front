@@ -19,9 +19,9 @@ function TenantPolicyForm({ policy, disabled }: { policy: AdminAiPolicy; disable
   const [aiEnabled, setAiEnabled] = useState(policy.ai_enabled);
   const [tone, setTone] = useState(policy.tone);
   const [language, setLanguage] = useState(policy.language);
-  const [categories, setCategories] = useState<string[]>(policy.allowed_categories);
+  const [categories, setCategories] = useState<string[]>(policy.allowed_categories ?? []);
   const [categoriesInput, setCategoriesInput] = useState("");
-  const [rules, setRules] = useState<Array<[string, string]>>(Object.entries(policy.escalation_rules));
+  const [rules, setRules] = useState<Array<[string, string]>>(Object.entries(policy.escalation_rules ?? {}));
 
   const addCategory = () => {
     const value = categoriesInput.trim();
@@ -71,8 +71,8 @@ function TenantPolicyForm({ policy, disabled }: { policy: AdminAiPolicy; disable
       setAiEnabled(saved.ai_enabled);
       setTone(saved.tone);
       setLanguage(saved.language);
-      setCategories(saved.allowed_categories);
-      setRules(Object.entries(saved.escalation_rules));
+      setCategories(saved.allowed_categories ?? []);
+      setRules(Object.entries(saved.escalation_rules ?? {}));
       toast.success("Política IA guardada");
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "No se pudo guardar la política IA.");

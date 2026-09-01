@@ -16,7 +16,7 @@ export default function AppError({ error, reset }: AppErrorProps) {
   return (
     <main
       role="alert"
-      className="min-h-full flex flex-col items-center justify-center p-6 text-center"
+      className="min-h-dvh flex flex-col items-center justify-center p-6 text-center"
     >
       <AlertTriangle className="w-12 h-12 mb-4 text-destructive" />
       <h1 className="text-xl font-medium mb-2">Algo salió mal</h1>

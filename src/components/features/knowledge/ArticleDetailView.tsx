@@ -180,7 +180,7 @@ export function ArticleDetailView({ articleId }: { articleId: number }) {
           </div>
 
           <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-            <span>Autor #{article.author_id}</span>
+            <span>Autor: {article.author_name ?? "Desconocido"}</span>
             <span>Creado {formatDateTime(article.created_at)}</span>
             <span>Actualizado {formatDateTime(article.updated_at)}</span>
             {article.published_at ? (

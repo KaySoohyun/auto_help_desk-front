@@ -10,6 +10,7 @@ export interface TenantInfo {
 export interface UserOut {
   id: number;
   email: string;
+  name: string | null;
   role: UserRole;
   tenant_id: string | null;
   is_active: boolean;
@@ -36,6 +37,7 @@ export type SessionStatus =
 export interface SessionUser {
   id: number;
   email: string;
+  name: string | null;
   role: UserRole;
   tenantId: string | null;
   tenants: TenantInfo[];
@@ -45,6 +47,7 @@ export function toSessionUser(user: UserOut): SessionUser {
   return {
     id: user.id,
     email: user.email,
+    name: user.name,
     role: user.role,
     tenantId: user.tenant_id,
     tenants: user.tenants || [],

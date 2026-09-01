@@ -50,7 +50,7 @@ async function registerCustomer(): Promise<{ client: TestClient; email: string; 
   const client = new TestClient();
   const res = await client.request("/api/bff/auth/register", {
     method: "POST",
-    body: { email, password: "persona-pass-123", role: "customer", tenant_ids: [tenantId] },
+    body: { name: "Persona Tester", email, password: "persona-pass-123", role: "customer", tenant_ids: [tenantId] },
   });
   expect(res.status).toBe(201);
   const body = (await res.json()) as { user: UserOut };

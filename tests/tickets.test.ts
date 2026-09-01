@@ -91,8 +91,23 @@ describe("tickets", () => {
       body: { assignee_id: agent.id },
     });
     expect(res.status).toBe(200);
-    const data = (await res.json()) as Ticket;
+    const data = (await res.json()) as Ticket & {
+      assignee: { id: number; name: string | null; email: string } | null;
+    };
     expect(data.assignee_id).toBe(agent.id);
+    expect(data.assignee?.id).toBe(agent.id);
+    expect(data.assignee?.name).toBeTruthy();
+  });
+
+  it("agente no puede asignar el ticket a otro agente → 403", async () => {
+    const other = await seedAgent();
+    const res = await client.request(`/api/bff/tickets/${ticketId}`, {
+      method: "PATCH",
+      body: { assignee_id: other.id },
+    });
+    expect(res.status).toBe(403);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toContain("vos mismo");
   });
 
   it("mensajes: crear → 201 y listar → contiene el mensaje", async () => {

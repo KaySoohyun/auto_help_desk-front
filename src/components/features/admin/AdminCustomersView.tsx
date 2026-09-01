@@ -4,29 +4,17 @@ import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangleIcon,
   InboxIcon,
-  PencilIcon,
-  PlusIcon,
   SearchIcon,
   ShieldAlertIcon,
 } from "lucide-react";
-import { useAdminUsers } from "@/hooks/admin/useAdminUsers";
+import { useAdminCustomers } from "@/hooks/admin/useAdminCustomers";
 import { useSessionStore } from "@/stores/session.store";
 import { hasAdminPermission } from "@/lib/permissions";
-import { UserCreateForm } from "@/components/features/admin/UserCreateForm";
-import { UserEditDialog } from "@/components/features/admin/UserEditDialog";
-import { ROLE_LABELS } from "@/components/features/admin/roleLabels";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PaginationControls } from "@/components/ui/pagination";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -35,25 +23,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDateTime } from "@/lib/format";
-import type { AdminUser } from "@/types/admin.types";
-import type { UserRole } from "@/types/auth.types";
 
 const PAGE_SIZE = 10;
-const ROLE_FILTERS: Array<UserRole | "all"> = ["all", "tenant_admin", "supervisor", "agent", "platform_admin"];
 
-export function AdminUsersView() {
+interface CustomerFilter {
+  tenantId: string | null;
+}
+
+export function AdminCustomersView() {
   const user = useSessionStore((s) => s.user);
   const canRead = hasAdminPermission(user?.role ?? null, "users:read");
-  const canEdit = hasAdminPermission(user?.role ?? null, "users:edit");
-  const isPlatformAdmin = user?.role === "platform_admin";
 
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [roleFilter, setRoleFilter] = useState<UserRole | "all">("all");
+  const [filter, setFilter] = useState<CustomerFilter>({ tenantId: null });
   const [page, setPage] = useState(1);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editing, setEditing] = useState<AdminUser | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
@@ -68,15 +53,16 @@ export function AdminUsersView() {
 
   const offset = (page - 1) * PAGE_SIZE;
 
-  const { data, isLoading, isError, error, refetch } = useAdminUsers({
+  const { data, isLoading, isError, error, refetch } = useAdminCustomers({
+    tenantId: filter.tenantId,
     q: debouncedSearch.trim() || undefined,
-    role: roleFilter,
     limit: PAGE_SIZE,
     offset,
   });
 
   const items = data?.items ?? [];
   const total = data?.total ?? 0;
+  const tenantOptions = user?.tenants ?? [];
 
   if (!canRead) {
     return (
@@ -92,17 +78,11 @@ export function AdminUsersView() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">Usuarios</h1>
-          <p className="text-sm text-muted-foreground">Gestión de usuarios del tenant</p>
-        </div>
-        {canEdit ? (
-          <Button onClick={() => setCreateOpen(true)}>
-            <PlusIcon aria-hidden />
-            Nuevo usuario
-          </Button>
-        ) : null}
+      <div>
+        <h1 className="text-xl font-semibold text-foreground">Clientes</h1>
+        <p className="text-sm text-muted-foreground">
+          Cuentas del portal de personas. El email se muestra enmascarado por privacidad (PII).
+        </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -114,25 +94,26 @@ export function AdminUsersView() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nombre o email"
-            aria-label="Buscar por nombre o email"
+            placeholder="Buscar por nombre"
+            aria-label="Buscar clientes por nombre"
             className="w-64 pl-9"
           />
         </div>
         <Select
-          value={roleFilter}
+          value={filter.tenantId ?? "all"}
           onValueChange={(value) => {
-            setRoleFilter(value as UserRole | "all");
+            setFilter({ tenantId: value === "all" ? null : value });
             setPage(1);
           }}
         >
-          <SelectTrigger aria-label="Filtrar por rol" className="w-52">
+          <SelectTrigger aria-label="Filtrar por tenant" className="w-52">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {ROLE_FILTERS.map((role) => (
-              <SelectItem key={role} value={role}>
-                {role === "all" ? "Todos los roles" : ROLE_LABELS[role]}
+            <SelectItem value="all">Todos los tenants</SelectItem>
+            {tenantOptions.map((tenant) => (
+              <SelectItem key={tenant.id} value={tenant.id}>
+                {tenant.name}
               </SelectItem>
             ))}
           </SelectContent>
@@ -142,7 +123,7 @@ export function AdminUsersView() {
       {isLoading ? (
         <div className="space-y-2">
           {Array.from({ length: PAGE_SIZE }).map((_, i) => (
-            <Skeleton key={i} className="h-10 w-full" />
+            <Skeleton key={i} className="h-8 w-full" />
           ))}
         </div>
       ) : null}
@@ -153,7 +134,7 @@ export function AdminUsersView() {
           className="flex items-center gap-2 rounded-lg border border-destructive/60 bg-destructive/40 px-4 py-3 text-sm text-destructive-foreground"
         >
           <AlertTriangleIcon className="size-4" aria-hidden />
-          {error?.message ?? "No se pudieron cargar los usuarios."}
+          {error?.message ?? "No se pudieron cargar los clientes."}
           <Button variant="outline" size="sm" onClick={() => void refetch()}>
             Reintentar
           </Button>
@@ -162,7 +143,7 @@ export function AdminUsersView() {
 
       {!isLoading && !isError ? (
         items.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto rounded-lg border border-border">
             <table className="w-full min-w-[640px] border-collapse text-left">
               <thead>
                 <tr className="border-b border-border text-xs uppercase tracking-wide text-muted-foreground">
@@ -173,62 +154,55 @@ export function AdminUsersView() {
                     Email
                   </th>
                   <th scope="col" className="px-3 py-2 font-medium">
-                    Rol
+                    Empresa
                   </th>
                   <th scope="col" className="px-3 py-2 font-medium">
-                    Estado
+                    Plan
                   </th>
                   <th scope="col" className="px-3 py-2 font-medium">
-                    Creado
+                    Registrado
                   </th>
-                  {canEdit ? (
-                    <th scope="col" className="px-3 py-2 text-right font-medium">
-                      Acciones
-                    </th>
-                  ) : null}
                 </tr>
               </thead>
               <tbody>
-                {items.map((u) => (
-                  <tr key={u.id} className="border-b border-border last:border-0 hover:bg-muted/50">
+                {items.map((c) => (
+                  <tr key={c.id} className="border-b border-border last:border-0 hover:bg-muted/50">
                     <td className="px-3 py-2 align-middle text-sm font-medium text-foreground">
-                      {u.name || "—"}
+                      {c.name}
                     </td>
-                    <td className="px-3 py-2 align-middle text-sm text-muted-foreground">{u.email}</td>
-                    <td className="px-3 py-2 align-middle">
-                      <Badge variant="outline">{ROLE_LABELS[u.role]}</Badge>
+                    <td className="px-3 py-2 align-middle font-mono text-xs text-muted-foreground">
+                      {c.email_masked ?? "—"}
+                    </td>
+                    <td className="px-3 py-2 align-middle text-sm text-muted-foreground">
+                      {c.company ?? "—"}
                     </td>
                     <td className="px-3 py-2 align-middle">
-                      {u.is_active ? (
-                        <Badge>Activo</Badge>
+                      {c.plan ? (
+                        <Badge variant="outline">{c.plan}</Badge>
                       ) : (
-                        <Badge variant="secondary">Inactivo</Badge>
+                        <span className="text-sm text-muted-foreground">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2 align-middle text-sm text-muted-foreground whitespace-nowrap">
-                      {formatDateTime(u.created_at)}
+                    <td className="px-3 py-2 align-middle text-sm text-muted-foreground">
+                      {formatDateTime(c.created_at)}
                     </td>
-                    {canEdit ? (
-                      <td className="px-3 py-2 align-middle text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setEditing(u)}
-                        >
-                          <PencilIcon aria-hidden />
-                          Editar
-                        </Button>
-                      </td>
-                    ) : null}
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-border py-12 text-center">
+          <div
+            className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border bg-card p-8 text-center"
+            role="status"
+          >
             <InboxIcon className="size-8 text-muted-foreground" aria-hidden />
-            <p className="text-sm text-muted-foreground">No hay usuarios para mostrar.</p>
+            <p className="text-sm font-medium text-foreground">
+              {filter.tenantId || debouncedSearch ? "Sin resultados" : "Todavía no hay clientes"}
+            </p>
+            <p className="max-w-sm text-xs text-muted-foreground">
+              Los clientes se crean al registrarse en el portal de personas de la empresa.
+            </p>
           </div>
         )
       ) : null}
@@ -238,32 +212,8 @@ export function AdminUsersView() {
           total={total}
           limit={PAGE_SIZE}
           offset={offset}
-          itemLabel="usuario"
+          itemLabel="cliente"
           onPageChange={setPage}
-        />
-      ) : null}
-
-      <Dialog open={createOpen} onOpenChange={setCreateOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Nuevo usuario</DialogTitle>
-            <DialogDescription>Creá un usuario dentro del tenant.</DialogDescription>
-          </DialogHeader>
-          <UserCreateForm
-            isPlatformAdmin={isPlatformAdmin}
-            onSaved={() => setCreateOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {editing ? (
-        <UserEditDialog
-          user={editing}
-          open={editing !== null}
-          onOpenChange={(open) => {
-            if (!open) setEditing(null);
-          }}
-          isPlatformAdmin={isPlatformAdmin}
         />
       ) : null}
     </div>

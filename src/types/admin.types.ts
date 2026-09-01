@@ -3,6 +3,7 @@ import type { UserOut, UserRole } from "@/types/auth.types";
 export type AdminUser = UserOut;
 
 export interface AdminUserCreatePayload {
+  name: string;
   email: string;
   password: string;
   role: UserRole;
@@ -12,11 +13,38 @@ export interface AdminUserCreatePayload {
 export interface AdminUserUpdatePayload {
   role?: UserRole;
   is_active?: boolean;
+  name?: string;
 }
 
 export interface AdminUserListQuery {
+  q?: string;
+  role?: UserRole | "all";
   limit?: number;
   offset?: number;
+}
+
+export interface AdminUserList {
+  items: AdminUser[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface AdminCustomer {
+  id: number;
+  tenant_id: string;
+  name: string;
+  email_masked: string | null;
+  company: string | null;
+  plan: string | null;
+  created_at: string;
+}
+
+export interface AdminCustomerList {
+  items: AdminCustomer[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 export interface AdminAiPolicy {

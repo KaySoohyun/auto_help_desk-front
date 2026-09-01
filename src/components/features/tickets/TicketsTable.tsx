@@ -32,7 +32,18 @@ function TicketRow({ ticket }: { ticket: TicketSummary }) {
         {categoryLabel(ticket.category)}
       </td>
       <td className="px-3 py-2.5 align-middle text-[15px] text-muted-foreground">
-        {ticket.assignee_id ? `#${ticket.assignee_id}` : "Sin asignar"}
+        {ticket.assignee ? (
+          <span className="flex flex-col">
+            <span className="font-medium text-foreground">
+              {ticket.assignee.name || ticket.assignee.email}
+            </span>
+            {ticket.assignee.name ? (
+              <span className="truncate text-xs text-muted-foreground">{ticket.assignee.email}</span>
+            ) : null}
+          </span>
+        ) : (
+          "Sin asignar"
+        )}
       </td>
       <td className="px-3 py-2.5 align-middle text-right text-[15px] text-muted-foreground whitespace-nowrap">
         {timeAgo(ticket.created_at)}

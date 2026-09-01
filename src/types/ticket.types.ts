@@ -2,6 +2,13 @@ export type TicketStatus = "open" | "in_progress" | "on_hold" | "closed";
 
 export type TicketPriority = "low" | "medium" | "high" | "urgent";
 
+export interface TicketAssignee {
+  id: number;
+  name: string | null;
+  email: string;
+  role: string;
+}
+
 export interface TicketSummary {
   id: number;
   tenant_id: string;
@@ -11,6 +18,7 @@ export interface TicketSummary {
   priority: TicketPriority | null;
   status: TicketStatus;
   assignee_id: number | null;
+  assignee: TicketAssignee | null;
   created_at: string;
   updated_at: string;
 }
@@ -34,6 +42,7 @@ export interface TicketMessage {
   author_id: number | null;
   body: string;
   created_at: string;
+  author_name: string | null;
 }
 
 export interface TicketListQuery {

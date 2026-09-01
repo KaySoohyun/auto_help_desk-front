@@ -15,3 +15,12 @@ export function adminGlobalAiPolicyKey(tenantId: string | null) {
 export function adminAiInfoKey(tenantId: string | null) {
   return ["tenant", tenantId ?? "global", "admin", "ai-info"] as const;
 }
+
+export function adminCustomersKey(
+  tenantId: string | null,
+  filterTenantId: string | null = null,
+  q = "",
+  offset = 0,
+) {
+  return ["tenant", tenantId ?? "global", "admin", "customers", filterTenantId ?? "all", q, offset] as const;
+}

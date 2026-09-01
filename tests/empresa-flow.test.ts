@@ -20,7 +20,7 @@ async function registerViaBff(tenantIds: string[]): Promise<{ client: TestClient
   const client = new TestClient();
   const res = await client.request("/api/bff/auth/register", {
     method: "POST",
-    body: { email, password: "empresa-pass-123", tenant_ids: tenantIds },
+    body: { name: "Empresa Tester", email, password: "empresa-pass-123", tenant_ids: tenantIds },
   });
   expect(res.status).toBe(201);
   const body = (await res.json()) as { user: UserOut };

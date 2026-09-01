@@ -18,10 +18,9 @@ import type { UserRole } from "@/types/auth.types";
 import { useSessionStore } from "@/stores/session.store";
 import { useUiStore } from "@/stores/ui.store";
 
-function initials(email: string): string {
-  return email
-    .split("@")[0]
-    .split(/[._-]/)
+function initials(value: string): string {
+  return value
+    .split(/[@._-]/)
     .map((part) => part[0])
     .join("")
     .slice(0, 2)
@@ -82,11 +81,13 @@ export function Topbar() {
             >
               <Avatar className="size-7">
                 <AvatarFallback className="bg-primary text-xs font-semibold text-primary-foreground">
-                  {initials(user.email)}
+                  {initials(user.name || user.email)}
                 </AvatarFallback>
               </Avatar>
               <span className="hidden md:block">
-                <span className="block max-w-48 truncate text-xs font-medium text-foreground">{user.email}</span>
+                <span className="block max-w-48 truncate text-xs font-medium text-foreground">
+                  {user.name || user.email}
+                </span>
                 <span className="block text-[11px] text-muted-foreground">
                   {roleLabel}
                   {activeTenantName ? ` · ${activeTenantName}` : ""}
@@ -96,7 +97,10 @@ export function Topbar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-60">
             <DropdownMenuLabel>
-              <span className="block truncate text-sm font-medium">{user.email}</span>
+              <span className="block truncate text-sm font-medium">{user.name || user.email}</span>
+              {user.name ? (
+                <span className="block truncate text-xs font-normal text-muted-foreground">{user.email}</span>
+              ) : null}
               <span className="block text-xs font-normal text-muted-foreground">{roleLabel}</span>
             </DropdownMenuLabel>
 

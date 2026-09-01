@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticatedFetch } from "@/lib/api/authenticated";
-import type { AdminUser } from "@/types/admin.types";
+import type { AdminUser, AdminUserList } from "@/types/admin.types";
 import type { UserRole } from "@/types/auth.types";
 
 const USER_ROLES = ["platform_admin", "tenant_admin", "supervisor", "agent"] as const;
 
 const listQuerySchema = z.object({
+  q: z.string().trim().max(255).optional(),
+  role: z.enum(USER_ROLES).optional(),
   limit: z.coerce.number().int().min(1).max(200).default(50),
   offset: z.coerce.number().int().min(0).default(0),
 });
 
 const createUserSchema = z.object({
+  name: z.string().trim().min(1).max(255),
   email: z.string().trim().email().max(255),
   password: z.string().min(8).max(128),
   role: z.enum(USER_ROLES),
@@ -29,8 +32,10 @@ export async function GET(req: NextRequest) {
     limit: String(parsed.data.limit),
     offset: String(parsed.data.offset),
   });
+  if (parsed.data.q) qs.set("q", parsed.data.q);
+  if (parsed.data.role) qs.set("role", parsed.data.role);
 
-  const result = await authenticatedFetch<AdminUser[]>(`/admin/users?${qs.toString()}`, {}, req);
+  const result = await authenticatedFetch<AdminUserList>(`/admin/users?${qs.toString()}`, {}, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data);
 }
@@ -50,7 +55,7 @@ export async function POST(req: NextRequest) {
 
   const result = await authenticatedFetch<AdminUser>("/admin/users", {
     method: "POST",
-    body: parsed.data as { email: string; password: string; role: UserRole; tenant_id?: string },
+    body: parsed.data as { name: string; email: string; password: string; role: UserRole; tenant_id?: string },
   }, req);
   if (result instanceof NextResponse) return result;
   return NextResponse.json(result.data, { status: 201 });

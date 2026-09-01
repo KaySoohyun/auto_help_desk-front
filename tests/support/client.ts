@@ -48,7 +48,7 @@ export async function seedAgent(): Promise<SeedUser> {
   const res = await fetch(`${backendUrl()}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, role: "agent", tenant_id: "test-tenant" }),
+    body: JSON.stringify({ email, name: "Agente Tester", password, role: "agent", tenant_id: "test-tenant" }),
   });
   if (!res.ok) {
     throw new Error(`No se pudo sembrar el agent de test (HTTP ${res.status})`);
@@ -84,7 +84,7 @@ export async function seedTenantAdmin(tenantId: string = "test-tenant"): Promise
       "Content-Type": "application/json",
       Authorization: `Bearer ${access_token}`,
     },
-    body: JSON.stringify({ email, password, role: "tenant_admin", tenant_id: tenantId }),
+    body: JSON.stringify({ email, name: "Admin Tester", password, role: "tenant_admin", tenant_id: tenantId }),
   });
   if (!createRes.ok) {
     throw new Error(`No se pudo sembrar el tenant_admin (HTTP ${createRes.status})`);

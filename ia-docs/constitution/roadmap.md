@@ -10,6 +10,8 @@ El detalle de fases y etapas está en `ia-docs/init/plan.md`.
 
 - **017 · Correcciones del detalle de ticket (agente) — errores 7 a 11** — ocultar "Nueva categoría" al agente (8), Propiedades sin desbordes ni spacing excesivo (9), burbujas de chat con tope 3/4 y alineación (10), nombres en negrita (11), y tags con autosuggest + crear (7, backend nuevo). ✅ Hecho (2026-08-31; `lint`/`typecheck` OK; backend `pytest` 302 passed; verificación manual como agente OK).
 
+- **018 · Nombre de usuario y asignación por rol** — campo `users.name` en todos los registros (empresas/personas) y admin; el user muestra **nombre + email** en asignación, listado, thread y KB (se eliminan `#id`/`Autor #`); `GET /v1/agents` para el selector; reglas de asignación: **agent** solo se asigna a sí mismo (403 si otro), **supervisor/tenant_admin/platform_admin** asignan a cualquier agente activo del tenant del ticket (404 si no). ✅ Hecho (2026-08-31; backend `pytest` 319 passed; frontend `lint`/`typecheck`/`build` en verde; `pnpm test:functional` 109 passed con `name` en los tests de admin y sin `intent` en classify). _Pendiente: migración `scripts/migrate_users_name.py` + reseed demo ya ejecutada._
+
 
 
 - **013 · Portal de personas** — landing "Personas" → `/personas/login` (login + registro como cliente con selección de tenant), `/panel` (dashboard: mis tickets, buscador, filtros con conteos, crear ticket), `/panel/tickets/[id]` (conversación con envío manual, sin LLM). Rol `customer` en backend con aislamiento por customer/tenant. ✅ Hecho (2026-08-14). _(Nota: con 014, las rutas quedaron bajo `/[slug]/`.)_

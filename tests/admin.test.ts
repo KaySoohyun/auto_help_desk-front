@@ -31,7 +31,7 @@ describe("admin (gestión de usuarios)", () => {
     it("POST crear usuario → 403", async () => {
       const res = await agentClient.request("/api/bff/admin/users", {
         method: "POST",
-        body: { email: "nuevo@example.com", password: "password-123", role: "agent" },
+        body: { name: "Nuevo Usuario", email: "nuevo@example.com", password: "password-123", role: "agent" },
       });
       expect(res.status).toBe(403);
     });
@@ -57,6 +57,7 @@ describe("admin (gestión de usuarios)", () => {
       const res = await platformClient.request("/api/bff/admin/users", {
         method: "POST",
         body: {
+          name: "Usuario Plataforma",
           email: `platform-crea-${Date.now()}@example.com`,
           password: "password-123",
           role: "agent",
@@ -103,17 +104,18 @@ describe("admin (gestión de usuarios)", () => {
     it("GET listado → 200 con usuarios del propio tenant", async () => {
       const res = await tenantAdminClient.request("/api/bff/admin/users");
       expect(res.status).toBe(200);
-      const data = (await res.json()) as Array<{ id: number; tenant_id: string }>;
-      expect(Array.isArray(data)).toBe(true);
-      expect(data.length).toBeGreaterThan(0);
+      const data = (await res.json()) as { items: Array<{ id: number; tenant_id: string }> };
+      expect(Array.isArray(data.items)).toBe(true);
+      expect(data.items.length).toBeGreaterThan(0);
       // Todos los usuarios deben ser del mismo tenant
-      expect(data.every((u) => u.tenant_id === tenantAdmin.tenantId)).toBe(true);
+      expect(data.items.every((u) => u.tenant_id === tenantAdmin.tenantId)).toBe(true);
     });
 
     it("POST crear usuario en su tenant → 201", async () => {
       const res = await tenantAdminClient.request("/api/bff/admin/users", {
         method: "POST",
         body: {
+          name: "Usuario Tenant",
           email: `ta-created-${Date.now()}@example.com`,
           password: "password-123",
           role: "agent",
@@ -132,6 +134,7 @@ describe("admin (gestión de usuarios)", () => {
       const res = await tenantAdminClient.request("/api/bff/admin/users", {
         method: "POST",
         body: {
+          name: "Otro Tenant",
           email: `other-tenant-${Date.now()}@example.com`,
           password: "password-123",
           role: "agent",
@@ -145,6 +148,7 @@ describe("admin (gestión de usuarios)", () => {
       const res = await tenantAdminClient.request("/api/bff/admin/users", {
         method: "POST",
         body: {
+          name: "Boss",
           email: `boss-${Date.now()}@example.com`,
           password: "password-123",
           role: "platform_admin",
@@ -182,7 +186,7 @@ describe("admin (gestión de usuarios)", () => {
     it("POST con password corta → 422", async () => {
       const res = await agentClient.request("/api/bff/admin/users", {
         method: "POST",
-        body: { email: "nuevo@example.com", password: "corta", role: "agent" },
+        body: { name: "Valido", email: "nuevo@example.com", password: "corta", role: "agent" },
       });
       expect(res.status).toBe(422);
     });
@@ -190,7 +194,7 @@ describe("admin (gestión de usuarios)", () => {
     it("POST con email inválido → 422", async () => {
       const res = await agentClient.request("/api/bff/admin/users", {
         method: "POST",
-        body: { email: "no-es-email", password: "password-123", role: "agent" },
+        body: { name: "Valido", email: "no-es-email", password: "password-123", role: "agent" },
       });
       expect(res.status).toBe(422);
     });

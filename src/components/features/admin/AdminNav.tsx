@@ -12,6 +12,7 @@ export function AdminNav() {
 
   const links = [
     { href: `${base}/users`, label: "Usuarios" },
+    { href: `${base}/customers`, label: "Clientes" },
     { href: `${base}/llm`, label: "Configuración LLM" },
   ];
 
