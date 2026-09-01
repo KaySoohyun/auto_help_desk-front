@@ -2,14 +2,14 @@
 
 ## T1 · Headers de seguridad
 
-- [ ] `next.config.ts`: `headers()` con `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` y CSP (solo producción).
+- [x] `next.config.ts`: `headers()` con `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy` y CSP (solo producción).
 
 ## T2 · CSRF hardening
 
-- [ ] `src/lib/auth/csrf.ts`: `getCsrfToken()`, `setCsrfCookie()` (cookie no HttpOnly, SameSite=Lax, Secure prod, path=/), `verifyCsrf(req)`.
-- [ ] `setAuthCookies` setea `csrf_token` en login/refresh.
-- [ ] `authenticatedFetch`: métodos != GET verifican header `x-csrf-token` == cookie (si no → 403); GET sin cookie la setean en la respuesta.
-- [ ] `bffFetch`: lee la cookie y envía `x-csrf-token` en métodos mutantes.
+- [x] `src/lib/auth/csrf.ts`: `getCsrfToken()`, `setCsrfCookie()` (cookie no HttpOnly, SameSite=Lax, Secure prod, path=/), `verifyCsrf(req)`.
+- [x] `setAuthCookies` setea `csrf_token` en login/refresh.
+- [x] `authenticatedFetch`: métodos != GET verifican header `x-csrf-token` == cookie (si no → 403); GET sin cookie la setean en la respuesta.
+- [x] `bffFetch`: lee la cookie y envía `x-csrf-token` en métodos mutantes.
 
 ## T3 · Manejo global de 401
 

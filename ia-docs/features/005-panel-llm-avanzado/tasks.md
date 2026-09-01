@@ -32,8 +32,8 @@ Estado: implementado. Marcar `[ ]` pendiente y `[x]` al completar.
 ## T4 · Integración y cierre
 
 - [x] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
-- [ ] Prueba contra FastAPI real con usuario con ticket abierto: panel visible, pestañas funcionan, streaming en tiempo real.
-- [ ] Verificar feedback se guarda en backend y es consultable por auditores.
-- [ ] Verificar a11y: keyboard navigation entre tabs, contraste AA, labels aria.
+- [x] Prueba contra FastAPI real con usuario con ticket abierto: panel visible, pestañas funcionan, streaming en tiempo real.
+- [x] Verificar feedback se guarda en backend y es consultable por auditores.
+- [x] Verificar a11y: keyboard navigation entre tabs, contraste AA, labels aria.
 - [x] Documentar en `ia-docs/init/changes.md` y actualizar `arquitecture.md` (nuevos endpoints y panel).
-- [ ] Mover 005 a "Hecho" en `ia-docs/constitution/roadmap.md`.
+- [x] Mover 005 a "Hecho" en `ia-docs/constitution/roadmap.md`.

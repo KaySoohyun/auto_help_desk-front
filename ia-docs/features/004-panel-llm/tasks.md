@@ -24,9 +24,9 @@ Estado: completado. Marcar `[ ]` pendiente y `[x]` al completar.
 
 ## T4 · Integración y cierre
 
-- [ ] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
-- [ ] Prueba contra FastAPI real con usuario con tenant: panel visible, pestañas funcionan, logging creado.
-- [ ] Verificar disclaimer aparece en cada salida y botón Descartar limpia el estado.
-- [ ] Verificar a11y: labels aria, contraste AA, focus management en tabs.
-- [ ] Documentar en `ia-docs/init/changes.md` y actualizar `arquitecture.md` (nuevos endpoints y panel).
-- [ ] Mover 004 a "Hecho" en `ia-docs/constitution/roadmap.md`.
+- [x] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
+- [x] Prueba contra FastAPI real con usuario con tenant: panel visible, pestañas funcionan, logging creado.
+- [x] Verificar disclaimer aparece en cada salida y botón Descartar limpia el estado.
+- [x] Verificar a11y: labels aria, contraste AA, focus management en tabs.
+- [x] Documentar en `ia-docs/init/changes.md` y actualizar `arquitecture.md` (nuevos endpoints y panel).
+- [x] Mover 004 a "Hecho" en `ia-docs/constitution/roadmap.md`.

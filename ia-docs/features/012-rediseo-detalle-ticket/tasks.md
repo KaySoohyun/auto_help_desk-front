@@ -2,33 +2,33 @@
 
 ## Fase 1: Backend — Modelos de datos
 
-- [ ] **T1.1** Crear tabla `tenants` (`id`, `name`, `slug`, `created_at`) + modelo SQLAlchemy + schema Pydantic
-- [ ] **T1.2** Seed de tenants de prueba (al menos 2: "test-tenant", "acme-corp")
-- [ ] **T1.3** Crear tabla `customers` (`id`, `tenant_id` FK, `name`, `email`, `company`, `plan`, `created_at`) + modelo + schema
-- [ ] **T1.4** Seed de customers de prueba (al menos 3 por tenant)
-- [ ] **T1.5** Crear tabla `user_tenants` (`user_id` FK, `tenant_id` FK, `role`, `created_at`) + modelo + schema
-- [ ] **T1.6** Migrar datos: `users.tenant_id` → `user_tenants` (script de migración)
-- [ ] **T1.7** Eliminar columna `tenant_id` de tabla `users` (después de migración)
-- [ ] **T1.8** Agregar FK `customer_id` en tabla `tickets` (nullable) + actualizar modelo
-- [ ] **T1.9** Crear tabla `ticket_tags` (`ticket_id` FK, `tag_id` FK) + modelo
-- [ ] **T1.10** Crear tabla `article_tags` (`article_id` FK, `tag_id` FK) + modelo
-- [ ] **T1.11** Migrar datos: `kb_articles.tags` (JSON) → `article_tags` (script de migración)
-- [ ] **T1.12** Eliminar columna `tags` de tabla `kb_articles` (después de migración)
-- [ ] **T1.13** Tests de modelos y migraciones
+- [x] **T1.1** Crear tabla `tenants` (`id`, `name`, `slug`, `created_at`) + modelo SQLAlchemy + schema Pydantic
+- [x] **T1.2** Seed de tenants de prueba (al menos 2: "test-tenant", "acme-corp")
+- [x] **T1.3** Crear tabla `customers` (`id`, `tenant_id` FK, `name`, `email`, `company`, `plan`, `created_at`) + modelo + schema
+- [x] **T1.4** Seed de customers de prueba (al menos 3 por tenant)
+- [x] **T1.5** Crear tabla `user_tenants` (`user_id` FK, `tenant_id` FK, `role`, `created_at`) + modelo + schema
+- [x] **T1.6** Migrar datos: `users.tenant_id` → `user_tenants` (script de migración)
+- [x] **T1.7** Eliminar columna `tenant_id` de tabla `users` (después de migración)
+- [x] **T1.8** Agregar FK `customer_id` en tabla `tickets` (nullable) + actualizar modelo
+- [x] **T1.9** Crear tabla `ticket_tags` (`ticket_id` FK, `tag_id` FK) + modelo
+- [x] **T1.10** Crear tabla `article_tags` (`article_id` FK, `tag_id` FK) + modelo
+- [x] **T1.11** Migrar datos: `kb_articles.tags` (JSON) → `article_tags` (script de migración)
+- [x] **T1.12** Eliminar columna `tags` de tabla `kb_articles` (después de migración)
+- [x] **T1.13** Tests de modelos y migraciones
 
 ## Fase 2: Backend — Endpoints
 
-- [ ] **T2.1** Endpoint `POST /v1/ai/tickets/{id}/analyze` (ejecuta classify + summary + suggested-reply en paralelo con asyncio.gather)
-- [ ] **T2.2** Agregar lógica de `kb_recommendations` en `/analyze` (buscar artículos por categoría del ticket)
-- [ ] **T2.3** Agregar lógica de `pii_detected` en `/analyze` (usar `/v1/pii/redact` internamente)
-- [ ] **T2.4** Endpoint `GET /v1/tickets/{id}/tags` (lista tags del ticket)
-- [ ] **T2.5** Endpoint `POST /v1/tickets/{id}/tags` (agrega tag al ticket)
-- [ ] **T2.6** Endpoint `DELETE /v1/tickets/{id}/tags/{tag_id}` (quita tag del ticket)
-- [ ] **T2.7** Endpoint `GET /v1/customers` (lista customers del tenant)
-- [ ] **T2.8** Endpoint `GET /v1/customers/{id}` (detalle de customer)
-- [ ] **T2.9** Endpoint `GET /v1/tenants` (lista tenants, solo platform_admin)
-- [ ] **T2.10** Endpoint `GET /v1/tenants/{id}` (detalle de tenant)
-- [ ] **T2.11** Tests de todos los endpoints nuevos
+- [x] **T2.1** Endpoint `POST /v1/ai/tickets/{id}/analyze` (ejecuta classify + summary + suggested-reply en paralelo con asyncio.gather)
+- [x] **T2.2** Agregar lógica de `kb_recommendations` en `/analyze` (buscar artículos por categoría del ticket)
+- [x] **T2.3** Agregar lógica de `pii_detected` en `/analyze` (usar `/v1/pii/redact` internamente)
+- [x] **T2.4** Endpoint `GET /v1/tickets/{id}/tags` (lista tags del ticket)
+- [x] **T2.5** Endpoint `POST /v1/tickets/{id}/tags` (agrega tag al ticket)
+- [x] **T2.6** Endpoint `DELETE /v1/tickets/{id}/tags/{tag_id}` (quita tag del ticket)
+- [x] **T2.7** Endpoint `GET /v1/customers` (lista customers del tenant)
+- [x] **T2.8** Endpoint `GET /v1/customers/{id}` (detalle de customer)
+- [x] **T2.9** Endpoint `GET /v1/tenants` (lista tenants, solo platform_admin)
+- [x] **T2.10** Endpoint `GET /v1/tenants/{id}` (detalle de tenant)
+- [x] **T2.11** Tests de todos los endpoints nuevos
 
 ## Fase 3: Frontend — Tipos y BFF
 

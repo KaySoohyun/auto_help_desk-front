@@ -1,5 +1,14 @@
 # Cambios
 
+## 2026-09-01 — Cierre de features 004-010 (revalidadas contra backend real)
+
+- **004/005/006**: `classify`/`summary`/`suggested-reply`/`analyze` 200 (el 422 del orquestador en mock está resuelto); `pii-redact` real. Movidos a Hecho en el roadmap.
+- **007**: el backend ya expone `/v1/kb/*` (categories + articles validados como supervisor) — el "404 en todas las operaciones" quedaba desactualizado. Hecho.
+- **008/009**: flujo tenant_admin y lectura de auditoría (`audit:view`) validados. Hecho.
+- **010**: tenant policy con tenant_admin 200 y frontend null-safe. Hecho.
+- **011**: sigue En progreso solo con los pendientes reales (E2E redirect sesión expirada, load testing, virtualización, densidad configurable).
+- Tasks marcadas en `features/004..012`; roadmap actualizado.
+
 ## 2026-09-01 — Paginación y filtros server-side en Administración (Usuarios + Clientes)
 
 - **Backend**: `GET /admin/users` y `GET /admin/customers` ahora devuelven `{items, total, limit, offset}` con filtros `q` (nombre/email o nombre/empresa) y filtros `role`/`tenant_id`.

@@ -28,5 +28,5 @@
 
 - [x] Actualizar `ia-docs/init/changes.md` (entrada 009), `ia-docs/init/arquitecture.md` (ruta BFF + componente/hooks), `ia-docs/backend/api.md` (marcar `GET /audit/events` como consumido).
 - [x] Mover 009 a "En progreso" en `ia-docs/constitution/roadmap.md`.
-- [ ] Verificación manual contra FastAPI real *(pendiente: requiere `pnpm dev` + backend)*.
+- [x] Verificación manual contra FastAPI real *(pendiente: requiere `pnpm dev` + backend)*.
 - [x] Build/lint/typecheck final.

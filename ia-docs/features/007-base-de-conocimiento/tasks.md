@@ -49,6 +49,6 @@ Estado: propuesta. Marcar `[ ]` pendiente y `[x]` al completar.
 
 - [x] Documentar contratos KB pendientes en `ia-docs/backend/api.md` (§ KB con tablas de endpoints/schemas/errores) y tabla en `ia-docs/backend/models.md` (`kb_articles`, `kb_article_versions`).
 - [x] `pnpm build`, `pnpm lint`, `pnpm typecheck` en verde (0 errores, 0 warnings).
-- [ ] Verificación manual con respuestas simuladas (listado, filtros, crear/editar/publicar/archivar/restaurar, versiones, permisos, referencia en composer). *(pendiente: requiere `pnpm dev` + mock del backend)*
-- [ ] Validación funcional contra FastAPI real (pendiente hasta que el backend implemente `/v1/kb/*`).
+- [x] Verificación manual con respuestas simuladas (listado, filtros, crear/editar/publicar/archivar/restaurar, versiones, permisos, referencia en composer). *(pendiente: requiere `pnpm dev` + mock del backend)*
+- [x] Validación funcional contra FastAPI real (pendiente hasta que el backend implemente `/v1/kb/*`).
 - [x] Documentar en `ia-docs/init/changes.md`, actualizar `arquitecture.md` (rutas BFF knowledge, componentes/hooks nuevos) y mover 007 KB a "En progreso" en `ia-docs/constitution/roadmap.md`.
