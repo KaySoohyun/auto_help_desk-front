@@ -13,9 +13,9 @@ Cada cambio significativo debe documentarse en `ia-docs/init/`:
 - **Tipos**: las entidades se definen en `src/types/` (auth, ticket, knowledge, audit, llm). Sin `any` salvo justificación explícita.
 - **Estilos**: Tailwind CSS utility-first. No hay CSS modules ni styled-components.
 - **Componentes**: shadcn/ui en `src/components/ui/`, componentes de negocio en `src/components/features/<dominio>/`, layout en `src/components/layout/`.
-- **Formularios**: React Hook Form + Zod. Los schemas de validación viven en `src/lib/validation/` y se comparten entre cliente y BFF.
-- **Server state**: TanStack Query. Query keys siempre con tenant: `['tenant', tenantSlug, ...]`.
-- **Estado UI**: Zustand en `src/stores/` (sesión, tenant activo, preferencias, selección de tickets).
+- **Formularios**: React Hook Form + Zod. Los schemas se definen por formulario y por ruta BFF (no hay capa compartida en `src/lib/validation/`).
+- **Server state**: TanStack Query. Query keys siempre con tenant: `['tenant', tenantId ?? 'global', ...]`.
+- **Estado UI**: Zustand en `src/stores/` (`session.store.ts`, `ui.store.ts`).
 - **Archivos de configuración**: en la raíz del proyecto (`next.config.ts`, `components.json`, `tsconfig.json`, etc.).
 
 ## Server vs Client
@@ -28,7 +28,7 @@ Cada cambio significativo debe documentarse en `ia-docs/init/`:
 ## BFF y red
 
 - El navegador solo llama a `/api/bff/...` (Route Handlers). Nunca a FastAPI directamente.
-- Errores del BFF con formato tipado: `{ error: { code, message, details, correlationId } }`.
+- Errores del BFF con formato `{ error: <string>, correlation_id? }` (ver `src/lib/api/authenticated.ts` y `bffClient.ts`).
 - Mutations sin retry automático; GET con retry limitado; 401 dispara refresh en el BFF; 403/404 no se reintentan.
 - `AbortController` para cancelar queries al cambiar filtros y para detener streaming LLM.
 - Filtros y paginación viven en la URL (search params), parseados con Zod.

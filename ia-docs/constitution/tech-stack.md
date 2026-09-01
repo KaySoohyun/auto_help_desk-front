@@ -10,22 +10,22 @@ _Cómo está construido el proyecto y las reglas que todo el código debe respet
 - **Estado:** TanStack Query (server state) + Zustand (estado UI liviano).
 - **Formularios:** React Hook Form + Zod.
 - **Base de datos:** no aplica. El backend externo FastAPI es la fuente de verdad; el frontend solo consume vía BFF.
-- **Tests:** no hay suite configurada todavía (a definir en Fase 1).
+- **Tests:** suite funcional con Vitest en `tests/` (`pnpm test:functional`, que levanta `next dev -p 3199` y corre `vitest run` contra el BFF+FastAPI local).
 - **Despliegue:** a definir.
 
 ## Archivos / módulos clave
 
 - `proxy.ts` (ex `middleware.ts`) — protección de rutas y tenant (sesión básica, sin autorización fina).
-- `src/app/` — rutas del App Router (públicas, tenant, `api/bff/*`).
-- `src/app/api/bff/` — Route Handlers que actúan como BFF hacia FastAPI.
-- `src/components/ui/` — componentes shadcn/ui.
+- `src/app/[slug]/` — rutas del App Router bajo slug de tenant: `app/*` (consola), `panel/*` (portal de personas), `empresas/login` y `personas/login`.
+- `src/app/api/bff/` — Route Handlers que actúan como BFF hacia FastAPI (nunca se llama a FastAPI directo desde el cliente).
+- `src/components/ui/` — componentes shadcn/ui (incluye `pagination.tsx`, `dialog.tsx`, etc.).
 - `src/components/features/` — componentes de negocio por dominio (auth, tickets, llm, knowledge, admin, audit, shared).
 - `src/components/layout/` — AppShell, Sidebar, Topbar, TenantSwitcher.
-- `src/hooks/` — hooks custom por dominio.
-- `src/lib/` — api, auth, tenant, permissions, pii, audit, llm, validation, utils, constants.
-- `src/stores/` — session.store.ts, tenant.store.ts, ui.store.ts, ticket-selection.store.ts.
-- `src/types/` — auth, ticket, knowledge, audit, llm.
-- `src/styles/` — globals.css, themes.css (tokens de color).
+- `src/hooks/` — hooks custom por dominio (tickets, admin, auth, knowledge, audit, llm).
+- `src/lib/` — api, auth, tenant, permissions, pii, llm, utils, constants, format, csrf.
+- `src/stores/` — `session.store.ts` y `ui.store.ts` (estado UI liviano via Zustand).
+- `src/types/` — auth, ticket, knowledge, audit, llm, admin, agent, customer, persona, tag, tenant.
+- `src/styles/` — `themes.css` (tokens de color); `globals.css` vive en `src/app/`.
 - `ia-docs/` — spec, plan, arquitectura, convenciones, cambios, constitution, design.
 
 ## Comandos
@@ -38,19 +38,19 @@ _Cómo está construido el proyecto y las reglas que todo el código debe respet
 
 ## Modelo de datos / dominio
 
-- `Ticket` — estados `open|pending|waiting_customer|solved|closed`; prioridad `urgent|high|medium|low`; SLA `ok|at_risk|breached`; flags PII/LLM/riesgo.
-- `Message` — tipo público/interno (nota); el contenido del cliente es no confiable.
+- `Ticket` — estados `open|in_progress|on_hold|closed`; prioridad `urgent|high|medium|low`; flags PII/LLM/riesgo y `assignee {id,name,email,role}`.
+- `Message` — cuerpo del cliente no confiable; `author_name` para display.
 - `Article` — KB con estados `draft|published|archived` y versionado.
 - `LlmSuggestion` — siempre borrador; con suggestionId, modelVersion, confidence, sources, riesgos.
 - `AuditEvent` — usuario, acción, entidad, tenant, resultado; PII redactada según permiso.
-- Invariantes: los filtros viven en la URL; los tokens de sesión en cookies HttpOnly; query keys con tenant.
+- Invariantes: los filtros viven en la URL; los tokens de sesión en cookies HttpOnly; query keys con tenant (`['tenant', tenantId ?? 'global', ...]`).
 
 ## Convenciones
 
 - camelCase para variables y funciones; PascalCase para componentes y tipos.
 - Contenido visible en español (argentino); código, commits y tipos en inglés.
-- Manejo de errores con formato tipado `{ error: { code, message, details, correlationId } }`.
-- Validación con Zod compartida entre formularios y BFF.
+- Manejo de errores del BFF con formato `{ error: <string>, correlation_id? }` (ver `src/lib/api/authenticated.ts`).
+- Validación con Zod: schemas definidos por ruta del BFF y por formulario (no hay capa compartida).
 - Server Components para guards/layouts; Client Components para interacción.
 - Todo acceso al backend vía `/api/bff/...`; nunca FastAPI directo.
 - Documentar cada feature en `ia-docs/features/NN-nombre/` (spec → plan → tasks) antes de codear.

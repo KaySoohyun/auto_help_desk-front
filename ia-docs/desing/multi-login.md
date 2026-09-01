@@ -1,3 +1,5 @@
+> **DEPRECADO (mockup HTML)** — maqueta histórica de una stack anterior; no refleja el stack actual (Next.js App Router / shadcn / BFF). El contenido puede contradecir la misión (p. ej. respuestas IA automáticas). Ver `ia-docs/init/arquitecture.md` para la arquitectura vigente. Interactuar solo como referencia visual.
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { User, Building2, LifeBuoy, ArrowRight, MessageSquareText, ShieldCheck, Zap } from "lucide-react";

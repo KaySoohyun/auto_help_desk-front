@@ -1,5 +1,13 @@
 # Cambios
 
+## 2026-09-01 — Sincronización de ia-docs con el código real
+
+- `init/arquitecture.md` reescrito: estructura real (`/[slug]/{app,panel,empresas,personas}`), lista real de BFF routes, routing vigente, estados de ticket `open|in_progress|on_hold|closed`, admin con "Clientes" y paginación/filtros server-side, stores reales (`session`/`ui`), cookies (Secure solo prod), query keys con `tenantId`, `colors.md`–`themes.css`.
+- `init/conventions.md` y `constitution/tech-stack.md`: error BFF `{ error: string, correlation_id? }` (no envelope), Zod inline (no `lib/validation/`), stores reales.
+- `init/resumen.md`: register roles `agent|supervisor|customer` con `name`/`tenant_ids`, `UserOut` con `name`+`tenants`, CSRF doble submit (no Origin/Referer), API surface ampliada (analyze, admin/customers, KB, tags, agents, persona, tenants), roles con KB.
+- `backend/api.md` y `backend/models.md`: sincronizados con la referencia corregida del backend.
+- `desing/colors.md`: valores alineados a `themes.css`; mockups HTML del `desing/` marcados como deprecados.
+
 ## 2026-09-01 — Cierre de features 004-010 (revalidadas contra backend real)
 
 - **004/005/006**: `classify`/`summary`/`suggested-reply`/`analyze` 200 (el 422 del orquestador en mock está resuelto); `pii-redact` real. Movidos a Hecho en el roadmap.

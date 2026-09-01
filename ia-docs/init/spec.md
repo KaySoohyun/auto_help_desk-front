@@ -276,9 +276,7 @@ src/
 
   stores/
     session.store.ts
-    tenant.store.ts
     ui.store.ts
-    ticket-selection.store.ts
 
   types/
     auth.types.ts

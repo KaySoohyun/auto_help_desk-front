@@ -1,3 +1,5 @@
+> **DEPRECADO (mockup HTML)** — maqueta histórica de una stack anterior; no refleja el stack actual (Next.js App Router / shadcn / BFF). El contenido puede contradecir la misión (p. ej. respuestas IA automáticas). Ver `ia-docs/init/arquitecture.md` para la arquitectura vigente. Interactuar solo como referencia visual.
+
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";

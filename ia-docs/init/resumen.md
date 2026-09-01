@@ -12,7 +12,7 @@ Consola operativa de soporte **SaaS multi-tenant**: agentes resuelven tickets co
 - El humano manda, el LLM sugiere (nunca auto-envía ni auto-ejecuta).
 - Seguridad y PII primero (enmascarada por defecto; revelado con permiso y auditoría).
 - El backend FastAPI es la autoridad (valida tenant, permisos, PII, límites, auditoría).
-- Multi-tenant real: URL scoping `/tenant/[tenantSlug]/...`, cero fuga entre tenants.
+- Multi-tenant real: URL scoping `/[slug]/...` (slug de tenant como primer segmento), cero fuga entre tenants.
 - Desktop-first, denso pero legible, estados siempre visibles.
 
 ## 2. Stack
@@ -20,7 +20,7 @@ Consola operativa de soporte **SaaS multi-tenant**: agentes resuelven tickets co
 - Next.js App Router (React 19) + TypeScript estricto, Node 20+
 - Tailwind CSS 4 + shadcn/ui (new-york, tema neutral) + Lucide React
 - TanStack Query (server state) + Zustand (estado UI liviano)
-- React Hook Form + Zod (validación compartida cliente/BFF)
+- React Hook Form + Zod (schemas por formulario y por ruta BFF)
 - BFF en Route Handlers; backend FastAPI externo; **no hay DB en el frontend**
 - pnpm; ESLint + Prettier
 
@@ -36,29 +36,30 @@ Navegador ──► proxy.ts (sesión/tenant básico, ex middleware)
 
 - El navegador **solo** llama a `/api/bff/...`. Nunca FastAPI directo.
 - BFF guarda tokens en cookies HttpOnly, adjunta Authorization, maneja refresh en 401 (1 retry), tenant, CSRF y traducción de errores.
-- Error tipado BFF: `{ error: { code, message, details, correlationId } }`.
+- Error del BFF: `{ error: <string>, correlation_id? }`.
 - Server Components: guards, layouts, metadata, vistas solo-lectura. Client Components: tablas, filtros, composer, panel LLM, formularios.
 - Los guards de servidor nunca reemplazan la autorización del backend.
 
 ### Estructura de carpetas (resumen)
-- `src/app/` rutas públicas/login/tenant, `api/bff/*`, error/not-found
+- `src/app/` rutas bajo `/[slug]/{app,panel,empresas,personas}`, `api/bff/*`, `error.tsx`
 - `src/components/ui|layout|features/{auth,tickets,llm,knowledge,admin,audit,shared}`
-- `src/hooks/{auth,tickets,knowledge,audit,llm}` · `src/lib/{api,auth,tenant,permissions,pii,audit,llm,validation,utils,constants}`
-- `src/stores/` session, tenant, ui, ticket-selection · `src/types/` auth, ticket, knowledge, audit, llm · `src/styles/` globals.css, themes.css
+- `src/hooks/{auth,tickets,llm,knowledge,admin,audit}` · `src/lib/{api,auth,tenant,permissions,pii,llm,utils,constants,format,csrf}`
+- `src/stores/` session, ui · `src/types/` auth, ticket, knowledge, audit, llm, admin, agent, tag, tenant · `src/styles/` themes.css (globals.css en `src/app/`)
+- BFF de admin: `api/bff/admin/{users,customers,ai-policy,ai-policies/global,ai-info}`
 - `src/proxy.ts` (Next 16, ex middleware.ts) — guard liviano de rutas
 
 ## 4. Sesión y tenant
 
-- **Cookies:** `access_token` (HttpOnly, Secure, SameSite=Lax, Path=/, vida corta) · `refresh_token` (HttpOnly, Secure, SameSite=Strict, Path=/ para refresh automático en `/api/bff/me`) · `csrf_token` legible.
+- **Cookies:** `access_token` (HttpOnly, `Secure` solo en producción, SameSite=Lax, Path=/, vida corta) · `refresh_token` (HttpOnly, `Secure` solo en producción, SameSite=Lax/Strict, Path=/) · `csrf_token` legible (doble submit cookie+header).
 - Access expira 15 min; refresh 30 días con rotación (revoca el usado).
 - Refresco: ante 401 del backend, BFF refresca 1 vez y reintenta; si falla limpia sesión.
 - Logout: revoca refresh, borra cookies, limpia QueryClient y estado.
 - **Cambio de tenant: resetear QueryClient** (no reutilizar datos de otro tenant).
-- Reglas de navegación: 1 tenant → dashboard; varios → `/tenant/select`; auth en `/login` → dashboard/select; sin tenant → select.
+- Reglas de navegación: con sesión y 1 tenant → `/[slug]/app/tickets`; varios tenants → selector de tenant; sin tenant → selección/no acceso. `/app` redirige a `/app/tickets`.
 
 ## 5. Modelo de dominio (tipos en `src/types/`)
 
-- `Ticket`: status `open|in_progress|on_hold|closed` (arquitectura/spec mencionan también `pending|waiting_customer|solved`); priority `urgent|high|medium|low`; SLA `ok|at_risk|breached`; flags PII/LLM/riesgo.
+- `Ticket`: status `open|in_progress|on_hold|closed`; priority `urgent|high|medium|low`; `assignee {id,name,email,role}`; flags PII/LLM/riesgo. (No hay campo SLA.)
 - `Message`: público/interno (nota); contenido del cliente = **no confiable**.
 - `Article` (KB): `draft|published|archived`, versionado.
 - `LlmSuggestion`: suggestionId, type `classification|summary|reply`, state `draft|accepted|edited|rejected|flagged`, confidence, sources, riesgos, advertencias.
@@ -66,16 +67,17 @@ Navegador ──► proxy.ts (sesión/tenant básico, ex middleware)
 - Invariantes: filtros en URL; tokens en cookies HttpOnly; query keys con tenant.
 
 ### Query keys
-`['tenant', tenantSlug, 'tickets'|'ticket'|'knowledge'|'audit'|'dashboard'|'llm', ...]`
+`['tenant', tenantId ?? 'global', <dominio>, ...]` (ver `src/hooks/*/queryKeys.ts`)
 
 ## 6. Roles y permisos
 
 | Rol | Permisos (backend) |
 | --- | --- |
-| `agent` | tickets:read, ai:suggest, responses:edit, responses:send |
-| `supervisor` | + audit:view |
+| `agent` | tickets:read, ai:suggest, responses:edit, responses:send, kb:read |
+| `supervisor` | + audit:view, kb:edit, kb:publish |
 | `tenant_admin` | + tenant:configure |
 | `platform_admin` | + ai_policies:manage |
+| `customer` | persona:tickets (portal de personas) |
 
 - Matriz UI por rol en `src/lib/permissions.ts`; el backend decide siempre.
 - PII: agente 🔶, supervisor/admin ✅, auditor 🔶, solo lectura ❌. Auditor read-only.
@@ -84,26 +86,26 @@ Navegador ──► proxy.ts (sesión/tenant básico, ex middleware)
 
 Base URL `http://localhost:8000`. Auth: `Authorization: Bearer <access>`.
 
-- **Auth `/auth`:** register (solo agent/supervisor, 201/403/409), login (200 TokenResponse/401/403, acepta `tenant_id` opcional para multi-tenant), refresh (rotación, 200/401), logout (204), me (UserOut con lista de tenants), switch-tenant (cambiar tenant activo, 200), tenants (listar tenants del usuario, 200).
+- **Auth `/auth`:** register (roles `agent|supervisor|customer`, body con `name` obligatorio y `tenant_ids` opcional; 201/403/404/409), login (200 TokenResponse/401/403, acepta `tenant_id` opcional para multi-tenant), refresh (rotación, 200/401), logout (204), me (UserOut con `name` + lista de tenants), switch-tenant (cambiar tenant activo, 200), tenants (listar tenants del usuario, 200), clear-tenant (emitir tokens multi-tenant).
 - **Tickets `/v1/tickets`** (requieren tenant):
-  - POST `/v1/tickets` crear (201 TicketOut) · GET `/v1/tickets` listar con query params `status|categoría|priority|assignee_id|date_from|date_to|limit(1-200,def 50)|offset` → TicketListOut
-  - GET/PATCH `/v1/tickets/{id}` (PATCH: status, priority, category, assignee_id)
+  - POST `/v1/tickets` crear (201 TicketOut) · GET `/v1/tickets` listar con query params `status|categoría|priority|assignee_id|date_from|date_to|q|limit(1-200,def 50)|offset` → TicketListOut; GET `/v1/tickets/categories`
+  - GET/PATCH `/v1/tickets/{id}` (PATCH: status, priority, category, assignee_id con reglas por rol; respuestas incluyen `assignee` y `customer_id`) · tags: `GET/POST /v1/tickets/{id}/tags`, `DELETE .../tags/{tag_id}`
   - POST/GET `/v1/tickets/{id}/messages` · POST `/v1/tickets/{id}/close`
-- **Workspace:** GET `/v1/workspace/my-tickets` (bandeja del agente).
+- **Workspace:** GET `/v1/workspace/my-tickets` (bandeja del agente, acepta `q`). · **Agentes:** GET `/v1/agents` (selector de asignación).
 - **IA `/v1/ai`** (permiten 403 si IA deshabilitada, 422 guardrails, 429 rate, 503 global):
   - POST `/v1/ai/ping` · GET `/v1/ai/info` (audit:view)
-  - POST `/v1/ai/tickets/{id}/classify` · `/summary` · `/suggested-reply` (body `{tone?, language?}`)
-  - POST `/v1/ai/tickets/{id}/feedback` (`action: accepted|edited|rejected|flagged`) · GET `/v1/ai/tickets/{id}/suggestions`
+  - POST `/v1/ai/tickets/{id}/classify` · `/summary` · `/suggested-reply` (body `{tone?, language?}`) · `/analyze` (paralelo + KB/PII/riesgos)
+  - POST `/v1/ai/tickets/{id}/feedback` (`action: accepted|edited|rejected|flagged`, `edited_output` opcional) · GET `/v1/ai/tickets/{id}/suggestions`
 - **PII:** POST `/v1/pii/redact` (`mode: off|detect|redact`).
-- **Admin `/admin`** (CONFIGURE_TENANT; global requiere MANAGE_AI_POLICIES): users CRUD, ai-policy del tenant, ai-policies/global.
+- **Admin `/admin`** (CONFIGURE_TENANT; global requiere MANAGE_AI_POLICIES): `GET /admin/users` (envelope `{items,total,limit,offset}` + filtros `q`/`role`, excluye clientes), users CRUD (con `name`), **`GET /admin/customers`** (clientes con email enmascarado), ai-policy del tenant, ai-policies/global. · **Tags:** GET/POST `/v1/tags`. · **Persona:** `/v1/me` y `/v1/me/tickets/*`. · **Tenants:** `/v1/tenants/public` (sin auth) y `/v1/tenants(/{id})`. · **KB:** `/v1/kb/categories` y `/v1/kb/articles/*`.
 - **Auditoría:** GET `/audit/events` (filtros por action/service/user_id/result/fechas; paginado).
 - **Métricas:** GET `/v1/metrics` (Prometheus).
 - **Errores:** `{ "detail": "..." }`; 401/403/404/409/422/429/503.
 
 ### Schemas clave de respuesta
-- `UserOut`: id, email, role, tenant_id, is_active, created_at
+- `UserOut`: id, email, name, role, tenant_id, is_active, created_at, tenants[]
 - `TicketListOut`: `{ items: [TicketSummaryOut sin description], total, limit, offset }`
-- `ClassificationOut`: category, subcategory, intent, suggested_priority, confidence, rationale, warnings, suggestion_id, trace_id
+- `ClassificationOut`: category, suggested_priority, confidence, warnings, suggestion_id, trace_id
 - `SummaryOut`: summary, missing_information, confidence, warnings, suggestion_id, trace_id
 - `SuggestedReplyOut`: suggested_reply, confidence, sources, policy_flags, warnings, suggestion_id, trace_id
 - `SuggestionOut`: id, type, state, confidence, model, prompt_version, output (sin PII), created_at
@@ -117,7 +119,7 @@ Base URL `http://localhost:8000`. Auth: `Authorization: Bearer <access>`.
 - Sin `dangerouslySetInnerHTML` salvo sanitización explícita; contenido del cliente nunca HTML confiable; CSP estricta; tokens nunca en localStorage/URL/logs.
 - Prompt injection: warning visible, confianza baja, bloqueo de apply automático.
 - Toda sugerencia LLM es borrador editable; nunca se envía automáticamente; auditar generación/aceptación/edición/rechazo/feedback/envío.
-- CSRF: cookies SameSite Lax/Strict + validación Origin/Referer en mutations; no GET para mutaciones.
+- CSRF: doble submit cookie+header (`csrf_token`, comparación con `timingSafeEqual`) en métodos mutantes; no GET para mutaciones.
 - `no-store` para datos sensibles en fetch server-side; no persistir query cache sensible en storage.
 - Mutation sin retry automático; GET retry limitado; 401→refresh; 403/404 sin retry; AbortController para filtros y streaming.
 
